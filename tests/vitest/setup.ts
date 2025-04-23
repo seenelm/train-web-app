@@ -1,10 +1,11 @@
 import '@testing-library/jest-dom';
-import { expect, afterEach } from 'vitest';
+import { afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
-import matchers from '@testing-library/jest-dom/matchers';
 
-// Extend Vitest's expect with testing-library matchers
-expect.extend(matchers);
+// Set up global mocks for assets
+vi.mock('**/*.svg', () => ({
+  default: 'mocked-svg-path'
+}));
 
 // Clean up after each test
 afterEach(() => {

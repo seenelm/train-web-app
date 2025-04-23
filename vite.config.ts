@@ -11,5 +11,6 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/vitest/setup.ts'],
     css: false,
+    exclude: ['**/node_modules/**', '**/tests/playwright/**', '**/tests/jest/**'],
   },
 })
