@@ -32,8 +32,9 @@ import {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${idToken}`
           },
-          body: JSON.stringify({ idToken, name }),
+          body: JSON.stringify({ name }),
         });
         
         if (!response.ok) {
