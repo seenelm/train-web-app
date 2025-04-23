@@ -24,20 +24,33 @@ const Login = () => {
     }, 1500);
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleSignIn = async (provider: 'google' | 'facebook') => {
     try {
       setIsLoading(true);
       setError(null);
-      const userData = await authService.signInWithGoogle();
+  
+      let userData;
+  
+      if (provider === 'google') {
+        userData = await authService.signInWithGoogle();
+      } else if (provider === 'facebook') {
+        userData = await authService.signInWithFacebook();
+      } else {
+        throw new Error('Unsupported provider');
+      }
+  
       setUser(authService.getCurrentUser());
-      console.log('Successfully signed in with Google:', userData);
+      console.log(`Successfully signed in with ${provider}:`, userData);
     } catch (err) {
-      console.error('Google sign-in error:', err);
-      setError('Failed to sign in with Google. Please try again.');
+      console.error(`${provider} sign-in error:`, err);
+      setError(`Failed to sign in with ${provider}. Please try again.`);
     } finally {
       setIsLoading(false);
     }
   };
+  
+
+
 
   const handleSignOut = async () => {
     try {
@@ -127,7 +140,7 @@ const Login = () => {
             <div className="social-login">
               <p>Or sign in with</p>
               <button 
-                onClick={handleGoogleSignIn} 
+                onClick={() => handleSignIn('google')} 
                 className="google-signin-button" 
                 disabled={isLoading}
                 type="button"
@@ -137,6 +150,13 @@ const Login = () => {
                 </svg>
                 Google
               </button>
+              <button
+                onClick={() => handleSignIn('facebook')}
+                className="google-signin-button"
+                disabled={isLoading}
+                type="button"
+                > Facebook
+                </button>
             </div>
           </>
         )}
