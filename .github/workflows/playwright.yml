@@ -20,10 +20,7 @@ jobs:
       run: npm ci
     - name: Install Playwright Browsers
       run: npx playwright install chromium --with-deps
-    - name: Start development server
-      run: npm run dev &
-    - name: Wait for server
-      run: |
-        npx wait-on http://localhost:5173
     - name: Run Playwright tests
+      env:
+        BASE_URL: ${{ secrets.STAGING_URL || 'http://localhost:5173' }}
       run: npx playwright test --project=chromium 
