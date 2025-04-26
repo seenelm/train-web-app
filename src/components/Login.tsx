@@ -1,15 +1,16 @@
 import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import '../styles/login.css';
 import { authService } from '../services/authService';
 import logo from '../assets/logo.svg';
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState(authService.getCurrentUser());
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,28 +40,11 @@ const Login = () => {
         throw new Error('Unsupported provider');
       }
   
-      setUser(authService.getCurrentUser());
       console.log(`Successfully signed in with ${provider}:`, userData);
+      navigate('/');
     } catch (err) {
       console.error(`${provider} sign-in error:`, err);
       setError(`Failed to sign in with ${provider}. Please try again.`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-
-
-
-  const handleSignOut = async () => {
-    try {
-      setIsLoading(true);
-      await authService.signOut();
-      setUser(null);
-      console.log('Successfully signed out');
-    } catch (err) {
-      console.error('Sign out error:', err);
-      setError('Failed to sign out. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -76,21 +60,7 @@ const Login = () => {
           <h1>Welcome Back</h1>
           <p>Please sign in to continue</p>
         </div>
-        
-        {user ? (
-          <div className="logged-in-container">
-            <p className="welcome-message">Welcome, {user.name || 'User'}!</p>
-            <p className="user-info">You are signed in.</p>
-            <button 
-              onClick={handleSignOut} 
-              className="login-button" 
-              disabled={isLoading}
-            >
-              {isLoading ? 'Signing Out...' : 'Sign Out'}
-            </button>
-          </div>
-        ) : (
-          <>
+        <>
             <form onSubmit={handleSubmit} className="login-form">
               <div className="form-group">
                 <label htmlFor="email">Email</label>
@@ -152,12 +122,11 @@ const Login = () => {
               </button>
             </div>
           </>
-        )}
-        
         {error && <p className="error-message">{error}</p>}
         
         <div className="login-footer">
           <p>Don't have an account? <a href="#">Sign up</a></p>
+          <p>By signing in, you agree to our <Link to="/privacy">Privacy Policy</Link> and <Link to="/terms-of-service">Terms of Service</Link>.</p>
         </div>
       </div>
     </div>

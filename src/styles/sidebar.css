@@ -1,0 +1,163 @@
+/* Sidebar container */
+.sidebar-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+/* Sidebar styles */
+.sidebar {
+  background-color: #1a1a1a;
+  color: white;
+  height: calc(100% - 40px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  border-radius: 16px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+/* Expanded and collapsed states */
+.sidebar.expanded {
+  width: 220px;
+}
+
+.sidebar.collapsed {
+  width: 70px;
+}
+
+/* Sidebar logo */
+.sidebar-logo {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid #2a2a2a;
+  cursor: pointer;
+}
+
+.sidebar-logo img {
+  max-width: 30px;
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-logo:hover img {
+  transform: scale(1.1);
+}
+
+/* Sidebar tabs */
+.sidebar-tabs {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  flex-grow: 1;
+}
+
+.sidebar-tab {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+  margin-bottom: 8px;
+}
+
+.sidebar.expanded .sidebar-tab {
+  padding: 12px 24px 12px 20px;
+}
+
+.sidebar-tab:hover {
+  background-color: #2a2a2a;
+}
+
+.sidebar-tab.active {
+  background-color: #2a2a2a;
+  border-left: 3px solid white;
+}
+
+/* Sign out button */
+.sidebar-signout {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+  margin-top: auto;
+  margin-bottom: 8px;
+  color: #ff6b6b;
+}
+
+.sidebar.expanded .sidebar-signout {
+  padding: 12px 24px 12px 20px;
+}
+
+.sidebar-signout:hover {
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+.tab-icon {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+}
+
+.tab-label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-left: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar.expanded .tab-label {
+  opacity: 1;
+}
+
+/* Toggle button */
+.sidebar-toggle {
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-top: 1px solid #2a2a2a;
+  font-size: 18px;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+  background-color: #2a2a2a;
+}
+
+/* Content area */
+.content-area {
+  flex: 1;
+  padding: 24px 24px 24px 110px;
+  background-color: white;
+  overflow-y: auto;
+  transition: padding 0.3s ease;
+}
+
+.sidebar.expanded + .content-area {
+  padding-left: 260px;
+}
+
+.tab-content {
+  height: 100%;
+}
+
+.tab-panel {
+  height: 100%;
+}
