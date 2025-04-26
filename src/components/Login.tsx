@@ -24,7 +24,7 @@ const Login = () => {
     }, 1500);
   };
 
-  const handleSignIn = async (provider: 'google' | 'facebook') => {
+  const handleSignIn = async (provider: 'google' | 'local') => {
     try {
       setIsLoading(true);
       setError(null);
@@ -33,8 +33,8 @@ const Login = () => {
   
       if (provider === 'google') {
         userData = await authService.signInWithGoogle();
-      } else if (provider === 'facebook') {
-        userData = await authService.signInWithFacebook();
+      } else if (provider === 'local') {
+        userData = await authService.signInWithLocal(email, password);
       } else {
         throw new Error('Unsupported provider');
       }
@@ -132,7 +132,7 @@ const Login = () => {
                 <a href="#" className="forgot-password">Forgot password?</a>
               </div>
               
-              <button type="submit" className="login-button" disabled={isLoading}>
+              <button type="submit" className="login-button" onClick={() => handleSignIn('local')}>
                 {isLoading ? 'Signing In...' : 'Sign In'}
               </button>
             </form>
@@ -150,13 +150,6 @@ const Login = () => {
                 </svg>
                 Google
               </button>
-              <button
-                onClick={() => handleSignIn('facebook')}
-                className="google-signin-button"
-                disabled={isLoading}
-                type="button"
-                > Facebook
-                </button>
             </div>
           </>
         )}

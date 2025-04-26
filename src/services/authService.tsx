@@ -1,34 +1,43 @@
 import { 
     GoogleAuthProvider, 
-    FacebookAuthProvider,
     signInWithPopup,
-    signOut as firebaseSignOut
+    signOut as firebaseSignOut,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword
   } from 'firebase/auth';
   import { auth } from '../firebase/firebase';
   
   const API_URL = import.meta.env.VITE_API_URL;
   
   export const authService = {
-    async signInWithFacebook() {
+    async signUpWithLocal(email: string, password: string) {
       try {
-        const provider = new FacebookAuthProvider();
-        const result = await signInWithPopup(auth, provider);
-        
-        // Get the ID token
-        const idToken = await result.user.getIdToken();
-        
-        // Send the token to your backend
-        return this.authenticateWithProvider(idToken, result.user.displayName, `${API_URL}/facebook-auth`);
+        const response = await createUserWithEmailAndPassword(auth, email, password);
+        const idToken = await response.user.getIdToken();
+        return this.authenticateWithProvider(idToken, response.user.displayName, `${API_URL}/register`);
       } catch (error) {
-        console.error('Error signing in with Facebook:', error);
+        console.error('Error signing up with local credentials:', error);
         throw error;
       }
     },
-
+    
+    async signInWithLocal(email: string, password: string) {
+      try {
+        const response = await signInWithEmailAndPassword(auth, email, password);
+        const idToken = await response.user.getIdToken();
+        return this.authenticateWithProvider(idToken, response.user.displayName, `${API_URL}/login`);
+      } catch (error) {
+        console.error('Error signing in with local credentials:', error);
+        throw error;
+      }
+    },
     // Sign in with Google
     async signInWithGoogle() {
       try {
         const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({
+          prompt: 'select_account'
+        });
         const result = await signInWithPopup(auth, provider);
         
         // Get the ID token
@@ -49,8 +58,9 @@ import {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${idToken}`
           },
-          body: JSON.stringify({ idToken, name }),
+          body: JSON.stringify({ name }),
         });
         
         if (!response.ok) {
