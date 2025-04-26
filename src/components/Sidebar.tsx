@@ -1,9 +1,9 @@
-import React, { useState, ReactElement } from 'react';
+import React, { useState, ReactElement, useEffect, useRef } from 'react';
 import '../styles/sidebar.css';
 import logo from '../assets/logo-white.svg';
 import { authService } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
-import { AiOutlineLogout } from 'react-icons/ai';
+import { AiOutlineLogout, AiOutlineMenu } from 'react-icons/ai';
 
 // Define the tab interface
 interface TabItem {
@@ -55,9 +55,30 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [activeTab, setActiveTab] = useState(defaultActiveTab || (tabs.length > 0 ? tabs[0].id : ''));
   const [expanded, setExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+        setExpanded(false);
+      }
+    };
+
+    if (expanded) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [expanded]);
 
   const handleTabClick = (tabId: string) => {
     setActiveTab(tabId);
+    // On mobile, close the sidebar after clicking a tab
+    if (window.innerWidth <= 768) {
+      setExpanded(false);
+    }
   };
 
   const toggleSidebar = () => {
@@ -79,7 +100,10 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <div className="sidebar-container">
-      <div className={`sidebar ${expanded ? 'expanded' : 'collapsed'}`}>
+      <button className="mobile-menu-button" onClick={toggleSidebar}>
+        <AiOutlineMenu />
+      </button>
+      <div ref={sidebarRef} className={`sidebar ${expanded ? 'expanded' : 'collapsed'}`}>
         <div className="sidebar-logo" onClick={toggleSidebar}>
           <img src={logo} alt="Train Logo" />
         </div>
