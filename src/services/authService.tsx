@@ -1,24 +1,50 @@
 import { 
     GoogleAuthProvider, 
     signInWithPopup,
-    signOut as firebaseSignOut
+    signOut as firebaseSignOut,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword
   } from 'firebase/auth';
   import { auth } from '../firebase/firebase';
   
   const API_URL = import.meta.env.VITE_API_URL;
   
   export const authService = {
+    async signUpWithLocal(email: string, password: string) {
+      try {
+        const response = await createUserWithEmailAndPassword(auth, email, password);
+        const idToken = await response.user.getIdToken();
+        return this.authenticateWithProvider(idToken, response.user.displayName, `${API_URL}/register`);
+      } catch (error) {
+        console.error('Error signing up with local credentials:', error);
+        throw error;
+      }
+    },
+    
+    async signInWithLocal(email: string, password: string) {
+      try {
+        const response = await signInWithEmailAndPassword(auth, email, password);
+        const idToken = await response.user.getIdToken();
+        return this.authenticateWithProvider(idToken, response.user.displayName, `${API_URL}/login`);
+      } catch (error) {
+        console.error('Error signing in with local credentials:', error);
+        throw error;
+      }
+    },
     // Sign in with Google
     async signInWithGoogle() {
       try {
         const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({
+          prompt: 'select_account'
+        });
         const result = await signInWithPopup(auth, provider);
         
         // Get the ID token
         const idToken = await result.user.getIdToken();
         
         // Send the token to your backend
-        return this.authenticateWithGoogle(idToken, result.user.displayName);
+        return this.authenticateWithProvider(idToken, result.user.displayName, `${API_URL}/google-auth`);
       } catch (error) {
         console.error('Error signing in with Google:', error);
         throw error;
@@ -26,9 +52,9 @@ import {
     },
     
     // Send the Google ID token to your backend
-    async authenticateWithGoogle(idToken: string, name: string | null) {
+    async authenticateWithProvider(idToken: string, name: string | null, url: string) {
       try {
-        const response = await fetch(`${API_URL}/google-auth`, {
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -57,7 +83,7 @@ import {
         throw error;
       }
     },
-    
+
     // Sign out
     async signOut() {
       try {
