@@ -1,5 +1,8 @@
 # Train Web App
 
+[![Tests](https://github.com/[your-username]/train-web-app/actions/workflows/test.yml/badge.svg)](https://github.com/[your-username]/train-web-app/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/[your-username]/train-web-app/branch/main/graph/badge.svg)](https://codecov.io/gh/[your-username]/train-web-app)
+
 A modern, secure authentication web application built with React, TypeScript, and Firebase.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
@@ -122,3 +125,26 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Firebase](https://firebase.google.com/)
 - [Vite](https://vitejs.dev/)
 - [TailwindCSS](https://tailwindcss.com/)
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Run tests
+npm test          # Run unit tests
+npm run test:e2e  # Run E2E tests
+```
+
+## Testing
+
+This project uses:
+- Vitest for unit testing
+- Playwright for E2E testing
+- GitHub Actions for CI/CD
+
+Test reports for E2E tests are automatically uploaded as artifacts in GitHub Actions.
