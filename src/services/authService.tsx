@@ -6,10 +6,35 @@ import {
     createUserWithEmailAndPassword
   } from 'firebase/auth';
   import { auth } from '../firebase/firebase';
+  import api from './apiClient';
+  import { UserRequest, UserLoginRequest } from '@seenelm/train-core';
+  import { tokenService } from './tokenService';
   
   const API_URL = import.meta.env.VITE_API_URL;
   
   export const authService = {
+    async register(userRequest: UserRequest) {
+      try {
+        const response = await api.post(`${API_URL}/user/register`, userRequest);
+        tokenService.setTokens(response.data.token, response.data.refreshToken);
+        return response.data;
+      } catch (error) {
+        console.error('Error registering user:', error);
+        throw error;
+      }
+    },
+
+    async login(userLoginRequest: UserLoginRequest) {
+      try {
+        const response = await api.post(`${API_URL}/user/login`, userLoginRequest);
+        tokenService.setTokens(response.data.token, response.data.refreshToken);
+        return response.data;
+      } catch (error) {
+        console.error('Error logging in user:', error);
+        throw error;
+      }
+    },
+
     async signUpWithLocal(email: string, password: string) {
       try {
         const response = await createUserWithEmailAndPassword(auth, email, password);
@@ -104,7 +129,7 @@ import {
     
     // Get JWT token
     getToken() {
-      return localStorage.getItem('token');
+      return tokenService.getAccessToken();
     },
     
     // Check if user is authenticated

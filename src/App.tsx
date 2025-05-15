@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router";
 import { JSX, useEffect, useState } from "react";
 import Login from './components/Login';
+import Registration from './components/Registration';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Sidebar, { TabPanel } from './components/Sidebar';
 import { AiOutlineHome, AiOutlineUser, AiOutlineSetting, AiOutlineQuestionCircle } from 'react-icons/ai';
@@ -17,15 +18,15 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   return children;
 };
 
-// Login route component - redirects to dashboard if already authenticated
-const LoginRoute = () => {
+// Login/Register route component - redirects to dashboard if already authenticated
+const AuthRoute = ({ children }: { children: JSX.Element }) => {
   const isAuthenticated = authService.isAuthenticated();
   
   if (isAuthenticated) {
     return <Navigate to="/" replace />;
   }
   
-  return <Login />;
+  return children;
 };
 
 // Dashboard component with tabs
@@ -91,7 +92,16 @@ function App() {
             <Dashboard />
           </ProtectedRoute>
         } />
-        <Route path="/login" element={<LoginRoute />} />
+        <Route path="/login" element={
+          <AuthRoute>
+            <Login />
+          </AuthRoute>
+        } />
+        <Route path="/register" element={
+          <AuthRoute>
+            <Registration />
+          </AuthRoute>
+        } />
         <Route path="/privacy" element={<PrivacyPolicy />} />
       </Routes>
     </div>
