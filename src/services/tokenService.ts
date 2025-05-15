@@ -1,24 +1,26 @@
 import { v4 as uuidv4 } from "uuid";
 
-export function setTokens(accessToken: string, refreshToken: string) {
-  localStorage.setItem("accessToken", accessToken);
-  localStorage.setItem("refreshToken", refreshToken);
-}
+export const tokenService = {
+  setTokens(accessToken: string, refreshToken: string) {
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+  },
 
-export function getAccessToken() {
-  return localStorage.getItem("accessToken");
-}
+  getAccessToken() {
+    return localStorage.getItem("accessToken");
+  },
 
-export function getRefreshToken() {
-  return localStorage.getItem("refreshToken");
-}
+  getRefreshToken() {
+    return localStorage.getItem("refreshToken");
+  },
 
-export function getDeviceId() {
-  const deviceId = localStorage.getItem("deviceId");
-  if (!deviceId) {
-    return generateDeviceId();
+  getDeviceId() {
+    const deviceId = localStorage.getItem("deviceId");
+    if (!deviceId) {
+      return generateDeviceId();
+    }
+    return deviceId;
   }
-  return deviceId;
 }
 
 function generateDeviceId(): string {

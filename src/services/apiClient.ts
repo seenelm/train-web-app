@@ -1,10 +1,5 @@
 import axios from "axios";
-import {
-  getAccessToken,
-  getRefreshToken,
-  setTokens,
-  getDeviceId,
-} from "./tokenService";
+import { tokenService } from "./tokenService";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -13,7 +8,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = getAccessToken();
+  const token = tokenService.getAccessToken();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -21,13 +16,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
-    if (err.response?.status === 401 && getRefreshToken()) {
+    if (err.response?.status === 401 && tokenService.getRefreshToken()) {
       try {
         const res = await axios.post(`${API_URL}/user/refresh`, {
-          refreshToken: getRefreshToken(),
-          deviceId: getDeviceId(),
+          refreshToken: tokenService.getRefreshToken(),
+          deviceId: tokenService.getDeviceId(),
         });
-        setTokens(res.data.accessToken, res.data.refreshToken);
+        tokenService.setTokens(res.data.accessToken, res.data.refreshToken);
         err.config.headers.Authorization = `Bearer ${res.data.accessToken}`;
         return axios(err.config);
       } catch {

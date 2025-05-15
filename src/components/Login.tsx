@@ -125,7 +125,7 @@ const Login = () => {
         {error && <p className="error-message">{error}</p>}
         
         <div className="login-footer">
-          <p>Don't have an account? <a href="#">Sign up</a></p>
+          <p>Don't have an account? <Link to="/register">Sign up</Link></p>
           <p>By signing in, you agree to our <Link to="/privacy">Privacy Policy</Link> and <Link to="/terms-of-service">Terms of Service</Link>.</p>
         </div>
       </div>
