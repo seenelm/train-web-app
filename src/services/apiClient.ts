@@ -25,9 +25,19 @@ api.interceptors.response.use(
         tokenService.setTokens(res.data.accessToken, res.data.refreshToken);
         err.config.headers.Authorization = `Bearer ${res.data.accessToken}`;
         return axios(err.config);
-      } catch {
-        // What happens if refresh token is invalid?
-        // redirect to login
+      } catch (refreshError: any) {
+        if (refreshError.response?.status === 403) {
+          // Handle refresh token failure (expired or invalid)
+          tokenService.clearTokens();
+          
+          // Redirect to login page
+          window.location.href = "/login?expired=true";
+          
+          // Return a rejected promise to stop further processing
+          return Promise.reject(refreshError);
+        } else {
+          throw refreshError;
+        }
       }
     }
     return Promise.reject(err);

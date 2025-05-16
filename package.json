@@ -1,7 +1,7 @@
 {
   "name": "train-web-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
@@ -18,7 +18,7 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
-    "@seenelm/train-core": "^1.0.1",
+    "@seenelm/train-core": "^1.0.2",
     "@tailwindcss/vite": "^4.1.4",
     "axios": "^1.9.0",
     "firebase": "^11.6.0",

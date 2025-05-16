@@ -14,6 +14,11 @@ export const tokenService = {
     return localStorage.getItem("refreshToken");
   },
 
+  clearTokens() {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+  },
+
   getDeviceId() {
     const deviceId = localStorage.getItem("deviceId");
     if (!deviceId) {
