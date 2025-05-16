@@ -1,16 +1,30 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import '../styles/login.css';
 import { authService } from '../services/authService';
 import logo from '../assets/logo.svg';
+import { tokenService } from '../services/tokenService';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
+
+  useEffect(() => {
+    // Check if redirected due to expired session
+    const queryParams = new URLSearchParams(location.search);
+    const expired = queryParams.get('expired') === 'true';
+    
+    if (expired) {
+      setSessionExpired(true);
+      setError('Your session has expired. Please sign in again.');
+    }
+  }, [location]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,13 +43,14 @@ const Login = () => {
     try {
       setIsLoading(true);
       setError(null);
+      setSessionExpired(false);
   
       let userData;
   
       if (provider === 'google') {
         userData = await authService.signInWithGoogle();
       } else if (provider === 'local') {
-        userData = await authService.signInWithLocal(email, password);
+        userData = await authService.login({ email, password, deviceId: tokenService.getDeviceId() });
       } else {
         throw new Error('Unsupported provider');
       }
@@ -60,6 +75,11 @@ const Login = () => {
           <h1>Welcome Back</h1>
           <p>Please sign in to continue</p>
         </div>
+        {sessionExpired && (
+          <div className="session-expired-alert">
+            Your session has expired. Please sign in again.
+          </div>
+        )}
         <>
             <form onSubmit={handleSubmit} className="login-form">
               <div className="form-group">

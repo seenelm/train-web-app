@@ -2,8 +2,6 @@ import {
     GoogleAuthProvider, 
     signInWithPopup,
     signOut as firebaseSignOut,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword
   } from 'firebase/auth';
   import { auth } from '../firebase/firebase';
   import api from './apiClient';
@@ -35,27 +33,6 @@ import {
       }
     },
 
-    async signUpWithLocal(email: string, password: string) {
-      try {
-        const response = await createUserWithEmailAndPassword(auth, email, password);
-        const idToken = await response.user.getIdToken();
-        return this.authenticateWithProvider(idToken, response.user.displayName, `${API_URL}/register`);
-      } catch (error) {
-        console.error('Error signing up with local credentials:', error);
-        throw error;
-      }
-    },
-    
-    async signInWithLocal(email: string, password: string) {
-      try {
-        const response = await signInWithEmailAndPassword(auth, email, password);
-        const idToken = await response.user.getIdToken();
-        return this.authenticateWithProvider(idToken, response.user.displayName, `${API_URL}/login`);
-      } catch (error) {
-        console.error('Error signing in with local credentials:', error);
-        throw error;
-      }
-    },
     // Sign in with Google
     async signInWithGoogle() {
       try {
@@ -68,8 +45,27 @@ import {
         // Get the ID token
         const idToken = await result.user.getIdToken();
         
-        // Send the token to your backend
-        return this.authenticateWithProvider(idToken, result.user.displayName, `${API_URL}/google-auth`);
+        // Send the token to your backend with device ID
+        const response = await api.post(`${API_URL}/user/google-auth`, {
+          name: result.user.displayName,
+          deviceId: tokenService.getDeviceId()
+        }, {
+          headers: {
+            Authorization: `Bearer ${idToken}`
+          }
+        });
+        
+        // Store tokens using tokenService
+        tokenService.setTokens(response.data.token, response.data.refreshToken);
+        
+        // Store user data
+        localStorage.setItem('user', JSON.stringify({
+          userId: response.data.userId,
+          username: response.data.username,
+          name: response.data.name
+        }));
+        
+        return response.data;
       } catch (error) {
         console.error('Error signing in with Google:', error);
         throw error;
@@ -112,9 +108,22 @@ import {
     // Sign out
     async signOut() {
       try {
+        // Call the signout endpoint first
+        if (this.isAuthenticated()) {
+          try {
+            await api.post(`${API_URL}/user/logout`);
+          } catch (signoutError) {
+            console.error('Error calling signout endpoint:', signoutError);
+            // Continue with local signout even if the API call fails
+          }
+        }
+        
         await firebaseSignOut(auth);
+        // Clear old tokens
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        // Clear access and refresh tokens
+        tokenService.clearTokens();
       } catch (error) {
         console.error('Error signing out:', error);
         throw error;
