@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from "react-router";
 import { JSX, useEffect, useState } from "react";
 import Login from './components/Login';
 import Registration from './components/Registration';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Sidebar, { TabPanel } from './components/Sidebar';
 import { AiOutlineHome, AiOutlineUser, AiOutlineSetting, AiOutlineQuestionCircle } from 'react-icons/ai';
@@ -100,6 +102,16 @@ function App() {
         <Route path="/register" element={
           <AuthRoute>
             <Registration />
+          </AuthRoute>
+        } />
+        <Route path="/forgot-password" element={
+          <AuthRoute>
+            <ForgotPassword />
+          </AuthRoute>
+        } />
+        <Route path="/reset-password" element={
+          <AuthRoute>
+            <ResetPassword />
           </AuthRoute>
         } />
         <Route path="/privacy" element={<PrivacyPolicy />} />

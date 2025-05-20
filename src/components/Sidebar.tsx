@@ -4,6 +4,9 @@ import logo from '../assets/logo-white.svg';
 import { authService } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 import { AiOutlineLogout, AiOutlineMenu } from 'react-icons/ai';
+import { LogoutRequest } from '@seenelm/train-core';
+import { tokenService } from '../services/tokenService';
+
 
 // Define the tab interface
 interface TabItem {
@@ -86,9 +89,13 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const handleSignOut = async () => {
+    const logoutRequest: LogoutRequest = {
+      deviceId: tokenService.getDeviceId(),
+      refreshToken: tokenService.getRefreshToken() || ''
+    };
     try {
       setIsLoading(true);
-      await authService.signOut();
+      await authService.logout(logoutRequest);
       console.log('Successfully signed out');
       navigate('/login');
     } catch (err) {
