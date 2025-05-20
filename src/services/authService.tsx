@@ -5,7 +5,13 @@ import {
   } from 'firebase/auth';
   import { auth } from '../firebase/firebase';
   import api from './apiClient';
-  import { UserRequest, UserLoginRequest } from '@seenelm/train-core';
+  import { 
+    UserRequest, 
+    UserLoginRequest, 
+    LogoutRequest,
+    RequestPasswordResetRequest,
+    ResetPasswordWithCodeRequest
+  } from '@seenelm/train-core';
   import { tokenService } from './tokenService';
   
   const API_URL = import.meta.env.VITE_API_URL;
@@ -14,7 +20,7 @@ import {
     async register(userRequest: UserRequest) {
       try {
         const response = await api.post(`${API_URL}/user/register`, userRequest);
-        tokenService.setTokens(response.data.token, response.data.refreshToken);
+        tokenService.setTokens(response.data.token, response.data.refreshToken, response.data.userId, response.data.username, response.data.name);
         return response.data;
       } catch (error) {
         console.error('Error registering user:', error);
@@ -25,10 +31,28 @@ import {
     async login(userLoginRequest: UserLoginRequest) {
       try {
         const response = await api.post(`${API_URL}/user/login`, userLoginRequest);
-        tokenService.setTokens(response.data.token, response.data.refreshToken);
+        tokenService.setTokens(response.data.token, response.data.refreshToken, response.data.userId, response.data.username, response.data.name);
         return response.data;
       } catch (error) {
         console.error('Error logging in user:', error);
+        throw error;
+      }
+    },
+
+    async requestPasswordReset(request: RequestPasswordResetRequest) {
+      try {
+        await api.post(`${API_URL}/user/request-password-reset`, request);
+      } catch (error) {
+        console.error('Error requesting password reset:', error);
+        throw error;
+      }
+    },
+
+    async resetPasswordWithCode(request: ResetPasswordWithCodeRequest) {
+      try {
+        await api.post(`${API_URL}/user/reset-password-with-code`, request);
+      } catch (error) {
+        console.error('Error resetting password with code:', error);
         throw error;
       }
     },
@@ -56,14 +80,7 @@ import {
         });
         
         // Store tokens using tokenService
-        tokenService.setTokens(response.data.token, response.data.refreshToken);
-        
-        // Store user data
-        localStorage.setItem('user', JSON.stringify({
-          userId: response.data.userId,
-          username: response.data.username,
-          name: response.data.name
-        }));
+        tokenService.setTokens(response.data.token, response.data.refreshToken, response.data.userId, response.data.username, response.data.name);
         
         return response.data;
       } catch (error) {
@@ -91,12 +108,7 @@ import {
         const data = await response.json();
         
         // Store the JWT token from your backend
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify({
-          userId: data.userId,
-          username: data.username,
-          name: data.name
-        }));
+        tokenService.setTokens(data.token, data.refreshToken, data.userId, data.username, data.name);
         
         return data;
       } catch (error) {
@@ -106,28 +118,20 @@ import {
     },
 
     // Sign out
-    async signOut() {
-      try {
+    async logout(logoutRequest: LogoutRequest) {
+
         // Call the signout endpoint first
         if (this.isAuthenticated()) {
           try {
-            await api.post(`${API_URL}/user/logout`);
+            await api.post(`${API_URL}/user/logout`, logoutRequest);
+            await firebaseSignOut(auth);
+            // Clear old tokens
+            tokenService.clearTokens();
           } catch (signoutError) {
             console.error('Error calling signout endpoint:', signoutError);
-            // Continue with local signout even if the API call fails
+            throw signoutError;
           }
         }
-        
-        await firebaseSignOut(auth);
-        // Clear old tokens
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        // Clear access and refresh tokens
-        tokenService.clearTokens();
-      } catch (error) {
-        console.error('Error signing out:', error);
-        throw error;
-      }
     },
     
     // Get current user from localStorage
@@ -136,13 +140,8 @@ import {
       return user ? JSON.parse(user) : null;
     },
     
-    // Get JWT token
-    getToken() {
-      return tokenService.getAccessToken();
-    },
-    
     // Check if user is authenticated
     isAuthenticated() {
-      return !!this.getToken();
+      return !!tokenService.getAccessToken();
     }
   };
