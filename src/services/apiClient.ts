@@ -22,7 +22,7 @@ api.interceptors.response.use(
           refreshToken: tokenService.getRefreshToken(),
           deviceId: tokenService.getDeviceId(),
         });
-        tokenService.setTokens(res.data.accessToken, res.data.refreshToken);
+        tokenService.setTokens(res.data.accessToken, res.data.refreshToken, res.data.userId, res.data.username, res.data.name);
         err.config.headers.Authorization = `Bearer ${res.data.accessToken}`;
         return axios(err.config);
       } catch (refreshError: any) {
