@@ -1,4 +1,4 @@
-import React, { useState, ReactElement, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import '../styles/sidebar.css';
 import logo from '../assets/logo-white.svg';
 import { authService } from '../services/authService';
@@ -7,7 +7,6 @@ import { AiOutlineLogout, AiOutlineMenu } from 'react-icons/ai';
 import { LogoutRequest } from '@seenelm/train-core';
 import { tokenService } from '../services/tokenService';
 
-
 // Define the tab interface
 interface TabItem {
   id: string;
@@ -15,44 +14,18 @@ interface TabItem {
   icon: React.ReactNode; 
 }
 
-// Define the TabPanel props interface
-interface TabPanelProps {
-  id: string;
-  children: React.ReactNode;
-}
-
 // Define the props for the Sidebar component
 interface SidebarProps {
   tabs: TabItem[];
   defaultActiveTab?: string;
-  children: ReactElement<TabPanelProps> | ReactElement<TabPanelProps>[];
+  onTabChange: (tabId: string) => void;
 }
-
-// Define the content props
-interface TabContentProps {
-  activeTab: string;
-  children: ReactElement<TabPanelProps> | ReactElement<TabPanelProps>[];
-}
-
-// TabContent component to handle displaying the correct content
-const TabContent: React.FC<TabContentProps> = ({ activeTab, children }) => {
-  // Filter and display only the active child component
-  const childrenArray = React.Children.toArray(children) as ReactElement<TabPanelProps>[];
-  const activeChild = childrenArray.find(child => child.props.id === activeTab);
-
-  return <div className="tab-content">{activeChild}</div>;
-};
-
-// TabPanel component for individual tab content
-export const TabPanel: React.FC<TabPanelProps> = ({ children }) => {
-  return <div className="tab-panel">{children}</div>;
-};
 
 // Main Sidebar component
 const Sidebar: React.FC<SidebarProps> = ({ 
   tabs, 
-  defaultActiveTab, 
-  children 
+  defaultActiveTab,
+  onTabChange
 }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(defaultActiveTab || (tabs.length > 0 ? tabs[0].id : ''));
@@ -78,6 +51,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const handleTabClick = (tabId: string) => {
     setActiveTab(tabId);
+    onTabChange(tabId);
     // On mobile, close the sidebar after clicking a tab
     if (window.innerWidth <= 768) {
       setExpanded(false);
@@ -106,7 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <div className="sidebar-container">
+    <>
       <button className="mobile-menu-button" onClick={toggleSidebar}>
         <AiOutlineMenu />
       </button>
@@ -135,12 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           {expanded ? '«' : '»'}
         </div>
       </div>
-      <div className="content-area">
-        <TabContent activeTab={activeTab}>
-          {children}
-        </TabContent>
-      </div>
-    </div>
+    </>
   );
 };
 
