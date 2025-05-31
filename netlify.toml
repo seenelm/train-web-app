@@ -1,12 +1,7 @@
 [build]
   publish = "dist"
-  command = """
-    echo "//npm.pkg.github.com/:_authToken=$GITHUB_TOKEN" > .npmrc && \
-    echo "@seenelm:registry=https://npm.pkg.github.com" >> .npmrc && \
-    cat .npmrc && \
-    npm install && \
-    vite build
-  """
+  command = "npm install && vite build"
+
 
 [[redirects]]
   from = "/*"
