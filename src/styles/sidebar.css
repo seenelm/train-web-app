@@ -1,9 +1,6 @@
 /* Sidebar container */
 .sidebar-container {
   display: flex;
-  height: 100%;
-  width: 100%;
-  position: relative;
 }
 
 /* Mobile menu button */
@@ -39,7 +36,7 @@
   left: 20px;
   top: 20px;
   border-radius: 16px;
-  z-index: 100;
+
   overflow: hidden;
 }
 
@@ -161,25 +158,16 @@
   background-color: #2a2a2a;
 }
 
-/* Content area */
-.content-area {
-  flex: 1;
-  padding: 24px 24px 24px 110px;
-  background-color: white;
-  overflow-y: auto;
-  transition: padding 0.3s ease;
-}
-
 .sidebar.expanded + .content-area {
   padding-left: 260px;
 }
 
 .tab-content {
-  height: 100%;
+  width: 100%;
 }
 
 .tab-panel {
-  height: 100%;
+  width: 100%;
 }
 
 /* Mobile styles */
@@ -188,37 +176,23 @@
     display: block;
   }
 
-  .sidebar {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 90% !important;
-    max-width: 400px;
-    height: auto;
-    max-height: 90vh;
-    border-radius: 16px;
-    z-index: 100;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.2s ease, visibility 0.2s ease;
-  }
+
 
   .sidebar.expanded {
-    opacity: 1;
-    visibility: visible;
+    display: flex;
   }
 
-  .content-area {
-    padding: 24px !important;
+  .sidebar.collapsed {
+    display: none;
   }
 
   .sidebar-toggle {
     display: none;
   }
 
-  .sidebar-tabs {
-    max-height: 60vh;
-    overflow-y: auto;
+  .tab-content, .tab-panel {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
   }
 }

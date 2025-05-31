@@ -5,9 +5,11 @@ import Registration from './components/Registration';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import PrivacyPolicy from './pages/PrivacyPolicy';
-import Sidebar, { TabPanel } from './components/Sidebar';
+import Sidebar from './components/Sidebar';
+import ContentView from './components/ContentView';
 import { AiOutlineHome, AiOutlineUser, AiOutlineSetting, AiOutlineQuestionCircle } from 'react-icons/ai';
 import { authService } from './services/authService';
+import './styles/app.css';
 
 // Protected route component - redirects to login if not authenticated
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -40,26 +42,58 @@ function Dashboard() {
     { id: 'help', label: 'Help', icon: <AiOutlineQuestionCircle /> }
   ];
 
+  const [activeTab, setActiveTab] = useState(tabs[0].id);
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+  };
+
+  // Content to display based on active tab
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'home':
+        return (
+          <>
+            <h1>Home Content</h1>
+            <p>This is the home tab content area.</p>
+          </>
+        );
+      case 'profile':
+        return (
+          <>
+            <h1>Profile Content</h1>
+            <p>User profile information would go here.</p>
+          </>
+        );
+      case 'settings':
+        return (
+          <>
+            <h1>Settings Content</h1>
+            <p>Application settings would be displayed here.</p>
+          </>
+        );
+      case 'help':
+        return (
+          <>
+            <h1>Help Content</h1>
+            <p>Help and documentation would be shown here.</p>
+          </>
+        );
+      default:
+        return <p>Select a tab</p>;
+    }
+  };
+
   return (
-    <div style={{ height: '100vh', width: '100%' }}>
-      <Sidebar tabs={tabs} defaultActiveTab="home">
-        <TabPanel id="home">
-          <h1>Home Content</h1>
-          <p>This is the home tab content area.</p>
-        </TabPanel>
-        <TabPanel id="profile">
-          <h1>Profile Content</h1>
-          <p>User profile information would go here.</p>
-        </TabPanel>
-        <TabPanel id="settings">
-          <h1>Settings Content</h1>
-          <p>Application settings would be displayed here.</p>
-        </TabPanel>
-        <TabPanel id="help">
-          <h1>Help Content</h1>
-          <p>Help and documentation would be shown here.</p>
-        </TabPanel>
-      </Sidebar>
+    <div className="app-container">
+      <Sidebar 
+        tabs={tabs} 
+        defaultActiveTab="home" 
+        onTabChange={handleTabChange} 
+      />
+      <ContentView>
+        {renderContent()}
+      </ContentView>
     </div>
   );
 }
@@ -87,7 +121,7 @@ function App() {
   }
 
   return (
-    <div style={{ height: '100%', width: '100%' }}>
+    <div className="app-root">
       <Routes>
         <Route path="/" element={
           <ProtectedRoute>
