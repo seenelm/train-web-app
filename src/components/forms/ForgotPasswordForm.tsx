@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import TextInput from '../ui/TextInput';
 import Button from '../ui/Button';
 import Form from '../ui/Form';
@@ -10,7 +10,6 @@ const ForgotPasswordForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,7 +18,7 @@ const ForgotPasswordForm: React.FC = () => {
     
     try {
       await authService.requestPasswordReset({ email });
-      setSuccess(true);
+      navigate(`/reset-password?email=${encodeURIComponent(email)}`);
     } catch (err) {
       console.error('Password reset request error:', err);
       setError('Failed to request password reset. Please try again.');
@@ -27,21 +26,6 @@ const ForgotPasswordForm: React.FC = () => {
       setIsLoading(false);
     }
   };
-
-  if (success) {
-    return (
-      <div className="success-message">
-        <p>Password reset instructions have been sent to your email!</p>
-        <p>Please check your inbox and follow the instructions to reset your password.</p>
-        <Button 
-          onClick={() => navigate('/login')}
-          className="login-button"
-        >
-          Return to Login
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <Form onSubmit={handleSubmit} error={error}>

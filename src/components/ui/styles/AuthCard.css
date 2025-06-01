@@ -121,7 +121,7 @@
 }
 
 /* Mobile-specific styles */
-@media (max-width: 768px) {
+@media (prefers-color-scheme: dark) {
   .auth-logo {
     content: url('../../../assets/logo1-white.svg');
   }
@@ -133,5 +133,56 @@
   .auth-footer {
     margin-top: 3rem;
     padding-bottom: 2rem;
+  }
+}
+
+/* Add specific mobile styles regardless of color scheme */
+@media (max-width: 480px) {
+  .auth-container {
+    min-height: 100vh;
+    justify-content: flex-start;
+    padding-bottom: 2rem;
+    overflow-y: auto;
+  }
+  
+  .auth-content {
+    flex-grow: 0;
+    margin-bottom: 2rem;
+    min-height: 200px; /* Ensure minimum height for shorter forms */
+  }
+  
+  .auth-footer {
+    position: static;
+    width: 100%;
+    margin-top: auto;
+    padding: 1rem 0;
+    background-color: transparent;
+    z-index: 10;
+  }
+  
+  .auth-footer a {
+    font-weight: 500;
+    font-size: 1rem;
+    text-decoration: underline;
+    color: var(--primary-color, #4a90e2);
+  }
+
+  /* Specific adjustment for forgot-password page */
+  [class*="forgot-password"] .auth-container,
+  [class*="reset-password"] .auth-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  [class*="forgot-password"] .auth-content,
+  [class*="reset-password"] .auth-content {
+    flex: 1 0 auto;
+  }
+  
+  [class*="forgot-password"] .auth-footer,
+  [class*="reset-password"] .auth-footer {
+    margin-top: auto;
+    flex-shrink: 0;
   }
 }

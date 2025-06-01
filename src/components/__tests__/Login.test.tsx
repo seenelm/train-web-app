@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import Login from '../Login';
+import LoginForm from '../forms/LoginForm';
 
 describe('Login Component', () => {
   it('renders login form', () => {
     render(
       <BrowserRouter>
-        <Login />
+        <LoginForm />
       </BrowserRouter>
     );
 
