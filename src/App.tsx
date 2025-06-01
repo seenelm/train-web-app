@@ -1,14 +1,11 @@
 import { Routes, Route, Navigate } from "react-router";
 import { JSX, useEffect, useState } from "react";
-import Login from './components/Login';
-import Registration from './components/Registration';
-import ForgotPassword from './components/ForgotPassword';
-import ResetPassword from './components/ResetPassword';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Sidebar from './components/Sidebar';
 import ContentView from './components/ContentView';
 import { AiOutlineHome, AiOutlineUser, AiOutlineSetting, AiOutlineQuestionCircle } from 'react-icons/ai';
 import { authService } from './services/authService';
+import AuthPage from './pages/AuthPage';
 import './styles/app.css';
 
 // Protected route component - redirects to login if not authenticated
@@ -130,22 +127,22 @@ function App() {
         } />
         <Route path="/login" element={
           <AuthRoute>
-            <Login />
+            <AuthPage authType="login" />
           </AuthRoute>
         } />
         <Route path="/register" element={
           <AuthRoute>
-            <Registration />
+            <AuthPage authType="register" />
           </AuthRoute>
         } />
         <Route path="/forgot-password" element={
           <AuthRoute>
-            <ForgotPassword />
+            <AuthPage authType="forgot-password" />
           </AuthRoute>
         } />
         <Route path="/reset-password" element={
           <AuthRoute>
-            <ResetPassword />
+            <AuthPage authType="reset-password" />
           </AuthRoute>
         } />
         <Route path="/privacy" element={<PrivacyPolicy />} />
