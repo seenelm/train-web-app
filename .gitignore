@@ -23,6 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 
+# Tests
+test-results
+
+
 .env
 .npmrc
 # Local Netlify folder

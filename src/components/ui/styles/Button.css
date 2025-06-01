@@ -1,0 +1,118 @@
+/* Button Component Styles */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  width: 100%;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.button-primary {
+  background-color: #1a73e8;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.button-primary:hover {
+  background-color: #1765cc;
+}
+
+.button-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.button-secondary:hover {
+  background-color: #5a6268;
+}
+
+.button-outline {
+  background-color: transparent;
+  border: 1px solid #4a90e2;
+  color: #4a90e2;
+}
+
+.button-outline:hover {
+  background-color: rgba(74, 144, 226, 0.1);
+}
+
+.button-link {
+  background-color: transparent;
+  color: #4a90e2;
+  padding: 0.5rem;
+}
+
+.button-link:hover {
+  text-decoration: underline;
+  background-color: transparent;
+}
+
+.button-loading {
+  position: relative;
+  color: transparent;
+}
+
+.button-loading::after {
+  content: "";
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Login Button (for backward compatibility) */
+.login-button {
+  background-color: #1a73e8;
+  color: white;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.login-button:hover {
+  background-color: #1765cc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.login-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
