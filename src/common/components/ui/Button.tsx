@@ -1,7 +1,7 @@
 import React from 'react';
 import './styles/Button.css';
 
-interface ButtonProps {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   type?: 'button' | 'submit' | 'reset';
   onClick?: () => void;
   disabled?: boolean;
@@ -9,6 +9,7 @@ interface ButtonProps {
   className?: string;
   children: React.ReactNode;
   variant?: 'primary' | 'secondary' | 'outline' | 'link';
+  testId?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -19,6 +20,7 @@ const Button: React.FC<ButtonProps> = ({
   className = '',
   children,
   variant = 'primary',
+  testId
 }) => {
   const baseClass = 'button';
   const variantClass = `button-${variant}`;
@@ -31,6 +33,7 @@ const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
       disabled={disabled || isLoading}
       className={buttonClasses}
+      data-testid={testId}
     >
       {isLoading ? 'Loading...' : children}
     </button>

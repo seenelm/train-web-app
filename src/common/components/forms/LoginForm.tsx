@@ -5,8 +5,8 @@ import Button from '../ui/Button';
 import Checkbox from '../ui/Checkbox';
 import Form from '../ui/Form';
 import SocialButton from '../ui/SocialButton';
-import { authService } from '../../services/authService';
-import { tokenService } from '../../services/tokenService';
+import { authService } from '../../../services/authService';
+import { tokenService } from '../../../services/tokenService';
 
 interface LoginFormProps {
   sessionExpired?: boolean;
@@ -61,6 +61,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
       <Form onSubmit={handleSubmit} error={error}>
         <TextInput
           id="email"
+          data-testid="email-input"
           type="email"
           label="Email"
           value={email}
@@ -73,6 +74,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
         
         <TextInput
           id="password"
+          data-testid="password-input"
           type="password"
           label="Password"
           value={password}
@@ -86,16 +88,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
         <div className="form-options">
           <Checkbox
             id="remember"
+            data-testid="remember-checkbox"
             label="Remember me"
             checked={rememberMe}
             onChange={(e) => setRememberMe(e.target.checked)}
             disabled={isLoading}
           />
-          <Link to="/forgot-password" className="forgot-password">Forgot password?</Link>
+          <Link to="/forgot-password" data-testid="forgot-password-link" className="forgot-password">Forgot password?</Link>
         </div>
         
         <Button
           type="submit"
+          testId="login-button"
           disabled={isLoading}
           isLoading={isLoading}
           className="login-button"
@@ -108,6 +112,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
         <p>Or sign in with</p>
         <SocialButton
           provider="google"
+          data-testid="google-button"
           onClick={() => handleSignIn('google')}
           disabled={isLoading}
           isLoading={isLoading && error?.includes('Google')}

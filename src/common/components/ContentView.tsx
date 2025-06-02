@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import '../styles/contentView.css';
+import '../../styles/contentView.css';
 
 interface ContentViewProps {
   children: ReactNode;

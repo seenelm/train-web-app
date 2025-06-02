@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import '../styles/sidebar.css';
-import logo from '../assets/logo-white.svg';
-import { authService } from '../services/authService';
+import './styles/sidebar.css';
+import logo from '../../assets/logo-white.svg';
+import { authService } from '../../services/authService';
 import { useNavigate } from 'react-router-dom';
 import { AiOutlineLogout, AiOutlineMenu } from 'react-icons/ai';
 import { LogoutRequest } from '@seenelm/train-core';
-import { tokenService } from '../services/tokenService';
+import { tokenService } from '../../services/tokenService';
 
 // Define the tab interface
 interface TabItem {

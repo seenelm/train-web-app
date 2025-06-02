@@ -123,7 +123,7 @@
 /* Mobile-specific styles */
 @media (prefers-color-scheme: dark) {
   .auth-logo {
-    content: url('../../../assets/logo1-white.svg');
+    content: url('../../../../assets/logo1-white.svg');
   }
   
   .auth-container {

@@ -13,6 +13,7 @@ interface TextInputProps {
   error?: string | null;
   autoComplete?: string;
   name?: string;
+  testId?: string;
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -27,6 +28,7 @@ const TextInput: React.FC<TextInputProps> = ({
   error,
   autoComplete,
   name,
+  testId,
 }) => {
   // Determine the appropriate class based on input type
   const getInputTypeClass = () => {
@@ -46,6 +48,7 @@ const TextInput: React.FC<TextInputProps> = ({
     <div className={`form-group ${getInputTypeClass()}`}>
       <label htmlFor={id}>{label}{required && <span className="required">*</span>}</label>
       <input
+        data-testid={testId}
         id={id}
         name={name || id}
         type={type}

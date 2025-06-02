@@ -5,8 +5,8 @@ import Button from '../ui/Button';
 import Checkbox from '../ui/Checkbox';
 import Form from '../ui/Form';
 import SocialButton from '../ui/SocialButton';
-import { authService } from '../../services/authService';
-import { tokenService } from '../../services/tokenService';
+import { authService } from '../../../services/authService';
+import { tokenService } from '../../../services/tokenService';
 import { UserRequest } from '@seenelm/train-core';
 
 const RegistrationForm: React.FC = () => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Sidebar from '../components/Sidebar';
-import ContentView from '../components/ContentView';
+import Sidebar from '../common/components/Sidebar';
+import ContentView from '../common/components/ContentView';
 import { AiOutlineHome, AiOutlineUser, AiOutlineSetting, AiOutlineQuestionCircle } from 'react-icons/ai';
 
 const Dashboard: React.FC = () => {

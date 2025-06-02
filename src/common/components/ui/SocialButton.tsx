@@ -7,6 +7,7 @@ interface SocialButtonProps {
   disabled?: boolean;
   isLoading?: boolean;
   children?: React.ReactNode;
+  testId?: string;
 }
 
 const SocialButton: React.FC<SocialButtonProps> = ({
@@ -15,6 +16,7 @@ const SocialButton: React.FC<SocialButtonProps> = ({
   disabled = false,
   isLoading = false,
   children,
+  testId
 }) => {
   const getIcon = () => {
     switch (provider) {
@@ -53,6 +55,7 @@ const SocialButton: React.FC<SocialButtonProps> = ({
       className={buttonClasses}
       disabled={disabled || isLoading}
       type="button"
+      data-testid={testId}
     >
       {!isLoading && getIcon()}
       {!isLoading && children}
