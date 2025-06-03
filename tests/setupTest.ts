@@ -1,9 +1,10 @@
 // src/setupTests.ts
-import { server } from '../src/mocks/server';
+import { test, expect } from '@playwright/test';
+import { server } from '../src/common/mocks/server';
 
 // Start MSW before all tests
-beforeAll(() => server.listen());
+test.beforeAll(() => server.listen());
 // Reset handlers after each test (so tests don't affect each other)
-afterEach(() => server.resetHandlers());
+test.afterEach(() => server.resetHandlers());
 // Clean up after all tests are done
-afterAll(() => server.close());
+test.afterAll(() => server.close());

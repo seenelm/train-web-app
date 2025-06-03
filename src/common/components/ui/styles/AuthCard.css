@@ -1,0 +1,188 @@
+/* AuthCard Component Styles */
+
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+  justify-content: space-between;
+}
+
+.auth-logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+  width: 100%;
+}
+
+.auth-logo {
+  max-width: 35px;
+  height: auto;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.auth-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary, #666);
+  margin-bottom: 0;
+}
+
+.auth-content {
+  width: 100%;
+  margin-bottom: auto;
+  flex-grow: 1;
+}
+
+.auth-footer {
+  width: 100%;
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary, #666);
+}
+
+.auth-footer a {
+  color: #4a90e2;
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.auth-links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.auth-link {
+  color: #4a90e2;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+/* Form options spacing */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Social login spacing */
+.social-login {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.social-login p {
+  margin-bottom: 1rem;
+  color: var(--text-secondary, #666);
+}
+
+/* SVG Fill Color */
+.svg-fill {
+  fill: var(--text-primary, #fff);
+}
+
+/* Ensure the SVG fill works on all devices */
+@media (prefers-color-scheme: light) {
+  .svg-fill {
+    fill: #fff;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .svg-fill {
+    fill: #fff;
+  }
+}
+
+/* Mobile-specific styles */
+@media (prefers-color-scheme: dark) {
+  .auth-logo {
+    content: url('../../../../assets/logo1-white.svg');
+  }
+  
+  .auth-container {
+    padding: 1.5rem 1.5rem 5rem 1.5rem;
+  }
+  
+  .auth-footer {
+    margin-top: 3rem;
+    padding-bottom: 2rem;
+  }
+}
+
+/* Add specific mobile styles regardless of color scheme */
+@media (max-width: 480px) {
+  .auth-container {
+    min-height: 100vh;
+    justify-content: flex-start;
+    padding-bottom: 2rem;
+    overflow-y: auto;
+  }
+  
+  .auth-content {
+    flex-grow: 0;
+    margin-bottom: 2rem;
+    min-height: 200px; /* Ensure minimum height for shorter forms */
+  }
+  
+  .auth-footer {
+    position: static;
+    width: 100%;
+    margin-top: auto;
+    padding: 1rem 0;
+    background-color: transparent;
+    z-index: 10;
+  }
+  
+  .auth-footer a {
+    font-weight: 500;
+    font-size: 1rem;
+    text-decoration: underline;
+    color: var(--primary-color, #4a90e2);
+  }
+
+  /* Specific adjustment for forgot-password page */
+  [class*="forgot-password"] .auth-container,
+  [class*="reset-password"] .auth-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  [class*="forgot-password"] .auth-content,
+  [class*="reset-password"] .auth-content {
+    flex: 1 0 auto;
+  }
+  
+  [class*="forgot-password"] .auth-footer,
+  [class*="reset-password"] .auth-footer {
+    margin-top: auto;
+    flex-shrink: 0;
+  }
+}

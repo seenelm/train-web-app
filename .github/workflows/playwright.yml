@@ -2,25 +2,28 @@ name: Playwright Tests
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, develop]
 
 jobs:
   e2e:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install chromium --with-deps
-    - name: Run Playwright tests
-      env:
-        BASE_URL: ${{ secrets.STAGING_URL || 'http://localhost:5173' }}
-      run: npx playwright test --project=chromium 
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - name: Install dependencies
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PACKAGE_TOKEN }}" > .npmrc
+          echo "@seenelm:registry=https://npm.pkg.github.com" >> .npmrc
+          npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install chromium --with-deps
+      - name: Run Playwright tests
+        env:
+          BASE_URL: ${{ secrets.STAGING_URL || 'http://localhost:5173' }}
+        run: npx playwright test --project=chromium

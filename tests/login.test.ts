@@ -5,31 +5,48 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:5173';
 test.describe('Login', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(`${BASE_URL}/login`);
+    // Wait for the page to load
+    await page.waitForLoadState('networkidle');
   });
 
   test('should display login form', async ({ page }) => {
-    await expect(page.locator('form.login-form')).toBeVisible();
-    await expect(page.locator('input[type="email"]')).toBeVisible();
-    await expect(page.locator('input[type="password"]')).toBeVisible();
+    // Verify the page title is displayed
+    await expect(page.locator('h1')).toContainText('Welcome Back');
+    
+    // Check form elements using data-testid attributes
+    await expect(page.locator('[data-testid="email-input"]')).toBeVisible();
+    await expect(page.locator('[data-testid="password-input"]')).toBeVisible();
+    await expect(page.locator('[data-testid="remember-checkbox"]')).toBeVisible();
+    await expect(page.locator('[data-testid="forgot-password-link"]')).toBeVisible();
+    await expect(page.locator('[data-testid="login-button"]')).toBeVisible();
+    await expect(page.locator('[data-testid="google-button"]')).toBeVisible();
   });
 
   test('should show error message with invalid credentials', async ({ page }) => {
-    await page.fill('input[type="email"]', 'invalid@example.com');
-    await page.fill('input[type="password"]', 'wrongpassword');
-    await page.click('button.login-button');
+    // Fill in the login form with invalid credentials
+    await page.fill('[data-testid="email-input"]', 'test@example.com');
+    await page.fill('[data-testid="password-input"]', 'wrongpassword');
     
-    // Wait for error message to appear
-    const errorMessage = page.locator('.error-message');
-    await expect(errorMessage).toBeVisible();
+    // Submit the form
+    await page.click('[data-testid="login-button"]');
+    
+    // Check for error message
+    await expect(page.locator('.error-message')).toBeVisible();
+    await expect(page.locator('.error-message')).toContainText('Failed to sign in');
   });
 
   test('should show loading state during login', async ({ page }) => {
-    await page.fill('input[type="email"]', 'test@example.com');
-    await page.fill('input[type="password"]', 'password123');
-    await page.click('button.login-button');
+    // Fill in the login form
+    await page.fill('[data-testid="email-input"]', 'test@example.com');
+    await page.fill('[data-testid="password-input"]', 'password123');
     
-    // Check if loading state is visible
-    const loadingButton = page.locator('button.login-button:has-text("Signing In...")');
-    await expect(loadingButton).toBeVisible();
+    // Start watching for loading state before clicking
+    const loginButtonPromise = page.waitForSelector('[data-testid="login-button"] .loading-spinner');
+    
+    // Submit the form
+    await page.click('[data-testid="login-button"]');
+    
+    // Verify loading state appears
+    await loginButtonPromise;
   });
 }); 
