@@ -1,118 +1,72 @@
-// import React from 'react';
-// import { render, screen, fireEvent } from '@testing-library/react';
-// import TextInput from '../TextInput';
+import { describe, expect, it, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import TextInput from '../TextInput';
 
-// describe('TextInput Component', () => {
-//   const defaultProps = {
-//     id: 'test-input',
-//     label: 'Test Label',
-//     value: '',
-//     onChange: vi.fn(),
-//   };
+describe('TextInput', () => {
+  const defaultProps = {
+    id: 'test-input',
+    label: 'Test Label',
+    value: '',
+    onChange: vi.fn(),
+  };
 
-//   beforeEach(() => {
-//     vi.clearAllMocks();
-//   });
+  it('renders correctly with default props', () => {
+    render(<TextInput {...defaultProps} />);
+    
+    expect(screen.getByLabelText('Test Label')).toBeInTheDocument();
+    expect(screen.getByLabelText('Test Label')).toHaveAttribute('type', 'text');
+    expect(screen.getByLabelText('Test Label')).not.toBeRequired();
+  });
 
-//   test('renders correctly with default props', () => {
-//     render(<TextInput {...defaultProps} />);
+  it('renders with required attribute', () => {
+    render(<TextInput {...defaultProps} required />);
     
-//     // Check if label is rendered
-//     expect(screen.getByText('Test Label')).toBeInTheDocument();
-    
-//     // Check if input is rendered
-//     const input = screen.getByLabelText('Test Label');
-//     expect(input).toBeInTheDocument();
-//     expect(input).toHaveAttribute('type', 'text');
-//     expect(input).toHaveValue('');
-//   });
+    expect(screen.getByLabelText(/Test Label/)).toBeRequired();
+    expect(screen.getByText('*')).toBeInTheDocument();
+  });
 
-//   test('handles input changes correctly', () => {
-//     const onChange = vi.fn();
-//     render(<TextInput {...defaultProps} onChange={onChange} />);
+  it('renders with correct type', () => {
+    render(<TextInput {...defaultProps} type="email" />);
     
-//     const input = screen.getByLabelText('Test Label');
-//     fireEvent.change(input, { target: { value: 'new value' } });
-    
-//     expect(onChange).toHaveBeenCalledTimes(1);
-//     expect(onChange.mock.calls[0][0].target.value).toBe('new value');
-//   });
+    expect(screen.getByLabelText('Test Label')).toHaveAttribute('type', 'email');
+  });
 
-//   test('displays error message when provided', () => {
-//     render(<TextInput {...defaultProps} error="This field is required" />);
+  it('renders with placeholder', () => {
+    const placeholder = 'Enter text here';
+    render(<TextInput {...defaultProps} placeholder={placeholder} />);
     
-//     expect(screen.getByText('This field is required')).toBeInTheDocument();
-    
-//     // Check if input has error class
-//     const input = screen.getByLabelText('Test Label');
-//     expect(input).toHaveClass('error');
-//   });
+    expect(screen.getByLabelText('Test Label')).toHaveAttribute('placeholder', placeholder);
+  });
 
-//   test('applies disabled state correctly', () => {
-//     render(<TextInput {...defaultProps} disabled={true} />);
+  it('renders with error message', () => {
+    const errorMessage = 'This field is required';
+    render(<TextInput {...defaultProps} error={errorMessage} />);
     
-//     const input = screen.getByLabelText('Test Label');
-//     expect(input).toBeDisabled();
-//   });
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
+    expect(screen.getByLabelText('Test Label')).toHaveClass('error');
+  });
 
-//   test('shows required indicator when required prop is true', () => {
-//     render(<TextInput {...defaultProps} required={true} />);
+  it('renders disabled input', () => {
+    render(<TextInput {...defaultProps} disabled />);
     
-//     expect(screen.getByText('*')).toBeInTheDocument();
-//   });
+    expect(screen.getByLabelText('Test Label')).toBeDisabled();
+  });
 
-//   test('applies correct class for email input type', () => {
-//     render(<TextInput {...defaultProps} type="email" />);
+  it('applies testId correctly', () => {
+    const testId = 'custom-test-id';
+    render(<TextInput {...defaultProps} testId={testId} />);
     
-//     const formGroup = document.querySelector('.form-group');
-//     expect(formGroup).toHaveClass('email-input');
-    
-//     const input = screen.getByLabelText('Test Label');
-//     expect(input).toHaveAttribute('type', 'email');
-//   });
+    expect(screen.getByTestId(testId)).toBeInTheDocument();
+    expect(screen.getByTestId(testId)).toBe(screen.getByLabelText('Test Label'));
+  });
 
-//   test('applies correct class for password input type', () => {
-//     render(<TextInput {...defaultProps} type="password" />);
+  it('calls onChange when input value changes', () => {
+    const onChange = vi.fn();
+    render(<TextInput {...defaultProps} onChange={onChange} />);
     
-//     const formGroup = document.querySelector('.form-group');
-//     expect(formGroup).toHaveClass('password-input');
+    const input = screen.getByLabelText('Test Label');
+    fireEvent.change(input, { target: { value: 'new value' } });
     
-//     const input = screen.getByLabelText('Test Label');
-//     expect(input).toHaveAttribute('type', 'password');
-//   });
-
-//   test('applies name-input class for text inputs with "name" in the id', () => {
-//     render(<TextInput {...defaultProps} id="user-name" />);
-    
-//     const formGroup = document.querySelector('.form-group');
-//     expect(formGroup).toHaveClass('name-input');
-//   });
-
-//   test('uses provided placeholder text', () => {
-//     render(<TextInput {...defaultProps} placeholder="Enter text here" />);
-    
-//     const input = screen.getByLabelText('Test Label');
-//     expect(input).toHaveAttribute('placeholder', 'Enter text here');
-//   });
-
-//   test('uses provided autocomplete attribute', () => {
-//     render(<TextInput {...defaultProps} autoComplete="username" />);
-    
-//     const input = screen.getByLabelText('Test Label');
-//     expect(input).toHaveAttribute('autocomplete', 'username');
-//   });
-
-//   test('uses name attribute when provided', () => {
-//     render(<TextInput {...defaultProps} name="custom-name" />);
-    
-//     const input = screen.getByLabelText('Test Label');
-//     expect(input).toHaveAttribute('name', 'custom-name');
-//   });
-
-//   test('uses id as name when name is not provided', () => {
-//     render(<TextInput {...defaultProps} />);
-    
-//     const input = screen.getByLabelText('Test Label');
-//     expect(input).toHaveAttribute('name', 'test-input');
-//   });
-// });
+    expect(onChange).toHaveBeenCalled();
+  });
+});

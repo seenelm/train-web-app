@@ -90,6 +90,7 @@ const RegistrationForm: React.FC = () => {
       <Form onSubmit={handleSubmit} error={error}>
         <TextInput
           id="name"
+          testId="name-input"
           type="text"
           label="Full Name"
           value={name}
@@ -102,6 +103,7 @@ const RegistrationForm: React.FC = () => {
         
         <TextInput
           id="email"
+          testId="email-input"
           type="email"
           label="Email"
           value={email}
@@ -114,6 +116,7 @@ const RegistrationForm: React.FC = () => {
         
         <TextInput
           id="password"
+          testId="password-input"
           type="password"
           label="Password"
           value={password}
@@ -127,6 +130,7 @@ const RegistrationForm: React.FC = () => {
         
         <TextInput
           id="confirmPassword"
+          testId="confirm-password-input"
           type="password"
           label="Confirm Password"
           value={confirmPassword}
@@ -141,6 +145,7 @@ const RegistrationForm: React.FC = () => {
         <div className="form-options">
           <Checkbox
             id="agreeToTerms"
+            testId="terms-checkbox"
             label={
               <>
                 I agree to the <Link to="/terms-of-service">Terms of Service</Link> and <Link to="/privacy">Privacy Policy</Link>
@@ -154,6 +159,7 @@ const RegistrationForm: React.FC = () => {
         
         <Button
           type="submit"
+          testId="register-button"
           disabled={isLoading}
           isLoading={isLoading}
           className="login-button"
@@ -166,6 +172,7 @@ const RegistrationForm: React.FC = () => {
         <p>Or sign up with</p>
         <SocialButton
           provider="google"
+          testId="google-button"
           onClick={handleSignUpWithGoogle}
           disabled={isLoading}
           isLoading={isLoading && error?.includes('Google')}

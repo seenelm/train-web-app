@@ -83,6 +83,7 @@ const ResetPasswordForm: React.FC = () => {
     <Form onSubmit={handleSubmit} error={error}>
       <TextInput
         id="email"
+        testId="email-input"
         type="email"
         label="Email"
         value={email}
@@ -95,6 +96,7 @@ const ResetPasswordForm: React.FC = () => {
       
       <TextInput
         id="code"
+        testId="code-input"
         type="text"
         label="Verification Code"
         value={code}
@@ -106,6 +108,7 @@ const ResetPasswordForm: React.FC = () => {
       
       <TextInput
         id="password"
+        testId="password-input"
         type="password"
         label="New Password"
         value={password}
@@ -118,6 +121,7 @@ const ResetPasswordForm: React.FC = () => {
       
       <TextInput
         id="confirmPassword"
+        testId="confirm-password-input"
         type="password"
         label="Confirm New Password"
         value={confirmPassword}
@@ -131,6 +135,7 @@ const ResetPasswordForm: React.FC = () => {
       
       <Button
         type="submit"
+        testId="reset-button"
         disabled={isLoading}
         isLoading={isLoading}
         className="login-button"

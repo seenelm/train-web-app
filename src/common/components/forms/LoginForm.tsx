@@ -61,7 +61,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
       <Form onSubmit={handleSubmit} error={error}>
         <TextInput
           id="email"
-          data-testid="email-input"
+          testId="email-input"
           type="email"
           label="Email"
           value={email}
@@ -74,7 +74,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
         
         <TextInput
           id="password"
-          data-testid="password-input"
+          testId="password-input"
           type="password"
           label="Password"
           value={password}
@@ -88,7 +88,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
         <div className="form-options">
           <Checkbox
             id="remember"
-            data-testid="remember-checkbox"
+            testId="remember-checkbox"
             label="Remember me"
             checked={rememberMe}
             onChange={(e) => setRememberMe(e.target.checked)}
@@ -112,7 +112,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
         <p>Or sign in with</p>
         <SocialButton
           provider="google"
-          data-testid="google-button"
+          testId="google-button"
           onClick={() => handleSignIn('google')}
           disabled={isLoading}
           isLoading={isLoading && error?.includes('Google')}

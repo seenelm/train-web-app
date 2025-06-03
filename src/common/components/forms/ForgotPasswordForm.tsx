@@ -35,6 +35,7 @@ const ForgotPasswordForm: React.FC = () => {
       
       <TextInput
         id="email"
+        testId="email-input"
         type="email"
         label="Email"
         value={email}
@@ -47,6 +48,7 @@ const ForgotPasswordForm: React.FC = () => {
       
       <Button
         type="submit"
+        testId="submit-button"
         disabled={isLoading}
         isLoading={isLoading}
         className="login-button"

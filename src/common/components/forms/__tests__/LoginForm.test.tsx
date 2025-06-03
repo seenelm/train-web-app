@@ -1,21 +1,25 @@
 import {describe, expect, vi, beforeEach, it} from 'vitest';
 import { render, screen } from '@testing-library/react';
-import LoginForm from '../LoginForm';
 import { BrowserRouter } from 'react-router';
-import { mockAuthService, mockReactRouterDom } from '../../../mocks/mocks';
+import { mockAuthService, mockReactRouterDom, mockTokenService } from '../../../mocks/mocks';
 
+// Mock modules before importing the component
 vi.mock('../../../../services/authService', () => ({
     authService: mockAuthService
 }));
 
+vi.mock('../../../../services/tokenService', () => ({
+    tokenService: mockTokenService
+}));
+
 // Mock useNavigate
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => mockReactRouterDom.useNavigate(),
-  };
-});
+vi.mock('react-router-dom', () => ({
+  ...vi.importActual('react-router-dom'),
+  useNavigate: () => mockReactRouterDom.useNavigate(),
+}));
+
+// Import the component after mocking dependencies
+import LoginForm from '../LoginForm';
 
 describe('LoginForm', () => {
     beforeEach(() => {
