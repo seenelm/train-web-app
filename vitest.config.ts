@@ -6,14 +6,14 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
-    setupFiles: ["./setupTests.ts"],
+    setupFiles: ["./src/setupTests.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
       exclude: [
         "node_modules/",
-        // "setupTests.ts",
-        // "src/common/mocks/**",
+        "setupTests.ts",
+        "src/mocks/**",
         "**/*.d.ts",
         "**/*.config.*",
         "**/index.ts",

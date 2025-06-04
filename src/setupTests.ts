@@ -1,7 +1,6 @@
-import { server } from "./src/common/mocks/server";
+import { server } from "./mocks/server";
 import { beforeAll, afterAll, afterEach } from "vitest";
 import "@testing-library/jest-dom";
-import { vi } from "vitest";
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: "error" });

@@ -14,6 +14,7 @@ export default class AuthDataProvider {
       description: "Password is less than 8 characters",
       model: AuthTestFixture.createRegistrationModel({
         password: "1234567",
+        confirmPassword: "1234567",
       }),
       expectedError: RegistrationFormType.InvalidPasswordLength,
     },
