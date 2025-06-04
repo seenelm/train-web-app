@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./e2e",
   // fullyParallel: true,
   // forbidOnly: !!process.env.CI,
   // retries: process.env.CI ? 2 : 0,
@@ -40,16 +40,6 @@ export default defineConfig({
   // },
   use: {
     baseURL: "http://localhost:5173",
-    // Enable console logging
-    launchOptions: {
-      logger: {
-        isEnabled: (name, severity) => true,
-        log: (name, severity, message, args) =>
-          console.log(`${name} ${message}`),
-      },
-    },
-    // Log browser console
-    trace: "on-first-retry",
   },
   outputDir: "test-results",
   timeout: 30000,

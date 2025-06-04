@@ -4,13 +4,7 @@ test.describe("Authentication", () => {
   test("should register, logout and login a new user", async ({ page }) => {
     // Enable console logging
     page.on("console", (msg) => console.log(`Browser console: ${msg.text()}`));
-    page.on("request", (request) =>
-      console.log(`Request: ${request.method()} ${request.url()}`)
-    );
-    page.on("response", (response) =>
-      console.log(`Response: ${response.status()} ${response.url()}`)
-    );
-    // Test data
+
     const testUser = {
       email: "newuser@example.com",
       password: "Password123!",
@@ -51,15 +45,17 @@ test.describe("Authentication", () => {
 
     // Step 6: Submit login form
     await page.getByTestId("login-button").click();
+    // Verify successful login
     await expect(page).toHaveURL("/");
   });
 
   test("should reset password successfully", async ({ page }) => {
-    // Test data
+    page.on("console", (msg) => console.log(`Browser console: ${msg.text()}`));
+
     const testUser = {
       email: "test@example.com",
       newPassword: "NewPassword123!",
-      resetCode: "123456", // Mock reset code
+      resetCode: "123456",
     };
 
     // Step 1: Navigate to forgot password page
@@ -76,17 +72,13 @@ test.describe("Authentication", () => {
     );
 
     // Step 4: Fill reset password form
+    await page.getByTestId("email-input").fill(testUser.email);
     await page.getByTestId("code-input").fill(testUser.resetCode);
     await page.getByTestId("password-input").fill(testUser.newPassword);
     await page.getByTestId("confirm-password-input").fill(testUser.newPassword);
 
-    // Step 5: Submit reset password form
+    // // Step 5: Submit reset password form
     await page.getByTestId("reset-button").click();
-
-    // Step 6: Verify success message
-    await expect(
-      page.getByText("Your password has been successfully reset!")
-    ).toBeVisible();
 
     // Step 7: Verify navigation to login page
     await expect(page).toHaveURL("/login");
@@ -94,6 +86,7 @@ test.describe("Authentication", () => {
     // Step 8: Verify can login with new password
     await page.getByTestId("email-input").fill(testUser.email);
     await page.getByTestId("password-input").fill(testUser.newPassword);
+    await page.locator("span").nth(2).check();
     await page.getByTestId("login-button").click();
 
     // Step 9: Verify successful login

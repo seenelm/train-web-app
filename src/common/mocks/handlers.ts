@@ -31,4 +31,11 @@ export const handlers = [
       return HttpResponse.json({ message: "Password reset request sent" });
     }
   ),
+  http.post(
+    "http://localhost:3000/api/user/reset-password-with-code",
+    async ({ request }) => {
+      console.log("MSW: Requesting reset password with code");
+      return HttpResponse.json({ message: "Password reset successful" });
+    }
+  ),
 ];

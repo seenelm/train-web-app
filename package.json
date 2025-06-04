@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest src/",
     "test:coverage": "vitest run --coverage src/",
-    "test:e2e": "playwright test --debug"
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

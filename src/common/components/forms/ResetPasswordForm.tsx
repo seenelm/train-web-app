@@ -56,7 +56,7 @@ const ResetPasswordForm: React.FC = () => {
         resetCode: code,
         newPassword: password
       });
-      
+      console.log("Password reset successful");
       setSuccess(true);
       // Redirect to login page after a short delay
       setTimeout(() => {

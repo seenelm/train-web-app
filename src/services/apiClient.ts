@@ -1,5 +1,6 @@
 import axios from "axios";
 import { tokenService } from "./tokenService";
+import { RefreshTokenResponse } from "@seenelm/train-core";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -13,6 +14,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// TODO: FIX THIS
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
@@ -22,17 +24,23 @@ api.interceptors.response.use(
           refreshToken: tokenService.getRefreshToken(),
           deviceId: tokenService.getDeviceId(),
         });
-        tokenService.setTokens(res.data.accessToken, res.data.refreshToken, res.data.userId, res.data.username, res.data.name);
+        tokenService.setTokens(
+          res.data.accessToken,
+          res.data.refreshToken,
+          res.data.userId,
+          res.data.username,
+          res.data.name
+        );
         err.config.headers.Authorization = `Bearer ${res.data.accessToken}`;
         return axios(err.config);
       } catch (refreshError: any) {
         if (refreshError.response?.status === 403) {
           // Handle refresh token failure (expired or invalid)
           tokenService.clearTokens();
-          
+
           // Redirect to login page
           window.location.href = "/login?expired=true";
-          
+
           // Return a rejected promise to stop further processing
           return Promise.reject(refreshError);
         } else {
