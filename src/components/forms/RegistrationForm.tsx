@@ -5,27 +5,51 @@ import Button from '../ui/Button';
 import Checkbox from '../ui/Checkbox';
 import Form from '../ui/Form';
 import SocialButton from '../ui/SocialButton';
-import { authService } from '../../../services/authService';
-import { tokenService } from '../../../services/tokenService';
+import { authService } from '../../services/authService';
+import { tokenService } from '../../services/tokenService';
 import { UserRequest } from '@seenelm/train-core';
+
+export interface RegistrationModel {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  agreeToTerms: boolean;
+}
 
 const RegistrationForm: React.FC = () => {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  // const [name, setName] = useState('');
+  // const [email, setEmail] = useState('');
+  // const [password, setPassword] = useState('');
+  // const [confirmPassword, setConfirmPassword] = useState('');
+  // const [agreeToTerms, setAgreeToTerms] = useState(false);
+
+    const [registrationForm, setRegistrationForm] = useState<RegistrationModel>({
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      agreeToTerms: false,
+    });
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
+  const handleChange = (field: keyof RegistrationModel, value: string | boolean) => {
+    setRegistrationForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const validatePassword = () => {
-    if (password !== confirmPassword) {
+    if (registrationForm.password !== registrationForm.confirmPassword) {
       setPasswordError('Passwords do not match');
       return false;
     }
-    if (password.length < 8) {
+    if (registrationForm.password.length < 8) {
       setPasswordError('Password must be at least 8 characters long');
       return false;
     }
@@ -41,7 +65,7 @@ const RegistrationForm: React.FC = () => {
       return;
     }
     
-    if (!agreeToTerms) {
+    if (!registrationForm.agreeToTerms) {
       setError('You must agree to the Terms of Service and Privacy Policy');
       return;
     }
@@ -52,9 +76,9 @@ const RegistrationForm: React.FC = () => {
     try {
       // Create UserRequest object
       const userRequest: UserRequest = {
-        name,
-        email,
-        password,
+        name: registrationForm.name,
+        email: registrationForm.email,
+        password: registrationForm.password,
         deviceId: tokenService.getDeviceId()
       };
       
@@ -94,8 +118,8 @@ const RegistrationForm: React.FC = () => {
           testId="name-input"
           type="text"
           label="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={registrationForm.name}
+          onChange={(e) => handleChange('name', e.target.value)}
           placeholder="John Doe"
           required
           disabled={isLoading}
@@ -107,8 +131,8 @@ const RegistrationForm: React.FC = () => {
           testId="email-input"
           type="email"
           label="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={registrationForm.email}
+          onChange={(e) => handleChange('email', e.target.value)}
           placeholder="your@email.com"
           required
           disabled={isLoading}
@@ -120,8 +144,8 @@ const RegistrationForm: React.FC = () => {
           testId="password-input"
           type="password"
           label="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={registrationForm.password}
+          onChange={(e) => handleChange('password', e.target.value)}
           placeholder="••••••••"
           required
           disabled={isLoading}
@@ -134,8 +158,8 @@ const RegistrationForm: React.FC = () => {
           testId="confirm-password-input"
           type="password"
           label="Confirm Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          value={registrationForm.confirmPassword}
+          onChange={(e) => handleChange('confirmPassword', e.target.value)}
           placeholder="••••••••"
           required
           disabled={isLoading}
@@ -152,8 +176,8 @@ const RegistrationForm: React.FC = () => {
                 I agree to the <Link to="/terms-of-service">Terms of Service</Link> and <Link to="/privacy">Privacy Policy</Link>
               </>
             }
-            checked={agreeToTerms}
-            onChange={(e) => setAgreeToTerms(e.target.checked)}
+            checked={registrationForm.agreeToTerms}
+            onChange={(e) => handleChange('agreeToTerms', e.target.checked)}
             disabled={isLoading}
           />
         </div>

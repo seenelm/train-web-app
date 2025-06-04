@@ -1,47 +1,54 @@
 import {describe, expect, vi, beforeEach, it} from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
-import { mockAuthService, mockReactRouterDom } from '../../../mocks/mocks';
+import { mockAuthService, mockReactRouterDom, mockTokenService } from '../../../../mocks/mocks';
 
 // Mock modules before importing the component
 vi.mock('../../../../services/authService', () => ({
     authService: mockAuthService
 }));
 
-// Mock useNavigate and useLocation
+vi.mock('../../../../services/tokenService', () => ({
+    tokenService: mockTokenService
+}));
+
+// Mock useNavigate
 vi.mock('react-router-dom', () => ({
   ...vi.importActual('react-router-dom'),
   useNavigate: () => mockReactRouterDom.useNavigate(),
-  useLocation: () => ({ search: '?email=test@example.com' }),
 }));
 
 // Import the component after mocking dependencies
-import ResetPasswordForm from '../ResetPasswordForm';
+import RegistrationForm from '../RegistrationForm';
 
-describe('ResetPasswordForm', () => {
+describe('RegistrationForm', () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
 
-    const renderResetPasswordForm = () => {
+    const renderRegistration = () => {
         return render(
         <BrowserRouter>
-            <ResetPasswordForm />
+            <RegistrationForm />
         </BrowserRouter>
         );
     };
 
     it('renders the form correctly', () => {
-        renderResetPasswordForm();
+        renderRegistration();
 
         // Check for all form elements using testId attributes
+        expect(screen.getByTestId('name-input')).toBeInTheDocument();
         expect(screen.getByTestId('email-input')).toBeInTheDocument();
-        expect(screen.getByTestId('code-input')).toBeInTheDocument();
         expect(screen.getByTestId('password-input')).toBeInTheDocument();
         expect(screen.getByTestId('confirm-password-input')).toBeInTheDocument();
-        expect(screen.getByTestId('reset-button')).toBeInTheDocument();
+        expect(screen.getByTestId('terms-checkbox')).toBeInTheDocument();
+        expect(screen.getByTestId('register-button')).toBeInTheDocument();
+        expect(screen.getByTestId('google-button')).toBeInTheDocument();
         
-        // Check for text content
-        expect(screen.getByText(/Reset Password/i)).toBeInTheDocument();
+        // Check for text elements
+        expect(screen.getByText(/Terms of Service/i)).toBeInTheDocument();
+        expect(screen.getByText(/Privacy Policy/i)).toBeInTheDocument();
+        expect(screen.getByText(/Or sign up with/i)).toBeInTheDocument();
     });
 });

@@ -20,17 +20,22 @@ api.interceptors.response.use(
   async (err) => {
     if (err.response?.status === 401 && tokenService.getRefreshToken()) {
       try {
-        const res = await axios.post(`${API_URL}/user/refresh`, {
-          refreshToken: tokenService.getRefreshToken(),
-          deviceId: tokenService.getDeviceId(),
-        });
-        tokenService.setTokens(
-          res.data.accessToken,
-          res.data.refreshToken,
-          res.data.userId,
-          res.data.username,
-          res.data.name
+        const res = await axios.post<RefreshTokenResponse>(
+          `${API_URL}/user/refresh`,
+          {
+            refreshToken: tokenService.getRefreshToken(),
+            deviceId: tokenService.getDeviceId(),
+          }
         );
+        // tokenService.setTokens(
+        //   res.data.accessToken,
+        //   res.data.refreshToken,
+        //   res.data.userId,
+        //   res.data.username,
+        //   res.data.name
+        // );
+        tokenService.setAccessToken(res.data.accessToken);
+        tokenService.setRefreshToken(res.data.refreshToken);
         err.config.headers.Authorization = `Bearer ${res.data.accessToken}`;
         return axios(err.config);
       } catch (refreshError: any) {

@@ -1,15 +1,11 @@
 import {describe, expect, vi, beforeEach, it} from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
-import { mockAuthService, mockReactRouterDom, mockTokenService } from '../../../mocks/mocks';
+import { mockAuthService, mockReactRouterDom } from '../../../../mocks/mocks';
 
 // Mock modules before importing the component
 vi.mock('../../../../services/authService', () => ({
     authService: mockAuthService
-}));
-
-vi.mock('../../../../services/tokenService', () => ({
-    tokenService: mockTokenService
 }));
 
 // Mock useNavigate
@@ -19,29 +15,30 @@ vi.mock('react-router-dom', () => ({
 }));
 
 // Import the component after mocking dependencies
-import LoginForm from '../LoginForm';
+import ForgotPasswordForm from '../ForgotPasswordForm';
 
-describe('LoginForm', () => {
+describe('ForgotPasswordForm', () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
 
-    const renderLogin = () => {
+    const renderForgotPasswordForm = () => {
         return render(
         <BrowserRouter>
-            <LoginForm />
+            <ForgotPasswordForm />
         </BrowserRouter>
         );
     };
 
     it('renders the form correctly', () => {
-        renderLogin();
+        renderForgotPasswordForm();
 
+        // Check for all form elements using testId attributes
         expect(screen.getByTestId('email-input')).toBeInTheDocument();
-        expect(screen.getByTestId("password-input")).toBeInTheDocument();
-        expect(screen.getByTestId("remember-checkbox")).toBeInTheDocument();
-        expect(screen.getByTestId("forgot-password-link")).toBeInTheDocument();
-        expect(screen.getByTestId('login-button')).toBeInTheDocument();
-        expect(screen.getByTestId('google-button')).toBeInTheDocument();
+        expect(screen.getByTestId('submit-button')).toBeInTheDocument();
+        
+        // Check for text content
+        expect(screen.getByText(/Enter your email address below/i)).toBeInTheDocument();
+        expect(screen.getByText(/Send Reset Instructions/i)).toBeInTheDocument();
     });
 });

@@ -1,4 +1,4 @@
-import Navigation from './common/components/navigation/Navigation';
+import Navigation from './components/navigation/Navigation';
 import './styles/global.css';
 
 function App() {
