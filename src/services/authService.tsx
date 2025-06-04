@@ -13,8 +13,9 @@ import {
     ResetPasswordWithCodeRequest
   } from '@seenelm/train-core';
   import { tokenService } from './tokenService';
+import { AxiosError } from 'axios';
   
-  const API_URL = import.meta.env.VITE_API_URL;
+  export const API_URL = import.meta.env.VITE_API_URL;
   
   export const authService = {
     async register(userRequest: UserRequest) {
@@ -23,6 +24,9 @@ import {
         tokenService.setTokens(response.data.token, response.data.refreshToken, response.data.userId, response.data.username, response.data.name);
         return response.data;
       } catch (error) {
+        if (error instanceof AxiosError) {
+          console.error('Error registering user:', error);
+        }
         console.error('Error registering user:', error);
         throw error;
       }

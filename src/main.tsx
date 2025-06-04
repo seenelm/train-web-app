@@ -5,8 +5,27 @@ import App from './App.tsx'
 
 const root = document.getElementById("root");
 
-ReactDOM.createRoot(root!).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
-);
+async function enableMocking() {
+  if (process.env.NODE_ENV !== 'development') {
+    return
+  }
+ 
+  const { worker } = await import('./common/mocks/browser')
+ 
+  // `worker.start()` returns a Promise that resolves
+  // once the Service Worker is up and ready to intercept requests.
+  return worker.start()
+}
+
+enableMocking().then(() => {
+  ReactDOM.createRoot(root!).render(
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  );
+});
+// ReactDOM.createRoot(root!).render(
+//   <BrowserRouter>
+//     <App />
+//   </BrowserRouter>
+// );

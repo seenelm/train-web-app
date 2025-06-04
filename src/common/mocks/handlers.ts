@@ -1,12 +1,34 @@
 // src/mocks/handlers.ts
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from "msw";
+import { UserResponse } from "@seenelm/train-core";
+
+const mockUserResponse: UserResponse = {
+  userId: "1",
+  accessToken: "mock-access-token",
+  refreshToken: "mock-refresh-token",
+  username: "testuser",
+  name: "New User",
+};
 
 export const handlers = [
-  http.post('/api/login', async ({ request }) => {
-    const { email, password } = await request.json() as { email: string; password: string };
-    if (email === 'test@example.com' && password === 'password') {
-      return HttpResponse.json({ user: { email } });
-    }
-    return HttpResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+  http.post("http://localhost:3000/api/user/login", async ({ request }) => {
+    return HttpResponse.json(mockUserResponse);
   }),
+  http.post("http://localhost:3000/api/user/register", async ({ request }) => {
+    console.log("MSW: Registering user");
+    const body = await request.json();
+    console.log("MSW: Registration request body:", body);
+    return HttpResponse.json(mockUserResponse);
+  }),
+  http.post("http://localhost:3000/api/user/logout", async ({ request }) => {
+    console.log("MSW: Logging out user");
+    return HttpResponse.json({ message: "Logged out successfully" });
+  }),
+  http.post(
+    "http://localhost:3000/api/user/request-password-reset",
+    async ({ request }) => {
+      console.log("MSW: Requesting password reset");
+      return HttpResponse.json({ message: "Password reset request sent" });
+    }
+  ),
 ];
