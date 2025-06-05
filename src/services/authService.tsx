@@ -95,7 +95,6 @@ import { AxiosError } from 'axios';
     },
     
     // Send the Google ID token to your backend
-    // Get rid of this method
     async authenticateWithProvider(idToken: string, name: string | null, url: string) {
       try {
         const response = await fetch(url, {
@@ -114,7 +113,7 @@ import { AxiosError } from 'axios';
         const data = await response.json();
         
         // Store the JWT token from your backend
-        tokenService.setTokens(data.token, data.refreshToken, data.userId, data.username, data.name);
+        tokenService.setTokens(data.accessToken, data.refreshToken, data.userId, data.username, data.name);
         
         return data;
       } catch (error) {

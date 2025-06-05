@@ -349,7 +349,7 @@ describe('authService', () => {
         'Test User'
       );
       expect(result).toEqual({
-        token: 'access-token',
+        accessToken: 'access-token',
         refreshToken: 'refresh-token',
         userId: 'user-123',
         username: 'testuser',
