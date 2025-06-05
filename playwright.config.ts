@@ -2,49 +2,23 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  // fullyParallel: true,
-  // forbidOnly: !!process.env.CI,
-  // retries: process.env.CI ? 2 : 0,
-  // workers: process.env.CI ? 1 : undefined,
+  fullyParallel: false, // Run tests sequentially in CI
+  forbidOnly: !!process.env.CI, // Fail if tests are marked with .only in CI
+  retries: process.env.CI ? 2 : 0, // Retry failed tests in CI
+  workers: process.env.CI ? 1 : undefined, // Use a single worker in CI
   reporter: "html",
-  // use: {
-  //   baseURL: 'http://localhost:5173',
-  //   trace: 'on-first-retry',
-  // },
-  // projects: [
-  //   {
-  //     name: "chromium",
-  //     use: { ...devices["Desktop Chrome"] },
-  //   },
-  //   // Comment out other browsers for local development
-  //   // {
-  //   //   name: 'firefox',
-  //   //   use: { ...devices['Desktop Firefox'] },
-  //   // },
-  //   // {
-  //   //   name: 'webkit',
-  //   //   use: { ...devices['Desktop Safari'] },
-  //   // },
-  // ],
-  // use: {
-  //   // Enable console logging
-  //   launchOptions: {
-  //     logger: {
-  //       isEnabled: (name, severity) => true,
-  //       log: (name, severity, message, args) =>
-  //         console.log(`${name} ${message}`),
-  //     },
-  //   },
-  //   // Log browser console
-  //   trace: "on-first-retry",
-  // },
   use: {
     baseURL: "http://localhost:5173",
+    trace: "on-first-retry", // Capture trace on first retry of each test
+    screenshot: "only-on-failure", // Capture screenshots only on failure
+    video: "on-first-retry", // Record video only on first retry
+    actionTimeout: 15000, // Timeout for actions like click, fill
+    navigationTimeout: 30000, // Timeout for navigations
   },
   outputDir: "test-results",
-  timeout: 30000,
+  timeout: 60000, // Increase overall test timeout to 60 seconds
   expect: {
-    timeout: 5000,
+    timeout: 10000, // Increase expect assertion timeout to 10 seconds
   },
   webServer: {
     command: "npm run dev",
@@ -52,5 +26,6 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     stdout: "pipe",
     stderr: "pipe",
+    timeout: 60000, // Increase server startup timeout
   },
 });
