@@ -22,8 +22,13 @@ export const mockTokenService = {
 
 // Mock useNavigate
 export const mockNavigate = vi.fn();
+export const mockLocation = vi.fn();
+export const mockLink = vi.fn();
 
 // Mock react-router-dom
 export const mockReactRouterDom = {
   useNavigate: () => mockNavigate,
+  useLocation: () => mockLocation,
+  // Updated Link mock to preserve children
+  Link: ({ children }: { children: React.ReactNode }) => children
 };
