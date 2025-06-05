@@ -10,28 +10,33 @@ import {
     UserLoginRequest, 
     LogoutRequest,
     RequestPasswordResetRequest,
-    ResetPasswordWithCodeRequest
+    ResetPasswordWithCodeRequest,
+    UserResponse
   } from '@seenelm/train-core';
   import { tokenService } from './tokenService';
+import { AxiosError } from 'axios';
   
-  const API_URL = import.meta.env.VITE_API_URL;
+  export const API_URL = import.meta.env.VITE_API_URL;
   
   export const authService = {
-    async register(userRequest: UserRequest) {
+    async register(userRequest: UserRequest): Promise<UserResponse> {
       try {
-        const response = await api.post(`${API_URL}/user/register`, userRequest);
-        tokenService.setTokens(response.data.token, response.data.refreshToken, response.data.userId, response.data.username, response.data.name);
+        const response = await api.post<UserResponse>(`${API_URL}/user/register`, userRequest);
+        tokenService.setTokens(response.data.accessToken, response.data.refreshToken, response.data.userId, response.data.username, response.data.name);
         return response.data;
       } catch (error) {
+        if (error instanceof AxiosError) {
+          console.error('Error registering user:', error);
+        }
         console.error('Error registering user:', error);
         throw error;
       }
     },
 
-    async login(userLoginRequest: UserLoginRequest) {
+    async login(userLoginRequest: UserLoginRequest): Promise<UserResponse> {
       try {
-        const response = await api.post(`${API_URL}/user/login`, userLoginRequest);
-        tokenService.setTokens(response.data.token, response.data.refreshToken, response.data.userId, response.data.username, response.data.name);
+        const response = await api.post<UserResponse>(`${API_URL}/user/login`, userLoginRequest);
+        tokenService.setTokens(response.data.accessToken, response.data.refreshToken, response.data.userId, response.data.username, response.data.name);
         return response.data;
       } catch (error) {
         console.error('Error logging in user:', error);
@@ -39,7 +44,7 @@ import {
       }
     },
 
-    async requestPasswordReset(request: RequestPasswordResetRequest) {
+    async requestPasswordReset(request: RequestPasswordResetRequest): Promise<void> {
       try {
         await api.post(`${API_URL}/user/request-password-reset`, request);
       } catch (error) {
@@ -48,7 +53,7 @@ import {
       }
     },
 
-    async resetPasswordWithCode(request: ResetPasswordWithCodeRequest) {
+    async resetPasswordWithCode(request: ResetPasswordWithCodeRequest): Promise<void> {
       try {
         await api.post(`${API_URL}/user/reset-password-with-code`, request);
       } catch (error) {
@@ -58,7 +63,7 @@ import {
     },
 
     // Sign in with Google
-    async signInWithGoogle() {
+    async signInWithGoogle(): Promise<UserResponse> {
       try {
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({
@@ -70,7 +75,7 @@ import {
         const idToken = await result.user.getIdToken();
         
         // Send the token to your backend with device ID
-        const response = await api.post(`${API_URL}/user/google-auth`, {
+        const response = await api.post<UserResponse>(`${API_URL}/user/google-auth`, {
           name: result.user.displayName,
           deviceId: tokenService.getDeviceId()
         }, {
@@ -80,7 +85,7 @@ import {
         });
         
         // Store tokens using tokenService
-        tokenService.setTokens(response.data.token, response.data.refreshToken, response.data.userId, response.data.username, response.data.name);
+        tokenService.setTokens(response.data.accessToken, response.data.refreshToken, response.data.userId, response.data.username, response.data.name);
         
         return response.data;
       } catch (error) {
@@ -90,6 +95,7 @@ import {
     },
     
     // Send the Google ID token to your backend
+    // Get rid of this method
     async authenticateWithProvider(idToken: string, name: string | null, url: string) {
       try {
         const response = await fetch(url, {
@@ -118,7 +124,7 @@ import {
     },
 
     // Sign out
-    async logout(logoutRequest: LogoutRequest) {
+    async logout(logoutRequest: LogoutRequest): Promise<void> {
 
         // Call the signout endpoint first
         if (this.isAuthenticated()) {

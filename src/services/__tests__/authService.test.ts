@@ -78,7 +78,7 @@ describe('authService', () => {
       
       const mockResponse = {
         data: {
-          token: 'access-token',
+          accessToken: 'access-token',
           refreshToken: 'refresh-token',
           userId: 'user-123',
           username: 'testuser',
@@ -94,7 +94,7 @@ describe('authService', () => {
       // Assert
       expect(api.post).toHaveBeenCalledWith(expect.stringContaining('/user/register'), mockUserRequest);
       expect(tokenService.setTokens).toHaveBeenCalledWith(
-        mockResponse.data.token,
+        mockResponse.data.accessToken,
         mockResponse.data.refreshToken,
         mockResponse.data.userId,
         mockResponse.data.username,
@@ -134,7 +134,7 @@ describe('authService', () => {
       
       const mockResponse = {
         data: {
-          token: 'access-token',
+          accessToken: 'access-token',
           refreshToken: 'refresh-token',
           userId: 'user-123',
           username: 'testuser',
@@ -150,7 +150,7 @@ describe('authService', () => {
       // Assert
       expect(api.post).toHaveBeenCalledWith(expect.stringContaining('/user/login'), mockLoginRequest);
       expect(tokenService.setTokens).toHaveBeenCalledWith(
-        mockResponse.data.token,
+        mockResponse.data.accessToken,
         mockResponse.data.refreshToken,
         mockResponse.data.userId,
         mockResponse.data.username,
@@ -257,7 +257,7 @@ describe('authService', () => {
       
       const mockResponse = {
         data: {
-          token: 'access-token',
+          accessToken: 'access-token',
           refreshToken: 'refresh-token',
           userId: 'user-123',
           username: 'testuser',
@@ -287,7 +287,7 @@ describe('authService', () => {
         }
       );
       expect(tokenService.setTokens).toHaveBeenCalledWith(
-        mockResponse.data.token,
+        mockResponse.data.accessToken,
         mockResponse.data.refreshToken,
         mockResponse.data.userId,
         mockResponse.data.username,
@@ -319,7 +319,7 @@ describe('authService', () => {
       const mockResponse = {
         ok: true,
         json: vi.fn().mockResolvedValue({
-          token: 'access-token',
+          accessToken: 'access-token',
           refreshToken: 'refresh-token',
           userId: 'user-123',
           username: 'testuser',

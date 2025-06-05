@@ -1,10 +1,10 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import AuthCard from '../common/components/ui/AuthCard';
-import LoginForm from '../common/components/forms/LoginForm';
-import RegistrationForm from '../common/components/forms/RegistrationForm';
-import ForgotPasswordForm from '../common/components/forms/ForgotPasswordForm';
-import ResetPasswordForm from '../common/components/forms/ResetPasswordForm';
+import AuthCard from '../components/ui/AuthCard';
+import LoginForm from '../components/forms/LoginForm';
+import RegistrationForm from '../components/forms/RegistrationForm';
+import ForgotPasswordForm from '../components/forms/ForgotPasswordForm';
+import ResetPasswordForm from '../components/forms/ResetPasswordForm';
 
 type AuthType = 'login' | 'register' | 'forgot-password' | 'reset-password';
 

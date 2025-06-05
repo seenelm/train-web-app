@@ -1,44 +1,56 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
-  testDir: './e2e',
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
-  // Add explicit timeouts
-  timeout: process.env.CI ? 60000 : 30000, // 60 seconds on CI, 30 seconds locally
-  expect: {
-    timeout: process.env.CI ? 10000 : 5000, // 10 seconds on CI, 5 seconds locally
-  },
+  testDir: "./e2e",
+  // fullyParallel: true,
+  // forbidOnly: !!process.env.CI,
+  // retries: process.env.CI ? 2 : 0,
+  // workers: process.env.CI ? 1 : undefined,
+  reporter: "html",
+  // use: {
+  //   baseURL: 'http://localhost:5173',
+  //   trace: 'on-first-retry',
+  // },
+  // projects: [
+  //   {
+  //     name: "chromium",
+  //     use: { ...devices["Desktop Chrome"] },
+  //   },
+  //   // Comment out other browsers for local development
+  //   // {
+  //   //   name: 'firefox',
+  //   //   use: { ...devices['Desktop Firefox'] },
+  //   // },
+  //   // {
+  //   //   name: 'webkit',
+  //   //   use: { ...devices['Desktop Safari'] },
+  //   // },
+  // ],
+  // use: {
+  //   // Enable console logging
+  //   launchOptions: {
+  //     logger: {
+  //       isEnabled: (name, severity) => true,
+  //       log: (name, severity, message, args) =>
+  //         console.log(`${name} ${message}`),
+  //     },
+  //   },
+  //   // Log browser console
+  //   trace: "on-first-retry",
+  // },
   use: {
-    baseURL: 'http://localhost:5173',
-    trace: 'on-first-retry',
-    // Add navigation timeout
-    navigationTimeout: process.env.CI ? 30000 : 15000,
-    // Add action timeout
-    actionTimeout: process.env.CI ? 15000 : 5000,
+    baseURL: "http://localhost:5173",
   },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    // Comment out other browsers for local development
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
-  ],
+  outputDir: "test-results",
+  timeout: 30000,
+  expect: {
+    timeout: 5000,
+  },
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
+    command: "npm run dev",
+    url: "http://localhost:5173",
     reuseExistingServer: !process.env.CI,
-    timeout: 120000, // 2 minutes to start the server
+    stdout: "pipe",
+    stderr: "pipe",
   },
 });

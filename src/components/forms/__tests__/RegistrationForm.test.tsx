@@ -1,7 +1,8 @@
 import {describe, expect, vi, beforeEach, it} from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
 import { mockAuthService, mockReactRouterDom, mockTokenService } from '../../../mocks/mocks';
+import { RegistrationModel } from '../RegistrationForm';
 
 // Mock modules before importing the component
 vi.mock('../../../../services/authService', () => ({
@@ -20,6 +21,7 @@ vi.mock('react-router-dom', () => ({
 
 // Import the component after mocking dependencies
 import RegistrationForm from '../RegistrationForm';
+import AuthDataProvider from '../../../common/test-util/data-providers/AuthDataProvider';
 
 describe('RegistrationForm', () => {
     beforeEach(() => {
@@ -32,6 +34,20 @@ describe('RegistrationForm', () => {
             <RegistrationForm />
         </BrowserRouter>
         );
+    };
+
+    const fillForm = async (model: RegistrationModel) => {
+        const nameInput = screen.getByTestId('name-input');
+        const emailInput = screen.getByTestId('email-input');
+        const passwordInput = screen.getByTestId('password-input');
+        const confirmPasswordInput = screen.getByTestId('confirm-password-input');
+        const termsCheckbox = screen.getByTestId('terms-checkbox');
+    
+        fireEvent.change(nameInput, { target: { value: model.name } });
+        fireEvent.change(emailInput, { target: { value: model.email } });
+        fireEvent.change(passwordInput, { target: { value: model.password } });
+        fireEvent.change(confirmPasswordInput, { target: { value: model.confirmPassword } });
+        fireEvent.click(termsCheckbox);
     };
 
     it('renders the form correctly', () => {
@@ -50,5 +66,28 @@ describe('RegistrationForm', () => {
         expect(screen.getByText(/Terms of Service/i)).toBeInTheDocument();
         expect(screen.getByText(/Privacy Policy/i)).toBeInTheDocument();
         expect(screen.getByText(/Or sign up with/i)).toBeInTheDocument();
+    });
+
+    describe('Password Validation', () => {
+        it.each(AuthDataProvider.registrationFormErrorCases)(
+            "$description",
+            async ({ model, expectedError }) => {
+              renderRegistration();
+              
+              // Fill form with invalid password
+              await fillForm(model);
+              
+              // Submit form
+              const submitButton = screen.getByTestId('register-button');
+              fireEvent.click(submitButton);
+              
+              // Check for error message
+              await waitFor(() => {
+                const passwordInput = screen.getByTestId('password-input');
+                const errorElement = passwordInput.closest('.form-group')?.querySelector('.input-error');
+                expect(errorElement).toHaveTextContent(expectedError);
+              });
+            }
+          );
     });
 });
