@@ -319,7 +319,7 @@ describe('authService', () => {
       const mockResponse = {
         ok: true,
         json: vi.fn().mockResolvedValue({
-          token: 'access-token',
+          accessToken: 'access-token',
           refreshToken: 'refresh-token',
           userId: 'user-123',
           username: 'testuser',
