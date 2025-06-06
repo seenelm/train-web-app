@@ -26,5 +26,29 @@ export default class AuthDataProvider {
       }),
       expectedError: RegistrationFormType.PasswordDoesNotMatch,
     },
+    {
+      description: "Terms not agreed",
+      model: AuthTestFixture.createRegistrationModel({
+        agreeToTerms: false,
+      }),
+      expectedError: RegistrationFormType.TermsNotAgreed,
+    },
+    {
+      description: "Email already exists",
+      model: AuthTestFixture.createRegistrationModel({
+        email: "existing@example.com",
+      }),
+      expectedError: RegistrationFormType.EmailAlreadyExists,
+    },
+    {
+      description: "Server error",
+      model: AuthTestFixture.createRegistrationModel({
+        email: "server-error@example.com",
+        password: "validpassword123",
+        confirmPassword: "validpassword123",
+        agreeToTerms: true,
+      }),
+      expectedError: RegistrationFormType.UnknownError,
+    },
   ];
 }

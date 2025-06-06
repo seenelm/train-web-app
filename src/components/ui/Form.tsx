@@ -18,7 +18,7 @@ const Form: React.FC<FormProps> = ({
 }) => {
   return (
     <>
-      {error && <div className="form-error">{error}</div>}
+      {error && <div className="form-error" data-testid="form-error">{error}</div>}
       {success && <div className="form-success">{success}</div>}
       <form role="form" onSubmit={onSubmit} className={`form ${className}`}>
         {children}
