@@ -12,74 +12,49 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and run unit tests in Docker
+        uses: docker/build-push-action@v5
         with:
-          node-version: "20"
-          cache: "npm"
-          registry-url: "https://npm.pkg.github.com"
-          scope: "@seenelm"
-
-      - name: Install dependencies
-        run: npm ci
+          context: .
+          target: test
+          push: false
+          load: true
+          tags: train-web-app:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_AUTH_TOKEN=${{ secrets.PACKAGE_TOKEN }}
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+          DOCKER_BUILDKIT: 1
 
-      - name: Run unit tests with coverage
-        run: npm run test:coverage
-        env:
-          VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+      - name: Run unit tests
+        run: docker run --rm -e VITE_FIREBASE_API_KEY="${{ secrets.FIREBASE_API_KEY }}" -e VITE_FIREBASE_AUTH_DOMAIN="${{ secrets.FIREBASE_AUTH_DOMAIN }}" -e VITE_FIREBASE_PROJECT_ID="${{ secrets.FIREBASE_PROJECT_ID }}" -e VITE_FIREBASE_STORAGE_BUCKET="${{ secrets.FIREBASE_STORAGE_BUCKET }}" -e VITE_FIREBASE_MESSAGING_SENDER_ID="${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}" -e VITE_FIREBASE_APP_ID="${{ secrets.FIREBASE_APP_ID }}" train-web-app:test
 
   e2e-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and prepare E2E test image
+        uses: docker/build-push-action@v5
         with:
-          node-version: "20"
-          cache: "npm"
-          registry-url: "https://npm.pkg.github.com"
-          scope: "@seenelm"
-
-      - name: Install dependencies
-        run: npm ci
+          context: .
+          target: e2e
+          push: false
+          load: true
+          tags: train-web-app:e2e
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_AUTH_TOKEN=${{ secrets.PACKAGE_TOKEN }}
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+          DOCKER_BUILDKIT: 1
 
-      # - name: Cache Playwright browsers
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: ~/.cache/ms-playwright
-      #     key: playwright-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-      #     restore-keys: |
-      #       playwright-${{ runner.os }}-
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-
-      - name: Initialize MSW
-        run: npx msw init public/ --save
-
-      - name: Build the app
-        run: npm run build
-
-      - name: List the name of setupTests
-        run: ls -la src/setupTests.ts
-
-      - name: Run Playwright tests
-        run: npm run test:e2e
-
-      # - name: Upload test results
-      #   if: always()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: playwright-report
-      #     path: playwright-report/
-      #     retention-days: 30
+      - name: Run E2E tests
+        run: docker run --rm train-web-app:e2e
