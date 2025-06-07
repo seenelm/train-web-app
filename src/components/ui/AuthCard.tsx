@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from '../../../assets/logo1.svg';
+import logo from '../../assets/logo1.svg';
 import './styles/AuthCard.css';
 
 interface AuthCardProps {

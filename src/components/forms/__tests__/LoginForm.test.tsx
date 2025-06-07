@@ -1,14 +1,14 @@
 import {describe, expect, vi, beforeEach, it} from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
-import { mockAuthService, mockReactRouterDom, mockTokenService } from '../../../../mocks/mocks';
+import { mockAuthService, mockReactRouterDom, mockTokenService } from '../../../mocks/mocks';
 
 // Mock modules before importing the component
-vi.mock('../../../../services/authService', () => ({
+vi.mock('../../services/authService', () => ({
     authService: mockAuthService
 }));
 
-vi.mock('../../../../services/tokenService', () => ({
+vi.mock('../../services/tokenService', () => ({
     tokenService: mockTokenService
 }));
 

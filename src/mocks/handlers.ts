@@ -19,7 +19,7 @@ export interface ErrorResponse {
 }
 
 export const handlers = [
-  http.post("http://localhost:3000/api/user/login", async ({ request }) => {
+  http.post("http://localhost:3000/api/user/login", async () => {
     return HttpResponse.json(mockUserResponse);
   }),
   http.post("http://localhost:3000/api/user/register", async ({ request }) => {
@@ -76,20 +76,20 @@ export const handlers = [
     }
     return HttpResponse.json(mockUserResponse);
   }),
-  http.post("http://localhost:3000/api/user/logout", async ({ request }) => {
+  http.post("http://localhost:3000/api/user/logout", async () => {
     console.log("MSW: Logging out user");
     return HttpResponse.json({ message: "Logged out successfully" });
   }),
   http.post(
     "http://localhost:3000/api/user/request-password-reset",
-    async ({ request }) => {
+    async () => {
       console.log("MSW: Requesting password reset");
       return HttpResponse.json({ message: "Password reset request sent" });
     }
   ),
   http.post(
     "http://localhost:3000/api/user/reset-password-with-code",
-    async ({ request }) => {
+    async () => {
       console.log("MSW: Requesting reset password with code");
       return HttpResponse.json({ message: "Password reset successful" });
     }
