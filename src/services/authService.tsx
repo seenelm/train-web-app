@@ -16,7 +16,7 @@ import {
   import { tokenService } from './tokenService';
 import { AxiosError } from 'axios';
   
-  export const API_URL = import.meta.env.VITE_API_URL;
+  export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
   
   export const authService = {
     async register(userRequest: UserRequest): Promise<UserResponse> {
