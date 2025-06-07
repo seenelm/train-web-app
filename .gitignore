@@ -31,3 +31,4 @@ test-results
 .npmrc
 # Local Netlify folder
 .netlify
+playwright-report/
