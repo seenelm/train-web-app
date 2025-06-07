@@ -70,6 +70,9 @@ jobs:
       - name: Build the app
         run: npm run build
 
+      - name: List the name of setupTests
+        run: ls -la src/setupTests.ts
+
       - name: Run Playwright tests
         run: npm run test:e2e
 

@@ -40,11 +40,15 @@ export default defineConfig({
   // },
   use: {
     baseURL: "http://localhost:5173",
+<<<<<<< HEAD
     trace: "on-first-retry", 
     screenshot: "on", 
     video: process.env.CI ? "on" : "on-first-retry", 
     actionTimeout: process.env.CI ? 30000 : 15000, 
     navigationTimeout: process.env.CI ? 45000 : 30000, 
+=======
+    headless: true,
+>>>>>>> feature/ng-auth
   },
   outputDir: "test-results",
   timeout: process.env.CI ? 90000 : 60000, 
