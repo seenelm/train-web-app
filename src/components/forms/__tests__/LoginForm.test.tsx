@@ -1,19 +1,9 @@
 import {describe, expect, vi, beforeEach, it} from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
-import { mockAuthService, mockReactRouterDom, mockTokenService } from '../../../mocks/mocks';
+import { mockReactRouterDom } from '../../../mocks/mocks';
 import { LoginModel } from '../LoginForm';
 import AuthDataProvider from '../../../common/test-util/data-providers/AuthDataProvider';
-import { LoginErrorTypes } from '../../../common/enums/authEnum';
-
-// Mock modules before importing the component
-vi.mock('../../services/authService', () => ({
-    authService: mockAuthService
-}));
-
-vi.mock('../../services/tokenService', () => ({
-    tokenService: mockTokenService
-}));
 
 // Mock useNavigate
 vi.mock('react-router-dom', () => ({
@@ -75,17 +65,8 @@ describe('LoginForm', () => {
               
               // Check for error message
               await waitFor(() => {
-                if (expectedError === LoginErrorTypes.PasswordRequired) {
-                    console.log('Looking for password error');
-                    const errorElement = screen.getByTestId('password-input-error');
-                    console.log('Error element:', errorElement);
-                    expect(errorElement).toHaveTextContent(expectedError);
-                } else if (expectedError === LoginErrorTypes.EmailRequired) {
-                    console.log('Looking for email error');
-                    const emailInput = screen.getByTestId('email-input');
-                    const errorElement = emailInput.closest('.form-group')?.querySelector('.input-error');
-                    expect(errorElement).toHaveTextContent(expectedError);
-                }
+                const errorElement = screen.getByTestId('form-error');
+                expect(errorElement).toHaveTextContent(expectedError);
               });
             }
           );

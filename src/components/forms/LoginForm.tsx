@@ -7,7 +7,7 @@ import Form from '../ui/Form';
 import SocialButton from '../ui/SocialButton';
 import { authService } from '../../services/authService';
 import { tokenService } from '../../services/tokenService';
-import { LoginErrorTypes } from '../../common/enums/authEnum';
+import { AuthErrorTypes } from '../../common/enums/authEnum';
 import { AxiosError } from 'axios';
 import { ErrorResponse } from '../../mocks/handlers';
 
@@ -34,8 +34,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
     sessionExpired ? 'Your session has expired. Please sign in again.' : null
   );
 
-  const [emailError, setEmailError] = useState<string | null>(null);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const handleError = (error: AxiosError<ErrorResponse>) => {
+    const errorResponse = error.response?.data as ErrorResponse;
+        console.log('Error response:', errorResponse);
+
+    if (error.response && error.response.status >= 500) {
+      setError(AuthErrorTypes.ServerError);
+    } else {
+      setError(errorResponse.message);
+    }
+  }
 
   const handleChange = (field: keyof LoginModel, value: string | boolean) => {
     setLoginForm(prev => ({
@@ -44,32 +52,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
     }));
   };
 
-  const validateForm = (): boolean => {
-    console.log('Validating form');
-    setError(null);
-    setEmailError(null);
-    setPasswordError(null);
-
-    if (!loginForm.email.trim()) {
-      setEmailError(LoginErrorTypes.EmailRequired);
-      console.log('Email is required', loginForm.email);
-      return false;
-    }
-
-    if (!loginForm.password.trim()) {
-      setPasswordError(LoginErrorTypes.PasswordRequired);
-      console.log('Password is required', loginForm.password);
-      return false;
-    }
-
-    return true;
-  }
-
   const handleSignIn = async (provider: 'google' | 'local') => {
     try {
       setIsLoading(true);
-      // setError(null);
-  
+      setError(null);
+
       let userData;
   
       if (provider === 'google') {
@@ -89,23 +76,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
     } catch (err) {
       console.error(`${provider} sign-in error:`, err);
       if (err instanceof AxiosError) {
-        const errorResponse = err.response?.data as ErrorResponse;
-        console.log('Error response:', errorResponse);
-        // Handle backend validation errors
-        switch (errorResponse?.errorCode) {
-          case 'PASSWORD_REQUIRED':
-            setPasswordError(LoginErrorTypes.PasswordRequired);
-            break;
-          case 'EMAIL_REQUIRED':
-            setEmailError(LoginErrorTypes.EmailRequired);
-            break;
-          case 'INVALID_PASSWORD':
-            setError(LoginErrorTypes.InvalidPassword);
-            break;
-          default:
-            setError(`Failed to sign in with ${provider}. Please try again.`);
-        }
-
+        handleError(err);
       } else {
         setError(`Failed to sign in with ${provider}. Please try again.`);
       }
@@ -118,10 +89,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
     console.log('handleSubmit');
     e.preventDefault();
     console.log('Form state before validation:', loginForm);
-    if (!validateForm()) {
-      console.log('Form validation failed');
-      return;
-    }
     handleSignIn('local');
   };
 
@@ -139,7 +106,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
           required
           disabled={isLoading}
           autoComplete="email"
-          error={emailError}
         />
         
         <TextInput
@@ -153,7 +119,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
           required
           disabled={isLoading}
           autoComplete="current-password"
-          error={passwordError}
         />
         
         <div className="form-options">

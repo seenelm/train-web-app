@@ -5,6 +5,7 @@ import {
   LoginErrorTypes,
 } from "../../../common/enums/authEnum";
 import { LoginModel } from "../../../components/forms/LoginForm";
+import { AuthErrorTypes } from "../../../common/enums/authEnum";
 
 export interface ErrorTestCase<T> {
   description: string;
@@ -37,13 +38,6 @@ export default class AuthDataProvider {
       }),
       expectedError: RegistrationErrorTypes.TermsNotAgreed,
     },
-    // {
-    //   description: "Email is required",
-    //   model: AuthTestFixture.createRegistrationModel({
-    //     email: "",
-    //   }),
-    //   expectedError: RegistrationFormType.EmailRequired,
-    // },
     {
       description: "Email already exists",
       model: AuthTestFixture.createRegistrationModel({
@@ -65,18 +59,18 @@ export default class AuthDataProvider {
 
   static loginFormErrorCases: ErrorTestCase<LoginModel>[] = [
     {
-      description: "Email is required",
+      description: "Invalid password",
       model: AuthTestFixture.createLoginModel({
-        email: "",
+        password: "invalid-password@example.com",
       }),
-      expectedError: LoginErrorTypes.EmailRequired,
+      expectedError: LoginErrorTypes.InvalidPassword,
     },
-    // {
-    //   description: "Password is required",
-    //   model: AuthTestFixture.createLoginModel({
-    //     password: "",
-    //   }),
-    //   expectedError: LoginErrorTypes.PasswordRequired,
-    // },
+    {
+      description: "Server error",
+      model: AuthTestFixture.createLoginModel({
+        email: "server-error@example.com",
+      }),
+      expectedError: AuthErrorTypes.ServerError,
+    },
   ];
 }

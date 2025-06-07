@@ -17,3 +17,7 @@ export enum LoginErrorTypes {
   InvalidPassword = "Invalid password",
   UnknownError = "Failed to login. Please try again.",
 }
+
+export enum AuthErrorTypes {
+  ServerError = "Service is currently unavailable. Please try again later.",
+}
