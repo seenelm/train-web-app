@@ -1,7 +1,7 @@
 import {describe, expect, vi, beforeEach, it} from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
-import { mockAuthService, mockReactRouterDom, mockTokenService } from '../../../mocks/mocks';
+import {mockReactRouterDom } from '../../../mocks/mocks';
 import { RegistrationModel } from '../RegistrationForm';
 import { RegistrationFormType } from '../../../common/enums/authEnum';
 

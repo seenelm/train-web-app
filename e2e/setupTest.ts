@@ -1,6 +1,6 @@
 // src/setupTests.ts
 import { test, expect } from "@playwright/test";
-import { worker } from "../src/common/mocks/browser";
+import { worker } from "../src/mocks/browser";
 
 // Start MSW before all tests
 test.beforeAll(async () => {

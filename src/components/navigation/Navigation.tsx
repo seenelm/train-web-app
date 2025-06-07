@@ -1,10 +1,10 @@
 import { Routes, Route } from "react-router";
 import { useEffect, useState } from "react";
 import { ProtectedRoute, AuthRoute, ResetPasswordRoute } from './RouteGuards';
-import AuthPage from '../../../pages/AuthPage';
-import PrivacyPolicy from '../../../pages/PrivacyPolicy';
-import TermsOfService from '../../../pages/TermsOfService';
-import Dashboard from "../../../pages/Dashboard";
+import AuthPage from "../../pages/AuthPage";
+import PrivacyPolicy from "../../pages/PrivacyPolicy";
+import TermsOfService from "../../pages/TermsOfService";
+import Dashboard from "../../pages/Dashboard";
 
 interface NavigationProps {
   // You can add props here if needed in the future
