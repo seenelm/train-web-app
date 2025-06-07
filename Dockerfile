@@ -20,19 +20,31 @@ COPY . .
 RUN npx msw init public/ --save
 RUN npm run build
 
-# Test stage
+# Test stage - specifically for unit tests only
 FROM deps as test
 COPY . .
 RUN npx msw init public/ --save
-# Run unit tests
-CMD ["npm", "run", "test:coverage"]
+# Explicitly run only unit tests, not e2e
+CMD ["npm", "run", "test"]
 
-# E2E test stage
-FROM deps as e2e
+# E2E test stage - using a non-Alpine image that includes browser dependencies
+FROM node:20 as e2e
+WORKDIR /app
+# Set up npm to use GitHub packages
+ARG NODE_AUTH_TOKEN
+RUN npm config set @seenelm:registry https://npm.pkg.github.com/
+RUN npm config set //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+COPY package.json package-lock.json ./
+RUN npm ci
 COPY . .
 RUN npx msw init public/ --save
-# Install Playwright dependencies
-RUN npx playwright install --with-deps chromium
+
+# Install Playwright with system dependencies
+RUN apt-get update && apt-get install -y wget gnupg && \
+    npx playwright install --with-deps chromium && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Run E2E tests
 CMD ["npm", "run", "test:e2e"]
 
