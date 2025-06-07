@@ -1,14 +1,31 @@
 import { v4 as uuidv4 } from "uuid";
 
 export const tokenService = {
-  setTokens(accessToken: string, refreshToken: string, userId: string, username: string, name: string) {
+  setTokens(
+    accessToken: string,
+    refreshToken: string,
+    userId: string,
+    username: string,
+    name: string
+  ) {
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
-    localStorage.setItem("user", JSON.stringify({
-      userId,
-      username,
-      name
-    }))
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        userId,
+        username,
+        name,
+      })
+    );
+  },
+
+  setAccessToken(accessToken: string) {
+    localStorage.setItem("accessToken", accessToken);
+  },
+
+  setRefreshToken(refreshToken: string) {
+    localStorage.setItem("refreshToken", refreshToken);
   },
 
   getAccessToken() {
@@ -42,5 +59,5 @@ export const tokenService = {
     const deviceId = uuidv4();
     localStorage.setItem("deviceId", deviceId);
     return deviceId;
-  }
-}
+  },
+};

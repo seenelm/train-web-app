@@ -1,34 +1,32 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
-  testDir: './tests',
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  testDir: "./e2e",
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  reporter: "html",
   use: {
-    baseURL: 'http://localhost:5173',
-    trace: 'on-first-retry',
-  },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+    baseURL: "http://localhost:5173",
+    trace: "on-first-retry", 
+    screenshot: "on", 
+    video: process.env.CI ? "on" : "on-first-retry", 
+    actionTimeout: process.env.CI ? 45000 : 15000, 
+    navigationTimeout: process.env.CI ? 60000 : 30000, 
+    viewport: { width: 1280, height: 720 },
+    launchOptions: {
+      slowMo: process.env.CI ? 100 : 0,
     },
-    // Comment out other browsers for local development
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
-  ],
+  },
+  outputDir: "test-results",
+  timeout: process.env.CI ? 120000 : 60000, 
+  expect: {
+    timeout: process.env.CI ? 30000 : 10000, 
+  },
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
+    command: "npm run dev",
+    url: "http://localhost:5173",
     reuseExistingServer: !process.env.CI,
+    stdout: "pipe",
+    stderr: "pipe",
+    timeout: 180000, 
   },
 });
