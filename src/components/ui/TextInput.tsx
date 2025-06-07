@@ -30,6 +30,7 @@ const TextInput: React.FC<TextInputProps> = ({
   name,
   testId,
 }) => {
+  console.log('TextInput render:', { testId, error });
   // Determine the appropriate class based on input type
   const getInputTypeClass = () => {
     switch (type) {

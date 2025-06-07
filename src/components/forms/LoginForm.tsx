@@ -7,34 +7,64 @@ import Form from '../ui/Form';
 import SocialButton from '../ui/SocialButton';
 import { authService } from '../../services/authService';
 import { tokenService } from '../../services/tokenService';
+import { AuthErrorTypes } from '../../common/enums/authEnum';
+import { AxiosError } from 'axios';
+import { ErrorResponse } from '../../mocks/handlers';
 
 interface LoginFormProps {
   sessionExpired?: boolean;
 }
 
+export interface LoginModel {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
+
 const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
+  const [loginForm, setLoginForm] = useState<LoginModel>({
+    email: '',
+    password: '',
+    rememberMe: false,
+  });
+  
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(
     sessionExpired ? 'Your session has expired. Please sign in again.' : null
   );
 
+  const handleError = (error: AxiosError<ErrorResponse>) => {
+    const errorResponse = error.response?.data as ErrorResponse;
+        console.log('Error response:', errorResponse);
+
+    if (error.response && error.response.status >= 500) {
+      setError(AuthErrorTypes.ServerError);
+    } else {
+      setError(errorResponse.message);
+    }
+  }
+
+  const handleChange = (field: keyof LoginModel, value: string | boolean) => {
+    setLoginForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const handleSignIn = async (provider: 'google' | 'local') => {
     try {
       setIsLoading(true);
       setError(null);
-  
+
       let userData;
   
       if (provider === 'google') {
         userData = await authService.signInWithGoogle();
       } else if (provider === 'local') {
         userData = await authService.login({ 
-          email, 
-          password, 
+          email: loginForm.email, 
+          password: loginForm.password, 
           deviceId: tokenService.getDeviceId() 
         });
       } else {
@@ -45,14 +75,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
       navigate('/');
     } catch (err) {
       console.error(`${provider} sign-in error:`, err);
-      setError(`Failed to sign in with ${provider}. Please try again.`);
+      if (err instanceof AxiosError) {
+        handleError(err);
+      } else {
+        setError(`Failed to sign in with ${provider}. Please try again.`);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
+    console.log('handleSubmit');
     e.preventDefault();
+    console.log('Form state before validation:', loginForm);
     handleSignIn('local');
   };
 
@@ -64,8 +100,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
           testId="email-input"
           type="email"
           label="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={loginForm.email}
+          onChange={(e) => handleChange('email', e.target.value)}
           placeholder="your@email.com"
           required
           disabled={isLoading}
@@ -77,8 +113,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
           testId="password-input"
           type="password"
           label="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={loginForm.password}
+          onChange={(e) => handleChange('password', e.target.value)}
           placeholder="••••••••"
           required
           disabled={isLoading}
@@ -90,8 +126,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
             id="remember"
             testId="remember-checkbox"
             label="Remember me"
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
+            checked={loginForm.rememberMe}
+            onChange={(e) => handleChange('rememberMe', e.target.checked)}
             disabled={isLoading}
           />
           <Link to="/forgot-password" data-testid="forgot-password-link" className="forgot-password">Forgot password?</Link>

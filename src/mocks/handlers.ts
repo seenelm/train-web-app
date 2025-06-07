@@ -1,6 +1,8 @@
 // src/mocks/handlers.ts
 import { http, HttpResponse } from "msw";
-import { UserResponse } from "@seenelm/train-core";
+import { UserResponse, UserRequest } from "@seenelm/train-core";
+import { RegistrationErrorTypes } from "../common/enums/authEnum";
+import { LoginErrorTypes } from "../common/enums/authEnum";
 
 const mockUserResponse: UserResponse = {
   userId: "1",
@@ -10,14 +12,88 @@ const mockUserResponse: UserResponse = {
   name: "New User",
 };
 
+export interface ErrorResponse {
+  message: string;
+  errorCode: string;
+  details?: unknown;
+  requestId?: string;
+}
+
 export const handlers = [
-  http.post("http://localhost:3000/api/user/login", async () => {
+  http.post("http://localhost:3000/api/user/login", async ({ request }) => {
+    const body = (await request.json()) as UserRequest;
+
+    if (body.password === "invalid-password@example.com") {
+      const errorResponse: ErrorResponse = {
+        message: LoginErrorTypes.InvalidPassword,
+        errorCode: "INVALID_PASSWORD",
+        requestId: "mock-request-id",
+      };
+
+      return new HttpResponse(JSON.stringify(errorResponse), {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    }
+
+    if (body.email === "server-error@example.com") {
+      return new HttpResponse(null, {
+        status: 500,
+        statusText: "Internal Server Error",
+      });
+    }
+
     return HttpResponse.json(mockUserResponse);
   }),
   http.post("http://localhost:3000/api/user/register", async ({ request }) => {
     console.log("MSW: Registering user");
-    const body = await request.json();
+    const body = (await request.json()) as UserRequest;
     console.log("MSW: Registration request body:", body);
+
+    // Check for request error cases
+    if (body.email === "") {
+      const errorResponse: ErrorResponse = {
+        message: "Validation failed",
+        errorCode: "BAD_REQUEST",
+        requestId: "mock-request-id",
+        details: {
+          errors: [RegistrationErrorTypes.EmailRequired],
+        },
+      };
+
+      return new HttpResponse(JSON.stringify(errorResponse), {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    }
+
+    // Check for server error case
+    if (body.email === "server-error@example.com") {
+      return new HttpResponse(null, {
+        status: 500,
+        statusText: "Internal Server Error",
+      });
+    }
+
+    // Check if email already exists
+    if (body.email === "existing@example.com") {
+      const errorResponse: ErrorResponse = {
+        message: RegistrationErrorTypes.EmailAlreadyExists,
+        errorCode: "CONFLICT",
+        requestId: "mock-request-id",
+      };
+
+      return new HttpResponse(JSON.stringify(errorResponse), {
+        status: 409,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    }
     return HttpResponse.json(mockUserResponse);
   }),
   http.post("http://localhost:3000/api/user/logout", async () => {

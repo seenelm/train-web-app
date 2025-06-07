@@ -27,6 +27,7 @@ import { AxiosError } from 'axios';
       } catch (error) {
         if (error instanceof AxiosError) {
           console.error('Error registering user:', error);
+          throw error;
         }
         console.error('Error registering user:', error);
         throw error;

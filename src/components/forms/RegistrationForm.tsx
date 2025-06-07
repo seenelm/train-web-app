@@ -8,6 +8,9 @@ import SocialButton from '../ui/SocialButton';
 import { authService } from '../../services/authService';
 import { tokenService } from '../../services/tokenService';
 import { UserRequest } from '@seenelm/train-core';
+import { RegistrationErrorTypes } from '../../common/enums/authEnum';
+import { AxiosError } from 'axios';
+import { ErrorResponse } from '../../mocks/handlers';
 
 export interface RegistrationModel {
   name: string;
@@ -19,11 +22,6 @@ export interface RegistrationModel {
 
 const RegistrationForm: React.FC = () => {
   const navigate = useNavigate();
-  // const [name, setName] = useState('');
-  // const [email, setEmail] = useState('');
-  // const [password, setPassword] = useState('');
-  // const [confirmPassword, setConfirmPassword] = useState('');
-  // const [agreeToTerms, setAgreeToTerms] = useState(false);
 
     const [registrationForm, setRegistrationForm] = useState<RegistrationModel>({
       name: '',
@@ -46,11 +44,11 @@ const RegistrationForm: React.FC = () => {
 
   const validatePassword = () => {
     if (registrationForm.password !== registrationForm.confirmPassword) {
-      setPasswordError('Passwords do not match');
+      setPasswordError(RegistrationErrorTypes.PasswordDoesNotMatch);
       return false;
     }
     if (registrationForm.password.length < 8) {
-      setPasswordError('Password must be at least 8 characters long');
+      setPasswordError(RegistrationErrorTypes.InvalidPasswordLength);
       return false;
     }
     setPasswordError(null);
@@ -87,8 +85,11 @@ const RegistrationForm: React.FC = () => {
       console.log('Registration successful:', response);
       navigate('/');
     } catch (err: any) {
-      console.error('Registration error:', err);
-      setError(err.message || 'Failed to register. Please try again.');
+      if (err instanceof AxiosError) {
+        const errorResponse = err.response?.data as ErrorResponse;
+        console.error('Registration error:', err);
+        setError(errorResponse.message || RegistrationErrorTypes.UnknownError);
+      }
     } finally {
       setIsLoading(false);
     }

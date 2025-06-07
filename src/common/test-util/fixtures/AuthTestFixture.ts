@@ -1,4 +1,5 @@
 import { RegistrationModel } from "../../../components/forms/RegistrationForm";
+import { LoginModel } from "../../../components/forms/LoginForm";
 
 export default class AuthTestFixture {
   public static NAME: string = "John Doe";
@@ -16,6 +17,17 @@ export default class AuthTestFixture {
       password: AuthTestFixture.PASSWORD,
       confirmPassword: AuthTestFixture.CONFIRM_PASSWORD,
       agreeToTerms: AuthTestFixture.AGREE_TO_TERMS,
+      ...updatedData,
+    };
+  }
+
+  public static createLoginModel(
+    updatedData?: Partial<LoginModel>
+  ): LoginModel {
+    return {
+      email: AuthTestFixture.EMAIL,
+      password: AuthTestFixture.PASSWORD,
+      rememberMe: true,
       ...updatedData,
     };
   }

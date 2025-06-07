@@ -1,17 +1,11 @@
 import {describe, expect, vi, beforeEach, it} from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
-import { mockAuthService, mockReactRouterDom, mockTokenService } from '../../../mocks/mocks';
+import { mockReactRouterDom } from '../../../mocks/mocks';
 import { RegistrationModel } from '../RegistrationForm';
+import { RegistrationErrorTypes } from '../../../common/enums/authEnum';
 
 // Mock modules before importing the component
-vi.mock('../../../../services/authService', () => ({
-    authService: mockAuthService
-}));
-
-vi.mock('../../../../services/tokenService', () => ({
-    tokenService: mockTokenService
-}));
 
 // Mock useNavigate
 vi.mock('react-router-dom', () => ({
@@ -47,7 +41,10 @@ describe('RegistrationForm', () => {
         fireEvent.change(emailInput, { target: { value: model.email } });
         fireEvent.change(passwordInput, { target: { value: model.password } });
         fireEvent.change(confirmPasswordInput, { target: { value: model.confirmPassword } });
-        fireEvent.click(termsCheckbox);
+
+        if (model.agreeToTerms) {
+            fireEvent.click(termsCheckbox);
+        }
     };
 
     it('renders the form correctly', () => {
@@ -68,7 +65,7 @@ describe('RegistrationForm', () => {
         expect(screen.getByText(/Or sign up with/i)).toBeInTheDocument();
     });
 
-    describe('Password Validation', () => {
+    describe('Error Cases', () => {
         it.each(AuthDataProvider.registrationFormErrorCases)(
             "$description",
             async ({ model, expectedError }) => {
@@ -83,9 +80,17 @@ describe('RegistrationForm', () => {
               
               // Check for error message
               await waitFor(() => {
-                const passwordInput = screen.getByTestId('password-input');
-                const errorElement = passwordInput.closest('.form-group')?.querySelector('.input-error');
-                expect(errorElement).toHaveTextContent(expectedError);
+                if (expectedError === RegistrationErrorTypes.InvalidPasswordLength || 
+                    expectedError === RegistrationErrorTypes.PasswordDoesNotMatch ||
+                    expectedError === RegistrationErrorTypes.EmailRequired) {
+                    const passwordInput = screen.getByTestId('password-input');
+                    const errorElement = passwordInput.closest('.form-group')?.querySelector('.input-error');
+                    expect(errorElement).toHaveTextContent(expectedError);
+                } else {
+                    // For other errors, check the form error message
+                    const errorElement = screen.getByTestId('form-error');
+                    expect(errorElement).toHaveTextContent(expectedError);
+                }
               });
             }
           );
