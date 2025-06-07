@@ -12,7 +12,6 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
-<<<<<<< HEAD
       exclude: [
         "node_modules/",
         "setupTests.ts",
@@ -31,9 +30,6 @@ export default defineConfig({
         'src/common/mocks/mocks.ts',
         'src/common/mocks/server.ts',
       ],
-=======
-      exclude: ["node_modules/", "**/*.d.ts", "**/*.config.*", "**/index.ts"],
->>>>>>> feature/ng-auth
       thresholds: {
         statements: 50,
         branches: 50,

@@ -24,8 +24,3 @@ enableMocking().then(() => {
     </BrowserRouter>
   );
 });
-// ReactDOM.createRoot(root!).render(
-//   <BrowserRouter>
-//     <App />
-//   </BrowserRouter>
-// );
