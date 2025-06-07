@@ -8,7 +8,7 @@ import SocialButton from '../ui/SocialButton';
 import { authService } from '../../services/authService';
 import { tokenService } from '../../services/tokenService';
 import { UserRequest } from '@seenelm/train-core';
-import { RegistrationFormType } from '../../common/enums/authEnum';
+import { RegistrationErrorTypes } from '../../common/enums/authEnum';
 import { AxiosError } from 'axios';
 import { ErrorResponse } from '../../mocks/handlers';
 
@@ -49,11 +49,11 @@ const RegistrationForm: React.FC = () => {
 
   const validatePassword = () => {
     if (registrationForm.password !== registrationForm.confirmPassword) {
-      setPasswordError(RegistrationFormType.PasswordDoesNotMatch);
+      setPasswordError(RegistrationErrorTypes.PasswordDoesNotMatch);
       return false;
     }
     if (registrationForm.password.length < 8) {
-      setPasswordError(RegistrationFormType.InvalidPasswordLength);
+      setPasswordError(RegistrationErrorTypes.InvalidPasswordLength);
       return false;
     }
     setPasswordError(null);
@@ -93,7 +93,7 @@ const RegistrationForm: React.FC = () => {
       if (err instanceof AxiosError) {
         const errorResponse = err.response?.data as ErrorResponse;
         console.error('Registration error:', err);
-        setError(errorResponse.message || RegistrationFormType.UnknownError);
+        setError(errorResponse.message || RegistrationErrorTypes.UnknownError);
       }
     } finally {
       setIsLoading(false);

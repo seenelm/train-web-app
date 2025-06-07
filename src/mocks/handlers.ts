@@ -1,7 +1,7 @@
 // src/mocks/handlers.ts
 import { http, HttpResponse } from "msw";
 import { UserResponse, UserRequest } from "@seenelm/train-core";
-import { RegistrationFormType } from "../common/enums/authEnum";
+import { RegistrationErrorTypes } from "../common/enums/authEnum";
 
 const mockUserResponse: UserResponse = {
   userId: "1",
@@ -34,12 +34,7 @@ export const handlers = [
         errorCode: "BAD_REQUEST",
         requestId: "mock-request-id",
         details: {
-          errors: [
-            {
-              field: "email",
-              message: "Email is required",
-            },
-          ],
+          errors: [RegistrationErrorTypes.EmailRequired],
         },
       };
 
@@ -62,7 +57,7 @@ export const handlers = [
     // Check if email already exists
     if (body.email === "existing@example.com") {
       const errorResponse: ErrorResponse = {
-        message: RegistrationFormType.EmailAlreadyExists,
+        message: RegistrationErrorTypes.EmailAlreadyExists,
         errorCode: "CONFLICT",
         requestId: "mock-request-id",
       };

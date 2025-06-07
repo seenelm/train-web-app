@@ -7,25 +7,68 @@ import Form from '../ui/Form';
 import SocialButton from '../ui/SocialButton';
 import { authService } from '../../services/authService';
 import { tokenService } from '../../services/tokenService';
+import { LoginErrorTypes } from '../../common/enums/authEnum';
+import { AxiosError } from 'axios';
+import { ErrorResponse } from '../../mocks/handlers';
 
 interface LoginFormProps {
   sessionExpired?: boolean;
 }
 
+export interface LoginModel {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
+
 const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
+  const [loginForm, setLoginForm] = useState<LoginModel>({
+    email: '',
+    password: '',
+    rememberMe: false,
+  });
+  
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(
     sessionExpired ? 'Your session has expired. Please sign in again.' : null
   );
 
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const handleChange = (field: keyof LoginModel, value: string | boolean) => {
+    setLoginForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const validateForm = (): boolean => {
+    console.log('Validating form');
+    setError(null);
+    setEmailError(null);
+    setPasswordError(null);
+
+    if (!loginForm.email.trim()) {
+      setEmailError(LoginErrorTypes.EmailRequired);
+      console.log('Email is required', loginForm.email);
+      return false;
+    }
+
+    if (!loginForm.password.trim()) {
+      setPasswordError(LoginErrorTypes.PasswordRequired);
+      console.log('Password is required', loginForm.password);
+      return false;
+    }
+
+    return true;
+  }
+
   const handleSignIn = async (provider: 'google' | 'local') => {
     try {
       setIsLoading(true);
-      setError(null);
+      // setError(null);
   
       let userData;
   
@@ -33,8 +76,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
         userData = await authService.signInWithGoogle();
       } else if (provider === 'local') {
         userData = await authService.login({ 
-          email, 
-          password, 
+          email: loginForm.email, 
+          password: loginForm.password, 
           deviceId: tokenService.getDeviceId() 
         });
       } else {
@@ -45,14 +88,40 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
       navigate('/');
     } catch (err) {
       console.error(`${provider} sign-in error:`, err);
-      setError(`Failed to sign in with ${provider}. Please try again.`);
+      if (err instanceof AxiosError) {
+        const errorResponse = err.response?.data as ErrorResponse;
+        console.log('Error response:', errorResponse);
+        // Handle backend validation errors
+        switch (errorResponse?.errorCode) {
+          case 'PASSWORD_REQUIRED':
+            setPasswordError(LoginErrorTypes.PasswordRequired);
+            break;
+          case 'EMAIL_REQUIRED':
+            setEmailError(LoginErrorTypes.EmailRequired);
+            break;
+          case 'INVALID_PASSWORD':
+            setError(LoginErrorTypes.InvalidPassword);
+            break;
+          default:
+            setError(`Failed to sign in with ${provider}. Please try again.`);
+        }
+
+      } else {
+        setError(`Failed to sign in with ${provider}. Please try again.`);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
+    console.log('handleSubmit');
     e.preventDefault();
+    console.log('Form state before validation:', loginForm);
+    if (!validateForm()) {
+      console.log('Form validation failed');
+      return;
+    }
     handleSignIn('local');
   };
 
@@ -64,12 +133,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
           testId="email-input"
           type="email"
           label="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={loginForm.email}
+          onChange={(e) => handleChange('email', e.target.value)}
           placeholder="your@email.com"
           required
           disabled={isLoading}
           autoComplete="email"
+          error={emailError}
         />
         
         <TextInput
@@ -77,12 +147,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
           testId="password-input"
           type="password"
           label="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={loginForm.password}
+          onChange={(e) => handleChange('password', e.target.value)}
           placeholder="••••••••"
           required
           disabled={isLoading}
           autoComplete="current-password"
+          error={passwordError}
         />
         
         <div className="form-options">
@@ -90,8 +161,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
             id="remember"
             testId="remember-checkbox"
             label="Remember me"
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
+            checked={loginForm.rememberMe}
+            onChange={(e) => handleChange('rememberMe', e.target.checked)}
             disabled={isLoading}
           />
           <Link to="/forgot-password" data-testid="forgot-password-link" className="forgot-password">Forgot password?</Link>

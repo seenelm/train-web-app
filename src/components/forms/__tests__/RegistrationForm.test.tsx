@@ -1,9 +1,9 @@
 import {describe, expect, vi, beforeEach, it} from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
-import {mockReactRouterDom } from '../../../mocks/mocks';
+import { mockReactRouterDom } from '../../../mocks/mocks';
 import { RegistrationModel } from '../RegistrationForm';
-import { RegistrationFormType } from '../../../common/enums/authEnum';
+import { RegistrationErrorTypes } from '../../../common/enums/authEnum';
 
 // Mock modules before importing the component
 
@@ -80,8 +80,9 @@ describe('RegistrationForm', () => {
               
               // Check for error message
               await waitFor(() => {
-                if (expectedError === RegistrationFormType.InvalidPasswordLength || 
-                    expectedError === RegistrationFormType.PasswordDoesNotMatch) {
+                if (expectedError === RegistrationErrorTypes.InvalidPasswordLength || 
+                    expectedError === RegistrationErrorTypes.PasswordDoesNotMatch ||
+                    expectedError === RegistrationErrorTypes.EmailRequired) {
                     const passwordInput = screen.getByTestId('password-input');
                     const errorElement = passwordInput.closest('.form-group')?.querySelector('.input-error');
                     expect(errorElement).toHaveTextContent(expectedError);

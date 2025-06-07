@@ -1,6 +1,10 @@
 import { RegistrationModel } from "../../../components/forms/RegistrationForm";
 import AuthTestFixture from "../fixtures/AuthTestFixture";
-import { RegistrationFormType } from "../../../common/enums/authEnum";
+import {
+  RegistrationErrorTypes,
+  LoginErrorTypes,
+} from "../../../common/enums/authEnum";
+import { LoginModel } from "../../../components/forms/LoginForm";
 
 export interface ErrorTestCase<T> {
   description: string;
@@ -16,7 +20,7 @@ export default class AuthDataProvider {
         password: "1234567",
         confirmPassword: "1234567",
       }),
-      expectedError: RegistrationFormType.InvalidPasswordLength,
+      expectedError: RegistrationErrorTypes.InvalidPasswordLength,
     },
     {
       description: "Password does not match",
@@ -24,21 +28,28 @@ export default class AuthDataProvider {
         password: "12345679",
         confirmPassword: "12345678",
       }),
-      expectedError: RegistrationFormType.PasswordDoesNotMatch,
+      expectedError: RegistrationErrorTypes.PasswordDoesNotMatch,
     },
     {
       description: "Terms not agreed",
       model: AuthTestFixture.createRegistrationModel({
         agreeToTerms: false,
       }),
-      expectedError: RegistrationFormType.TermsNotAgreed,
+      expectedError: RegistrationErrorTypes.TermsNotAgreed,
     },
+    // {
+    //   description: "Email is required",
+    //   model: AuthTestFixture.createRegistrationModel({
+    //     email: "",
+    //   }),
+    //   expectedError: RegistrationFormType.EmailRequired,
+    // },
     {
       description: "Email already exists",
       model: AuthTestFixture.createRegistrationModel({
         email: "existing@example.com",
       }),
-      expectedError: RegistrationFormType.EmailAlreadyExists,
+      expectedError: RegistrationErrorTypes.EmailAlreadyExists,
     },
     {
       description: "Server error",
@@ -48,7 +59,24 @@ export default class AuthDataProvider {
         confirmPassword: "validpassword123",
         agreeToTerms: true,
       }),
-      expectedError: RegistrationFormType.UnknownError,
+      expectedError: RegistrationErrorTypes.UnknownError,
     },
+  ];
+
+  static loginFormErrorCases: ErrorTestCase<LoginModel>[] = [
+    {
+      description: "Email is required",
+      model: AuthTestFixture.createLoginModel({
+        email: "",
+      }),
+      expectedError: LoginErrorTypes.EmailRequired,
+    },
+    // {
+    //   description: "Password is required",
+    //   model: AuthTestFixture.createLoginModel({
+    //     password: "",
+    //   }),
+    //   expectedError: LoginErrorTypes.PasswordRequired,
+    // },
   ];
 }
