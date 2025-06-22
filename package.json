@@ -18,7 +18,7 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
-    "@seenelm/train-core": "^1.0.3",
+    "@seenelm/train-core": "^1.0.9",
     "@tailwindcss/vite": "^4.1.4",
     "axios": "^1.9.0",
     "firebase": "^11.6.0",

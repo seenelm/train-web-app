@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import ContentView from '../components/ContentView';
+import ProfileView from '../components/profile/ProfileView';
 import { AiOutlineHome, AiOutlineUser, AiOutlineSetting, AiOutlineQuestionCircle } from 'react-icons/ai';
 
 const Dashboard: React.FC = () => {
@@ -17,6 +18,11 @@ const Dashboard: React.FC = () => {
     setActiveTab(tabId);
   };
 
+  const handleEditProfile = () => {
+    console.log('Edit profile clicked');
+    // Implement profile editing functionality
+  };
+
   // Content to display based on active tab
   const renderContent = () => {
     switch (activeTab) {
@@ -28,12 +34,7 @@ const Dashboard: React.FC = () => {
           </>
         );
       case 'profile':
-        return (
-          <>
-            <h1>Profile Content</h1>
-            <p>User profile information would go here.</p>
-          </>
-        );
+        return <ProfileView onEdit={handleEditProfile} />;
       case 'settings':
         return (
           <>
@@ -55,14 +56,18 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="app-container">
-      <Sidebar 
-        tabs={tabs} 
-        defaultActiveTab="home" 
-        onTabChange={handleTabChange} 
-      />
-      <ContentView>
-        {renderContent()}
-      </ContentView>
+      <div className="sidebar-container">
+        <Sidebar 
+          tabs={tabs} 
+          defaultActiveTab="home" 
+          onTabChange={handleTabChange} 
+        />
+      </div>
+      <div className="content-area">
+        <ContentView>
+          {renderContent()}
+        </ContentView>
+      </div>
     </div>
   );
 };
