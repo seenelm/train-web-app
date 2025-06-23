@@ -21,6 +21,7 @@ import {
 } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
 import trainer from '../../assets/trainer.png';
+import AddSectionModal from './AddSectionModal';
 
 // Mock data for trainer demonstration
 const mockProfile: UserProfileResponse = {
@@ -110,6 +111,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   onEdit
 }) => {
   const [activeTab, setActiveTab] = useState<string>('overview');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getSocialIcon = (platform: SocialPlatform) => {
     switch (platform) {
@@ -276,6 +278,10 @@ const ProfileView: React.FC<ProfileViewProps> = ({
     return title.charAt(0) + title.slice(1).toLowerCase().replace('_', ' ');
   };
 
+  const handleEditProfile = () => {
+    setIsModalOpen(true);
+  }
+
   return (
     <div className="profile-container">
       <div className="profile-header">
@@ -294,7 +300,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
                 {getPrivacyIcon(profile.accountType)}
               </span>
               {isEditable && (
-                <button className="edit-profile-btn" onClick={onEdit}>
+                <button className="edit-profile-btn" onClick={handleEditProfile}>
                   <AiOutlineEdit /> Edit
                 </button>
               )}
@@ -349,6 +355,11 @@ const ProfileView: React.FC<ProfileViewProps> = ({
           </button>
         )}
       </div>
+      {isModalOpen && (
+        <AddSectionModal
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
 
       <div className="profile-content">
         {activeTab === 'overview' && (
