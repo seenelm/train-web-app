@@ -191,6 +191,47 @@
   color: var(--text-secondary);
 }
 
+/* Unified Profile Content */
+.profile-content-unified {
+  padding: 24px;
+}
+
+/* Profile Section Header */
+.profile-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.profile-section-header .section-title {
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Add Section Button */
+.add-section-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: var(--button-border-radius);
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-section-btn:hover {
+  background-color: var(--accent-color-dark, #0056b3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 /* Certifications */
 .certifications-container {
   display: grid;
@@ -362,6 +403,15 @@
 .stat-label {
   font-size: 14px;
   color: var(--text-secondary);
+}
+
+/* Bio Section */
+.bio-section {
+  background-color: var(--bg-primary);
+  border-radius: var(--card-border-radius);
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 /* Responsive styles */

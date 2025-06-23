@@ -17,7 +17,8 @@ import {
   FaGlobeAmericas,
   FaDumbbell,
   FaMedal,
-  FaCertificate
+  FaCertificate,
+  FaPlus
 } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
 import trainer from '../../assets/trainer.png';
@@ -110,7 +111,6 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   isEditable = true,
   onEdit
 }) => {
-  const [activeTab, setActiveTab] = useState<string>('overview');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getSocialIcon = (platform: SocialPlatform) => {
@@ -282,8 +282,18 @@ const ProfileView: React.FC<ProfileViewProps> = ({
     setIsModalOpen(true);
   }
 
+  const handleAddSection = () => {
+    setIsModalOpen(true);
+  }
+
+  // Find specific custom sections
+  const statsSection = profile.customSections?.find(s => s.title === CustomSectionType.STATS);
+  const philosophySection = profile.customSections?.find(s => s.title === CustomSectionType.PHILOSOPHY);
+  const achievementsSection = profile.customSections?.find(s => s.title === CustomSectionType.ACHIEVEMENTS);
+  const specializationSection = profile.customSections?.find(s => s.title === CustomSectionType.SPECIALIZATION);
+
   return (
-    <div className="profile-container">
+    <div className="profile-container modern">
       <div className="profile-header">
         <div className="profile-cover-photo"></div>
         <div className="profile-header-content">
@@ -323,102 +333,86 @@ const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
       </div>
 
-      <div className="profile-tabs">
-        <button 
-          className={`profile-tab ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
-        >
-          Overview
-        </button>
-        {profile.certifications && profile.certifications.length > 0 && (
-          <button 
-            className={`profile-tab ${activeTab === 'certifications' ? 'active' : ''}`}
-            onClick={() => setActiveTab('certifications')}
-          >
-            Certifications
-          </button>
-        )}
-        {profile.customSections && profile.customSections.some(s => s.title === CustomSectionType.ACHIEVEMENTS) && (
-          <button 
-            className={`profile-tab ${activeTab === 'achievements' ? 'active' : ''}`}
-            onClick={() => setActiveTab('achievements')}
-          >
-            Achievements
-          </button>
-        )}
-        {profile.customSections && profile.customSections.some(s => s.title === CustomSectionType.SPECIALIZATION) && (
-          <button 
-            className={`profile-tab ${activeTab === 'specializations' ? 'active' : ''}`}
-            onClick={() => setActiveTab('specializations')}
-          >
-            Specializations
-          </button>
-        )}
-      </div>
       {isModalOpen && (
         <AddSectionModal
           onClose={() => setIsModalOpen(false)}
         />
       )}
 
-      <div className="profile-content">
-        {activeTab === 'overview' && (
-          <div className="profile-overview">
-            {profile.bio && (
+      <div className="profile-content-unified">
+        {/* Bio Section with Add Section button */}
+        <div className="profile-section-header">
+          <h2 className="section-title">Bio</h2>
+          {isEditable && (
+            <button className="add-section-btn" onClick={handleAddSection}>
+              <FaPlus /> Add Section
+            </button>
+          )}
+        </div>
+        
+        {profile.bio && (
+          <div className="profile-section bio-section">
+            <p className="profile-bio">{profile.bio}</p>
+          </div>
+        )}
+        
+        {/* Stats Section - Displayed prominently if available */}
+        {statsSection && (
+          <div className="profile-section stats-section">
+            {renderTrainerStats(statsSection.details[0])}
+          </div>
+        )}
+        
+        {/* Two-column layout for main content */}
+        <div className="profile-main-content">
+          <div className="profile-column">
+            {/* Specializations */}
+            {specializationSection && (
               <div className="profile-section">
-                <h2 className="section-title">Bio</h2>
-                <p className="profile-bio">{profile.bio}</p>
+                <h2 className="section-title">
+                  <FaDumbbell className="section-icon" />
+                  Specializations
+                </h2>
+                {renderCustomSection(specializationSection)}
               </div>
             )}
             
-            {profile.customSections && profile.customSections
-              .filter(section => section.title === CustomSectionType.STATS || section.title === CustomSectionType.PHILOSOPHY)
-              .map((section, index) => (
-                <div key={index} className="profile-section">
-                  <h2 className="section-title">
-                    {getSectionIcon(section.title)}
-                    {formatSectionTitle(section.title)}
-                  </h2>
-                  {renderCustomSection(section)}
-                </div>
-              ))
-            }
-          </div>
-        )}
-
-        {activeTab === 'certifications' && profile.certifications && (
-          <div className="profile-section">
-            <h2 className="section-title">
-              <FaCertificate className="section-icon" />
-              Certifications
-            </h2>
-            {renderCertifications(profile.certifications)}
-          </div>
-        )}
-
-        {activeTab === 'achievements' && profile.customSections && (
-          <div className="profile-section">
-            <h2 className="section-title">
-              <FaMedal className="section-icon" />
-              Achievements
-            </h2>
-            {renderCustomSection(
-              profile.customSections.find(s => s.title === CustomSectionType.ACHIEVEMENTS)!
+            {/* Philosophy */}
+            {philosophySection && (
+              <div className="profile-section">
+                <h2 className="section-title">
+                  <FaGlobe className="section-icon" />
+                  Philosophy
+                </h2>
+                {renderCustomSection(philosophySection)}
+              </div>
             )}
           </div>
-        )}
-
-        {activeTab === 'specializations' && profile.customSections && (
-          <div className="profile-section">
-            <h2 className="section-title">
-              <FaDumbbell className="section-icon" />
-              Specializations
-            </h2>
-            {renderCustomSection(
-              profile.customSections.find(s => s.title === CustomSectionType.SPECIALIZATION)!
+          
+          <div className="profile-column">
+            {/* Certifications */}
+            {profile.certifications && profile.certifications.length > 0 && (
+              <div className="profile-section">
+                <h2 className="section-title">
+                  <FaCertificate className="section-icon" />
+                  Certifications
+                </h2>
+                {renderCertifications(profile.certifications)}
+              </div>
+            )}
+            
+            {/* Achievements */}
+            {achievementsSection && (
+              <div className="profile-section">
+                <h2 className="section-title">
+                  <FaMedal className="section-icon" />
+                  Achievements
+                </h2>
+                {renderCustomSection(achievementsSection)}
+              </div>
             )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

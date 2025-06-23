@@ -8,6 +8,7 @@ import {
 import './styles/addSectionModal.css';
 import AchievementForm from './AchievementForm';
 import GenericSectionForm from './GenericSectionForm';
+import { useAddCustomSection } from './services/profileActions';
 
 // --- Mock API call ---
 // Replace this with your actual API call logic
@@ -47,25 +48,54 @@ const AddSectionModal: React.FC<AddSectionModalProps> = ({ onClose }) => {
   );
   const [formData, setFormData] = useState<AchievementItem[] | GenericItem[]>([]);
 
-//   const mutation = useMutation(addCustomSection, {
-//     onSuccess: () => {
-//       // Invalidate and refetch the profile data to show the new section
-//       queryClient.invalidateQueries('userProfile');
-//       onClose();
-//     },
-//     onError: (error) => {
-//       // You can handle errors here, e.g., show a toast notification
-//       console.error('Error saving section:', error);
-//       alert('Failed to save section. Please try again.');
-//     },
-//   });
+    const mutation = useAddCustomSection();
 
   const handleSave = () => {
+    // Validate that we have at least one item with data
+    if (!formData.length) {
+      alert('Please add at least one item to the section');
+      return;
+    }
+
+    // Validate that required fields are filled
+    const hasEmptyRequiredFields = formData.some(item => {
+      if (selectedSection === CustomSectionType.ACHIEVEMENTS) {
+        // For achievements, title is required
+        return !item.title;
+      }
+      // For other section types, check if the item has at least one non-empty property
+      return Object.values(item).every(value => !value);
+    });
+
+    if (hasEmptyRequiredFields) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    // Clean the data to ensure it only contains valid types (string, number, boolean, null)
+    const cleanedDetails = formData.map(item => {
+      const cleanedItem: Record<string, string | number | boolean | null> = {};
+      
+      // Process each property in the item
+      Object.entries(item).forEach(([key, value]) => {
+        // Only include properties with primitive values
+        if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || value === null) {
+          cleanedItem[key] = value;
+        } else if (value === undefined) {
+          cleanedItem[key] = null;
+        }
+      });
+      
+      return cleanedItem;
+    });
+
     const requestData: CustomSectionRequest = {
       title: selectedSection,
-      details: formData as any, // Cast because TS can't infer from the dynamic component
+      details: cleanedDetails,
     };
-    // mutation.mutate(requestData);
+    
+    console.log('Sending request data:', requestData);
+    mutation.mutate(requestData);
   };
 
   const handleFormChange = useCallback((data: AchievementItem[] | GenericItem[]) => {
@@ -109,8 +139,12 @@ const AddSectionModal: React.FC<AddSectionModalProps> = ({ onClose }) => {
           <button onClick={onClose} className="cancel-btn">
             Cancel
           </button>
-          <button onClick={handleSave} className="save-btn">
-            
+          <button 
+            onClick={handleSave} 
+            className="save-btn"
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending ? 'Saving...' : 'Save'}
           </button>
         </div>
       </div>
