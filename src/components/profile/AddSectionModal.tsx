@@ -10,26 +10,15 @@ import AchievementForm from './AchievementForm';
 import GenericSectionForm from './GenericSectionForm';
 import { useAddCustomSection } from './services/profileActions';
 
-// --- Mock API call ---
-// Replace this with your actual API call logic
-const addCustomSection = async (data: CustomSectionRequest<any>): Promise<any> => {
-  console.log('Sending data to backend:', data);
-  // Example:
-  // const response = await fetch('/api/profile/sections', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify(data),
-  // });
-  // if (!response.ok) {
-  //   throw new Error('Network response was not ok');
-  // }
-  // return response.json();
+// // --- Mock API call ---
+// // Replace this with your actual API call logic
+// const addCustomSection = async (data: CustomSectionRequest<any>): Promise<any> => {
+//   console.log('Sending data to backend:', data);
 
-  // For demonstration, we'll just simulate a successful response
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  return { success: true, data };
-};
-// --- End Mock API call ---
+//   await new Promise(resolve => setTimeout(resolve, 1000));
+//   return { success: true, data };
+// };
+// // --- End Mock API call ---
 
 
 interface AddSectionModalProps {

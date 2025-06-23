@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import TextInput from '../ui/TextInput';
-import Button from '../ui/Button';
-import Checkbox from '../ui/Checkbox';
-import Form from '../ui/Form';
-import SocialButton from '../ui/SocialButton';
-import { authService } from '../../services/authService';
-import { tokenService } from '../../services/tokenService';
+import TextInput from '../../../../components/ui/TextInput';
+import Button from '../../../../components/ui/Button';
+import Checkbox from '../../../../components/ui/Checkbox';
+import Form from '../../../../components/ui/Form';
+import SocialButton from '../../../../components/ui/SocialButton';
+import { authService } from '../../../../services/authService';
+import { tokenService } from '../../../../services/tokenService';
 import { UserRequest } from '@seenelm/train-core';
-import { RegistrationErrorTypes } from '../../common/enums/authEnum';
+import { RegistrationErrorTypes } from '../../../../common/enums/authEnum';
 import { AxiosError } from 'axios';
-import { ErrorResponse } from '../../mocks/handlers';
+import { ErrorResponse } from '../../../../mocks/handlers';
 
 export interface RegistrationModel {
   name: string;

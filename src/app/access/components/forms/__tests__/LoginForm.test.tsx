@@ -1,9 +1,9 @@
 import {describe, expect, vi, beforeEach, it} from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
-import { mockReactRouterDom } from '../../../mocks/mocks';
+import { mockReactRouterDom } from '../../../../../mocks/mocks';
 import { LoginModel } from '../LoginForm';
-import AuthDataProvider from '../../../common/test-util/data-providers/AuthDataProvider';
+import AuthDataProvider from '../../../../../common/test-util/data-providers/AuthDataProvider';
 
 // Mock useNavigate
 vi.mock('react-router-dom', () => ({

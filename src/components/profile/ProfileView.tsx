@@ -13,7 +13,6 @@ import {
   FaMapMarkerAlt,
   FaBriefcase,
   FaLock,
-  FaUsers,
   FaGlobeAmericas,
   FaDumbbell,
   FaMedal,
@@ -109,7 +108,7 @@ interface ProfileViewProps {
 const ProfileView: React.FC<ProfileViewProps> = ({ 
   profile = mockProfile,
   isEditable = true,
-  onEdit
+  //onEdit
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -257,25 +256,6 @@ const ProfileView: React.FC<ProfileViewProps> = ({
       default:
         return renderGenericItems(section.details, section.title);
     }
-  };
-
-  const getSectionIcon = (sectionType: CustomSectionType) => {
-    switch (sectionType) {
-      case CustomSectionType.SPECIALIZATION:
-        return <FaDumbbell className="section-icon" />;
-      case CustomSectionType.ACHIEVEMENTS:
-        return <FaMedal className="section-icon" />;
-      case CustomSectionType.PHILOSOPHY:
-        return <FaGlobe className="section-icon" />;
-      case CustomSectionType.STATS:
-        return <FaUsers className="section-icon" />;
-      default:
-        return null;
-    }
-  };
-
-  const formatSectionTitle = (title: string) => {
-    return title.charAt(0) + title.slice(1).toLowerCase().replace('_', ' ');
   };
 
   const handleEditProfile = () => {

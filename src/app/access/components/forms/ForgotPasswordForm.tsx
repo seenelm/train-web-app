@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import TextInput from '../ui/TextInput';
-import Button from '../ui/Button';
-import Form from '../ui/Form';
-import { authService } from '../../services/authService';
+import TextInput from '../../../../components/ui/TextInput';
+import Button from '../../../../components/ui/Button';
+import Form from '../../../../components/ui/Form';
+import { authService } from '../../../../services/authService';
 
 const ForgotPasswordForm: React.FC = () => {
   const navigate = useNavigate();

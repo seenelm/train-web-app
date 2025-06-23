@@ -1,9 +1,9 @@
 import {describe, expect, vi, beforeEach, it} from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
-import { mockReactRouterDom } from '../../../mocks/mocks';
+import { mockReactRouterDom } from '../../../../../mocks/mocks';
 import { RegistrationModel } from '../RegistrationForm';
-import { RegistrationErrorTypes } from '../../../common/enums/authEnum';
+import { RegistrationErrorTypes } from '../../../../../common/enums/authEnum';
 
 // Mock modules before importing the component
 
@@ -15,7 +15,7 @@ vi.mock('react-router-dom', () => ({
 
 // Import the component after mocking dependencies
 import RegistrationForm from '../RegistrationForm';
-import AuthDataProvider from '../../../common/test-util/data-providers/AuthDataProvider';
+import AuthDataProvider from '../../../../../common/test-util/data-providers/AuthDataProvider';
 
 describe('RegistrationForm', () => {
     beforeEach(() => {

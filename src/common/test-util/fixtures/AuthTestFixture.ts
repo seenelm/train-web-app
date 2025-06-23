@@ -1,5 +1,5 @@
-import { RegistrationModel } from "../../../components/forms/RegistrationForm";
-import { LoginModel } from "../../../components/forms/LoginForm";
+import { RegistrationModel } from "../../../app/access/components/forms/RegistrationForm";
+import { LoginModel } from "../../../app/access/components/forms/LoginForm";
 
 export default class AuthTestFixture {
   public static NAME: string = "John Doe";

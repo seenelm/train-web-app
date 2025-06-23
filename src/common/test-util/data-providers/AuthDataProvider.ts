@@ -1,10 +1,10 @@
-import { RegistrationModel } from "../../../components/forms/RegistrationForm";
+import { RegistrationModel } from "../../../app/access/components/forms/RegistrationForm";
 import AuthTestFixture from "../fixtures/AuthTestFixture";
 import {
   RegistrationErrorTypes,
   LoginErrorTypes,
 } from "../../../common/enums/authEnum";
-import { LoginModel } from "../../../components/forms/LoginForm";
+import { LoginModel } from "../../../app/access/components/forms/LoginForm";
 import { AuthErrorTypes } from "../../../common/enums/authEnum";
 
 export interface ErrorTestCase<T> {
