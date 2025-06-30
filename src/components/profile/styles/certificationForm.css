@@ -1,0 +1,231 @@
+.certification-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .search-container {
+    position: relative;
+  }
+  
+  .search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    color: #666;
+    font-size: 14px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 12px 12px 12px 40px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: #4a5dff;
+    box-shadow: 0 0 0 2px rgba(74, 93, 255, 0.1);
+  }
+  
+  .search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 10;
+    margin-top: 4px;
+  }
+  
+  .search-result-item {
+    padding: 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+  }
+  
+  .search-result-item:last-child {
+    border-bottom: none;
+  }
+  
+  .search-result-item:hover:not(.selected) {
+    background-color: #f8f9fa;
+  }
+  
+  .search-result-item.selected {
+    background-color: #e8f4fd;
+    cursor: not-allowed;
+  }
+  
+  .search-result-item.error {
+    color: #dc3545;
+    cursor: default;
+  }
+  
+  .cert-search-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+  }
+  
+  .cert-search-image {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .cert-search-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  
+  .cert-search-details {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .cert-search-details h4 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .cert-search-details p {
+    margin: 0 0 6px 0;
+    font-size: 12px;
+    color: #666;
+  }
+  
+  .cert-search-specializations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .specialization-tag {
+    font-size: 10px;
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  
+  .selected-icon {
+    color: #28a745;
+    font-size: 12px;
+  }
+  
+  .selected-certifications h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .no-certifications {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .selected-certs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .selected-cert-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    position: relative;
+  }
+  
+  .selected-cert-image {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .selected-cert-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  
+  .selected-cert-details {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .selected-cert-details h4 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .selected-cert-details p {
+    margin: 0 0 6px 0;
+    font-size: 12px;
+    color: #666;
+  }
+  
+  .selected-cert-specializations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .remove-cert-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .remove-cert-btn:hover {
+    background-color: #f8d7da;
+  }

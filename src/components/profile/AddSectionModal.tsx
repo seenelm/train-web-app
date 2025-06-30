@@ -8,6 +8,7 @@ import {
 import './styles/addSectionModal.css';
 import AchievementForm from './AchievementForm';
 import GenericSectionForm from './GenericSectionForm';
+import CertificationForm, { CertificationResponse } from './CertificationForm';
 import { useAddCustomSection } from './services/profileActions';
 
 // // --- Mock API call ---
@@ -29,13 +30,17 @@ const formatSectionTitle = (title: string) => {
     return title.charAt(0).toUpperCase() + title.slice(1).toLowerCase().replace('_', ' ');
 };
 
+type SectionType = CustomSectionType | 'CERTIFICATIONS';
+
 const AddSectionModal: React.FC<AddSectionModalProps> = ({ onClose }) => {
 //   const queryClient = useQueryClient();
     const sectionTypes = Object.values(CustomSectionType);
-  const [selectedSection, setSelectedSection] = useState<CustomSectionType>(
-    sectionTypes[0]
-  );
-  const [formData, setFormData] = useState<AchievementItem[] | GenericItem[]>([]);
+    const allSectionTypes: SectionType[] = [...sectionTypes, 'CERTIFICATIONS'];
+
+    const [selectedSection, setSelectedSection] = useState<SectionType>(
+      allSectionTypes[0]
+    );
+  const [formData, setFormData] = useState<AchievementItem[] | GenericItem[] | CertificationResponse[]>([]);
 
     const mutation = useAddCustomSection();
 
@@ -50,7 +55,7 @@ const AddSectionModal: React.FC<AddSectionModalProps> = ({ onClose }) => {
     const hasEmptyRequiredFields = formData.some(item => {
       if (selectedSection === CustomSectionType.ACHIEVEMENTS) {
         // For achievements, title is required
-        return !item.title;
+        // return !item.title;
       }
       // For other section types, check if the item has at least one non-empty property
       return Object.values(item).every(value => !value);
@@ -79,7 +84,7 @@ const AddSectionModal: React.FC<AddSectionModalProps> = ({ onClose }) => {
     });
 
     const requestData: CustomSectionRequest = {
-      title: selectedSection,
+      title: selectedSection as CustomSectionType,
       details: cleanedDetails,
     };
     
@@ -87,7 +92,7 @@ const AddSectionModal: React.FC<AddSectionModalProps> = ({ onClose }) => {
     mutation.mutate(requestData);
   };
 
-  const handleFormChange = useCallback((data: AchievementItem[] | GenericItem[]) => {
+  const handleFormChange = useCallback((data: AchievementItem[] | GenericItem[] | CertificationResponse[]) => {
     setFormData(data);
   }, []);
 
@@ -95,6 +100,8 @@ const AddSectionModal: React.FC<AddSectionModalProps> = ({ onClose }) => {
     switch (selectedSection) {
       case CustomSectionType.ACHIEVEMENTS:
         return <AchievementForm onChange={handleFormChange} />;
+      case 'CERTIFICATIONS':
+        return <CertificationForm onChange={handleFormChange} />;
       default:
         return <GenericSectionForm onChange={handleFormChange} />;
     }
@@ -110,7 +117,7 @@ const AddSectionModal: React.FC<AddSectionModalProps> = ({ onClose }) => {
         <div className="modal-body">
           <aside className="sections-list">
              <h3 className="section-list-title">All Sections</h3>
-            {sectionTypes.map((type) => (
+            {allSectionTypes.map((type) => (
               <div
                 key={type}
                 className={`section-list-item ${selectedSection === type ? 'active' : ''}`}
