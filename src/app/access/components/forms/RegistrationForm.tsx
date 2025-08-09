@@ -5,7 +5,7 @@ import Button from '../../../../components/ui/Button';
 import Checkbox from '../../../../components/ui/Checkbox';
 import Form from '../../../../components/ui/Form';
 import SocialButton from '../../../../components/ui/SocialButton';
-import { authService } from '../../../../services/authService';
+import { authService } from '../../services/authService';
 import { tokenService } from '../../../../services/tokenService';
 import { UserRequest } from '@seenelm/train-core';
 import { RegistrationErrorTypes } from '../../../../common/enums/authEnum';

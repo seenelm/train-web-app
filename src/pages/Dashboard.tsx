@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import ContentView from '../components/ContentView';
-import Profile from './Profile';
-import Groups from './Groups';
-import Events from './Events';
-import Search from './Search';
+import Profile from '../app/profiles/views/Profile';
+import Groups from '../app/groups/views/Groups';
+import Events from '../app/events/views/EventsPage';
+import Search from '../app/search/views/Search';
 import { AiOutlineHome, AiOutlineUser, AiOutlineTeam, AiOutlineCalendar, AiOutlineSearch } from 'react-icons/ai';
 
 const Dashboard: React.FC = () => {

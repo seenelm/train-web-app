@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router';
 import TextInput from '../../../../components/ui/TextInput';
 import Button from '../../../../components/ui/Button';
 import Form from '../../../../components/ui/Form';
-import { authService } from '../../../../services/authService';
+import { authService } from '../../services/authService';
 
 const ResetPasswordForm: React.FC = () => {
   const navigate = useNavigate();

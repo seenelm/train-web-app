@@ -2,7 +2,7 @@ import {describe, expect, vi, beforeEach, it} from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router';
 import { mockReactRouterDom } from '../../../../../mocks/mocks';
-import { LoginModel } from '../LoginForm';
+import { UserLoginRequest } from '@seenelm/train-core';
 import AuthDataProvider from '../../../../../common/test-util/data-providers/AuthDataProvider';
 
 // Mock useNavigate
@@ -27,17 +27,12 @@ describe('LoginForm', () => {
         );
     };
 
-    const fillForm = async (model: LoginModel) => {
+    const fillForm = async (model: UserLoginRequest) => {
         const emailInput = screen.getByTestId('email-input');
         const passwordInput = screen.getByTestId('password-input');
-        const rememberCheckbox = screen.getByTestId('remember-checkbox');
 
         fireEvent.change(emailInput, { target: { value: model.email } });
         fireEvent.change(passwordInput, { target: { value: model.password } });
-
-        if (model.rememberMe) {
-            fireEvent.click(rememberCheckbox);
-        }
     }
 
     it('renders the form correctly', () => {
@@ -45,7 +40,6 @@ describe('LoginForm', () => {
 
         expect(screen.getByTestId('email-input')).toBeInTheDocument();
         expect(screen.getByTestId("password-input")).toBeInTheDocument();
-        expect(screen.getByTestId("remember-checkbox")).toBeInTheDocument();
         expect(screen.getByTestId("forgot-password-link")).toBeInTheDocument();
         expect(screen.getByTestId('login-button')).toBeInTheDocument();
         expect(screen.getByTestId('google-button')).toBeInTheDocument();

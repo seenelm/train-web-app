@@ -4,7 +4,7 @@ import {
   RegistrationErrorTypes,
   LoginErrorTypes,
 } from "../../../common/enums/authEnum";
-import { LoginModel } from "../../../app/access/components/forms/LoginForm";
+import { UserLoginRequest } from "@seenelm/train-core";
 import { AuthErrorTypes } from "../../../common/enums/authEnum";
 
 export interface ErrorTestCase<T> {
@@ -57,7 +57,7 @@ export default class AuthDataProvider {
     },
   ];
 
-  static loginFormErrorCases: ErrorTestCase<LoginModel>[] = [
+  static loginFormErrorCases: ErrorTestCase<UserLoginRequest>[] = [
     {
       description: "Invalid password",
       model: AuthTestFixture.createLoginModel({

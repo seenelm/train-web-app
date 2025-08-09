@@ -2,32 +2,23 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import TextInput from '../../../../components/ui/TextInput';
 import Button from '../../../../components/ui/Button';
-import Checkbox from '../../../../components/ui/Checkbox';
 import Form from '../../../../components/ui/Form';
 import SocialButton from '../../../../components/ui/SocialButton';
-import { authService } from '../../../../services/authService';
+import { authService } from '../../services/authService';
 import { tokenService } from '../../../../services/tokenService';
 import { AuthErrorTypes } from '../../../../common/enums/authEnum';
 import { AxiosError } from 'axios';
 import { ErrorResponse } from '../../../../mocks/handlers';
+import { UserLoginRequest } from '@seenelm/train-core';
 
 interface LoginFormProps {
   sessionExpired?: boolean;
 }
 
-export interface LoginModel {
-  email: string;
-  password: string;
-  rememberMe: boolean;
-}
-
 const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
   const navigate = useNavigate();
-  const [loginForm, setLoginForm] = useState<LoginModel>({
-    email: '',
-    password: '',
-    rememberMe: false,
-  });
+  const [loginForm, setLoginForm] = useState<UserLoginRequest>({} as UserLoginRequest);
+
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(
@@ -45,7 +36,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
     }
   }
 
-  const handleChange = (field: keyof LoginModel, value: string | boolean) => {
+  const handleChange = (field: keyof UserLoginRequest, value: string | boolean) => {
     setLoginForm(prev => ({
       ...prev,
       [field]: value
@@ -62,10 +53,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
       if (provider === 'google') {
         userData = await authService.signInWithGoogle();
       } else if (provider === 'local') {
-        userData = await authService.login({ 
-          email: loginForm.email, 
-          password: loginForm.password, 
-          deviceId: tokenService.getDeviceId() 
+        userData = await authService.login({
+          ...loginForm,
+          deviceId: tokenService.getDeviceId(),
         });
       } else {
         throw new Error('Unsupported provider');
@@ -122,14 +112,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
         />
         
         <div className="form-options">
-          <Checkbox
-            id="remember"
-            testId="remember-checkbox"
-            label="Remember me"
-            checked={loginForm.rememberMe}
-            onChange={(e) => handleChange('rememberMe', e.target.checked)}
-            disabled={isLoading}
-          />
           <Link to="/forgot-password" data-testid="forgot-password-link" className="forgot-password">Forgot password?</Link>
         </div>
         

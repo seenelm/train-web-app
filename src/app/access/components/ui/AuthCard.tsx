@@ -1,6 +1,6 @@
 import React from 'react';
 import logo from '../../../../assets/logo.svg';
-import './styles/AuthCard.css';
+import './AuthCard.css';
 
 interface AuthCardProps {
   title: string;
