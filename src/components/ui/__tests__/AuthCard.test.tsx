@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import AuthCard from '../AuthCard';
+import AuthCard from '../../../app/access/components/ui/AuthCard';
 
 describe('AuthCard', () => {
   const defaultProps = {

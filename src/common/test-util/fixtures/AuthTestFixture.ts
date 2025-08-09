@@ -1,5 +1,5 @@
-import { RegistrationModel } from "../../../components/forms/RegistrationForm";
-import { LoginModel } from "../../../components/forms/LoginForm";
+import { RegistrationModel } from "../../../app/access/components/forms/RegistrationForm";
+import { UserLoginRequest } from "@seenelm/train-core";
 
 export default class AuthTestFixture {
   public static NAME: string = "John Doe";
@@ -22,12 +22,12 @@ export default class AuthTestFixture {
   }
 
   public static createLoginModel(
-    updatedData?: Partial<LoginModel>
-  ): LoginModel {
+    updatedData?: Partial<UserLoginRequest>
+  ): UserLoginRequest {
     return {
       email: AuthTestFixture.EMAIL,
       password: AuthTestFixture.PASSWORD,
-      rememberMe: true,
+      deviceId: "test-device-id",
       ...updatedData,
     };
   }

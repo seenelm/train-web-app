@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import ContentView from '../components/ContentView';
-import { AiOutlineHome, AiOutlineUser, AiOutlineSetting, AiOutlineQuestionCircle } from 'react-icons/ai';
+import Profile from '../app/profiles/views/Profile';
+import Groups from '../app/groups/views/Groups';
+import Events from '../app/events/views/EventsPage';
+import Search from '../app/search/views/Search';
+import { AiOutlineHome, AiOutlineUser, AiOutlineTeam, AiOutlineCalendar, AiOutlineSearch } from 'react-icons/ai';
 
 const Dashboard: React.FC = () => {
   const tabs = [
     { id: 'home', label: 'Home', icon: <AiOutlineHome /> },
     { id: 'profile', label: 'Profile', icon: <AiOutlineUser /> },
-    { id: 'settings', label: 'Settings', icon: <AiOutlineSetting /> },
-    { id: 'help', label: 'Help', icon: <AiOutlineQuestionCircle /> }
+    { id: 'groups', label: 'Groups', icon: <AiOutlineTeam /> },
+    { id: 'events', label: 'Events', icon: <AiOutlineCalendar /> },
+    { id: 'search', label: 'Search', icon: <AiOutlineSearch /> }
   ];
 
   const [activeTab, setActiveTab] = useState(tabs[0].id);
@@ -16,6 +21,7 @@ const Dashboard: React.FC = () => {
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
   };
+
 
   // Content to display based on active tab
   const renderContent = () => {
@@ -28,26 +34,13 @@ const Dashboard: React.FC = () => {
           </>
         );
       case 'profile':
-        return (
-          <>
-            <h1>Profile Content</h1>
-            <p>User profile information would go here.</p>
-          </>
-        );
-      case 'settings':
-        return (
-          <>
-            <h1>Settings Content</h1>
-            <p>Application settings would be displayed here.</p>
-          </>
-        );
-      case 'help':
-        return (
-          <>
-            <h1>Help Content</h1>
-            <p>Help and documentation would be shown here.</p>
-          </>
-        );
+        return <Profile />;
+      case 'groups':
+        return <Groups />;
+      case 'events':
+        return <Events />;
+      case 'search':
+        return <Search />;
       default:
         return <p>Select a tab</p>;
     }
@@ -55,14 +48,18 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="app-container">
-      <Sidebar 
-        tabs={tabs} 
-        defaultActiveTab="home" 
-        onTabChange={handleTabChange} 
-      />
-      <ContentView>
-        {renderContent()}
-      </ContentView>
+      <div className="sidebar-container">
+        <Sidebar 
+          tabs={tabs} 
+          defaultActiveTab="home" 
+          onTabChange={handleTabChange} 
+        />
+      </div>
+      <div className="content-area">
+        <ContentView>
+          {renderContent()}
+        </ContentView>
+      </div>
     </div>
   );
 };

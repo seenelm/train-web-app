@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { authService } from '../authService';
+import { authService } from '../../app/access/services/authService';
 import { tokenService } from '../tokenService';
 import api from '../apiClient';
 import { auth } from '../../firebase/firebase';

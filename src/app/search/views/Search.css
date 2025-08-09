@@ -1,0 +1,34 @@
+.search-page {
+  padding: 20px;
+  margin: 0 auto;
+}
+
+.search-page h1 {
+  margin-bottom: 16px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+}
+
+.search-description {
+  margin-bottom: 24px;
+  font-size: 16px;
+  color: #666;
+  max-width: 800px;
+  line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .search-page {
+    padding: 16px;
+  }
+  
+  .search-page h1 {
+    font-size: 24px;
+  }
+  
+  .search-description {
+    font-size: 14px;
+  }
+}

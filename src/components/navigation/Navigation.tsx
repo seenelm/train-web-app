@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router";
 import { useEffect, useState } from "react";
 import { ProtectedRoute, AuthRoute, ResetPasswordRoute } from './RouteGuards';
-import AuthPage from "../../pages/AuthPage";
+import AuthPage from "../../app/access/views/AuthPage";
 import PrivacyPolicy from "../../pages/PrivacyPolicy";
 import TermsOfService from "../../pages/TermsOfService";
 import Dashboard from "../../pages/Dashboard";
