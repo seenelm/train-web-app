@@ -5,11 +5,6 @@ import {
 } from "@seenelm/train-core";
 import { tokenService } from "../../../services/tokenService";
 
-interface PaginationRequest {
-  page: number;
-  limit: number;
-}
-
 interface PaginationResponse<T> {
   data: T[];
   pagination: {
@@ -31,13 +26,6 @@ interface CertificationResponse {
   specializations: string[];
   createdAt?: Date;
   updatedAt?: Date;
-}
-
-interface UseCertificationSearchProps {
-  searchTerm: string;
-  page: number;
-  pageSize?: number;
-  enabled?: boolean;
 }
 
 // API function for fetching certifications

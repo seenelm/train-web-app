@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import ContentView from '../components/ContentView';
-import ProfileView from '../components/profile/ProfileView';
-import { AiOutlineHome, AiOutlineUser, AiOutlineSetting, AiOutlineQuestionCircle } from 'react-icons/ai';
+import Profile from './Profile';
+import Groups from './Groups';
+import Events from './Events';
+import Search from './Search';
+import { AiOutlineHome, AiOutlineUser, AiOutlineTeam, AiOutlineCalendar, AiOutlineSearch } from 'react-icons/ai';
 
 const Dashboard: React.FC = () => {
   const tabs = [
     { id: 'home', label: 'Home', icon: <AiOutlineHome /> },
     { id: 'profile', label: 'Profile', icon: <AiOutlineUser /> },
-    { id: 'settings', label: 'Settings', icon: <AiOutlineSetting /> },
-    { id: 'help', label: 'Help', icon: <AiOutlineQuestionCircle /> }
+    { id: 'groups', label: 'Groups', icon: <AiOutlineTeam /> },
+    { id: 'events', label: 'Events', icon: <AiOutlineCalendar /> },
+    { id: 'search', label: 'Search', icon: <AiOutlineSearch /> }
   ];
 
   const [activeTab, setActiveTab] = useState(tabs[0].id);
@@ -18,10 +22,6 @@ const Dashboard: React.FC = () => {
     setActiveTab(tabId);
   };
 
-  const handleEditProfile = () => {
-    console.log('Edit profile clicked');
-    // Implement profile editing functionality
-  };
 
   // Content to display based on active tab
   const renderContent = () => {
@@ -34,21 +34,13 @@ const Dashboard: React.FC = () => {
           </>
         );
       case 'profile':
-        return <ProfileView onEdit={handleEditProfile} />;
-      case 'settings':
-        return (
-          <>
-            <h1>Settings Content</h1>
-            <p>Application settings would be displayed here.</p>
-          </>
-        );
-      case 'help':
-        return (
-          <>
-            <h1>Help Content</h1>
-            <p>Help and documentation would be shown here.</p>
-          </>
-        );
+        return <Profile />;
+      case 'groups':
+        return <Groups />;
+      case 'events':
+        return <Events />;
+      case 'search':
+        return <Search />;
       default:
         return <p>Select a tab</p>;
     }

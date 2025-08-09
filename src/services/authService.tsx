@@ -125,18 +125,31 @@ import { AxiosError } from 'axios';
 
     // Sign out
     async logout(logoutRequest: LogoutRequest): Promise<void> {
-
-        // Call the signout endpoint first
-        if (this.isAuthenticated()) {
-          try {
-            await api.post(`${API_URL}/user/logout`, logoutRequest);
-            await firebaseSignOut(auth);
-            // Clear old tokens
+        try {
+            // Call the signout endpoint first if authenticated
+            if (this.isAuthenticated()) {
+                try {
+                    await api.post(`${API_URL}/user/logout`, logoutRequest);
+                } catch (signoutError) {
+                    // Log the error but continue with local logout
+                    console.error('Error calling signout endpoint:', signoutError);
+                }
+            }
+            
+            // Always perform these actions regardless of API call success
+            try {
+                await firebaseSignOut(auth);
+            } catch (firebaseError) {
+                console.error('Error signing out from Firebase:', firebaseError);
+                // Continue with local logout even if Firebase signout fails
+            }
+            
+            // Always clear tokens to ensure frontend logout
             tokenService.clearTokens();
-          } catch (signoutError) {
-            console.error('Error calling signout endpoint:', signoutError);
-            throw signoutError;
-          }
+        } catch (error) {
+            console.error('Unexpected error during logout:', error);
+            // Still clear tokens to ensure frontend logout
+            tokenService.clearTokens();
         }
     },
     

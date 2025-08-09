@@ -1,0 +1,33 @@
+.events-page {
+  padding: 20px;
+  margin: 0 auto;
+}
+
+.events-page h1 {
+  margin-bottom: 16px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+}
+
+.events-description {
+  margin-bottom: 24px;
+  font-size: 16px;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .events-page {
+    padding: 16px;
+  }
+  
+  .events-page h1 {
+    font-size: 24px;
+  }
+  
+  .events-description {
+    font-size: 14px;
+  }
+}

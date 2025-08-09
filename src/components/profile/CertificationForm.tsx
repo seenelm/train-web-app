@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+
 import { useCertificationSearch } from './services/profileActions';
 import { FaSearch, FaPlus, FaTimes } from 'react-icons/fa';
 import './styles/certificationForm.css';
@@ -41,8 +41,6 @@ const CertificationForm: React.FC<CertificationFormProps> = ({
     isLoading,
     isError,
     error,
-    isFetching,
-    refetch,
   } = useCertificationSearch({
     searchTerm: debouncedSearch,
     page: 1,
