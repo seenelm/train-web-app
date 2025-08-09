@@ -1,6 +1,6 @@
 import { JSX } from "react";
 import { Navigate, useLocation } from "react-router";
-import { authService } from '../../services/authService';
+import { authService } from '../../app/access/services/authService'
 
 // Protected route component - redirects to login if not authenticated
 export const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
