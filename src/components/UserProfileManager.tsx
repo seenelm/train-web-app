@@ -155,7 +155,7 @@ const UserProfileManager: React.FC = () => {
                 <ul>
                   {profile.customSections.map((section, index) => (
                     <li key={index}>
-                      <strong>{section.title}:</strong> {section.details}
+                      <strong>{section.title}:</strong> {section.content}
                     </li>
                   ))}
                 </ul>

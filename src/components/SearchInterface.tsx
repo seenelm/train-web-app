@@ -47,13 +47,33 @@ const SearchInterface: React.FC<SearchInterfaceProps> = ({
             resultsPerPage
           );
           
+          // Transform API response to SearchResult[] format
+          const results: SearchResult[] = [
+            ...profileResponse.profiles.map(profile => ({
+              id: profile.id,
+              name: profile.name,
+              type: 'profile' as const,
+              description: profile.bio,
+              profilePicture: profile.profilePicture,
+              tags: []
+            })),
+            ...profileResponse.groups.map(group => ({
+              id: group.id,
+              name: group.name,
+              type: 'group' as const,
+              description: group.description,
+              groupPicture: group.groupPicture,
+              tags: []
+            }))
+          ];
+          
           setProfileResults(prevResults => 
             currentPage === 1 
-              ? profileResponse.results 
-              : [...prevResults, ...profileResponse.results]
+              ? results 
+              : [...prevResults, ...results]
           );
           
-          setHasMore(profileResponse.totalPages > currentPage);
+          setHasMore(profileResponse.pagination.hasNextPage);
         }
 
         if (searchType === 'certifications' || searchType === 'all') {
@@ -63,14 +83,21 @@ const SearchInterface: React.FC<SearchInterfaceProps> = ({
             resultsPerPage
           );
           
+          // Transform API response to CertificationSearchResult[] format
+          const results: CertificationSearchResult[] = certResponse.certifications.map(cert => ({
+            id: cert.id,
+            name: cert.name,
+            issuer: cert.organization
+          }));
+          
           setCertificationResults(prevResults => 
             currentPage === 1 
-              ? certResponse.results 
-              : [...prevResults, ...certResponse.results]
+              ? results 
+              : [...prevResults, ...results]
           );
           
           if (searchType === 'certifications') {
-            setHasMore(certResponse.totalPages > currentPage);
+            setHasMore(certResponse.pagination.hasNextPage);
           }
         }
       } catch (err) {

@@ -171,6 +171,23 @@ export interface CertificationsSearchResponse {
   pagination: PagePaginationResponse;
 }
 
+export interface SearchResult {
+  id: string;
+  name: string;
+  type: 'profile' | 'group';
+  description?: string;
+  profilePicture?: string;
+  groupPicture?: string;
+  tags?: string[];
+}
+
+export interface CertificationSearchResult {
+  id: string;
+  name: string;
+  issuer?: string;
+  description?: string;
+}
+
 export interface ProfilesSearchResponse {
   profiles: {
     id: string;
@@ -188,4 +205,6 @@ export interface ProfilesSearchResponse {
     isPrivate: boolean;
   }[];
   pagination: PagePaginationResponse;
+  results?: SearchResult[];
+  totalPages?: number;
 }

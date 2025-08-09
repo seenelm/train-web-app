@@ -66,7 +66,7 @@ const UserProfileById: React.FC<UserProfileByIdProps> = ({ userId }) => {
             {profile.customSections.map((section, index) => (
               <div key={index} className="custom-section">
                 <h3>{section.title}</h3>
-                <p>{section.details}</p>
+                <p>{section.content}</p>
               </div>
             ))}
           </div>

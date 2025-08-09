@@ -10,12 +10,18 @@ export interface UserProfile {
   accountType: number;
   socialLinks: any[];
   certifications: any[];
-  customSections: {
+  customSections?: {
+    id?: string;
     title: string;
-    details: string;
+    content: string;
   }[];
   bio: string;
   profilePicture: string;
+  role?: string;
+  location?: string;
+  tags?: string[];
+  isPrivate?: boolean;
+  age?: number;
   createdAt?: string;
   updatedAt?: string;
   __v?: number;

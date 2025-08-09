@@ -49,12 +49,11 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ userId, onSave, onCancel 
         
         // Initialize form state
         setName(profileData.name || '');
-        setAge(profileData.age || '');
         setLocation(profileData.location || '');
         setBio(profileData.bio || '');
         setRole(profileData.role || '');
-        setIsPrivate(profileData.isPrivate || false);
-        setTags(profileData.tags || []);
+        setIsPrivate(false);
+        setTags([]);
         setProfilePicture(profileData.profilePicture || null);
         setCustomSections(profileData.customSections?.map(section => ({
           id: section.id,
@@ -85,12 +84,9 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ userId, onSave, onCancel 
       // Prepare profile data
       const profileData: Partial<UserProfile> = {
         name,
-        age: age !== '' ? Number(age) : undefined,
         location,
         bio,
         role,
-        isPrivate,
-        tags,
         profilePicture: profilePicture || undefined,
       };
       
@@ -121,11 +117,11 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ userId, onSave, onCancel 
           .map(section => section.id as string);
         
         const sectionsToDelete = existingSectionIds.filter(
-          id => !currentSectionIds.includes(id)
+          id => !currentSectionIds.includes(id as string)
         );
         
         for (const sectionId of sectionsToDelete) {
-          await userProfileService.deleteCustomSection(sectionId);
+          await userProfileService.deleteCustomSection(sectionId as string);
         }
       } else {
         // Create all new sections
