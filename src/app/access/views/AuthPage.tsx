@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router';
 import AuthCard from '../components/ui/AuthCard';
 import LoginForm from '../components/forms/LoginForm';
 import RegistrationForm from '../components/forms/RegistrationForm';

@@ -28,7 +28,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ userId, onSave, onCancel 
   const [tags, setTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState('');
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
-  const [customSections, setCustomSections] = useState<Array<{title: string; content: string; id?: string}>>([]);
+  const [customSections, setCustomSections] = useState<Array<{title: string; details: string; id?: string}>>([]);
 
   // Load profile data
   useEffect(() => {
@@ -159,7 +159,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ userId, onSave, onCancel 
 
   // Handle custom section addition
   const handleAddCustomSection = () => {
-    setCustomSections([...customSections, { title: '', content: '' }]);
+    setCustomSections([...customSections, { title: '', details: '' }]);
   };
 
   // Handle custom section removal
@@ -170,7 +170,7 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ userId, onSave, onCancel 
   };
 
   // Handle custom section update
-  const handleUpdateCustomSection = (index: number, field: 'title' | 'content', value: string) => {
+  const handleUpdateCustomSection = (index: number, field: 'title' | 'details', value: string) => {
     const updatedSections = [...customSections];
     updatedSections[index][field] = value;
     setCustomSections(updatedSections);
@@ -323,12 +323,12 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ userId, onSave, onCancel 
                 />
               </div>
               <div className="profile-editor-field">
-                <label>Content</label>
+                <label>Details</label>
                 <textarea
-                  value={section.content}
-                  onChange={(e) => handleUpdateCustomSection(index, 'content', e.target.value)}
+                  value={section.details}
+                  onChange={(e) => handleUpdateCustomSection(index, 'details', e.target.value)}
                   rows={3}
-                  placeholder="Section Content"
+                  placeholder="Section Details"
                   required
                 />
               </div>

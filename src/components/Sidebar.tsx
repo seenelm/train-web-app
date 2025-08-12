@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './styles/sidebar.css';
-import logo from '../assets/logo-white.svg';
+import logo from '@/assets/logo-white.svg';
 import { authService } from '../app/access/services/authService';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { AiOutlineLogout, AiOutlineMenu } from 'react-icons/ai';
 import { LogoutRequest } from '@seenelm/train-core';
 import { tokenService } from '../services/tokenService';

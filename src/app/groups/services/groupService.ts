@@ -1,9 +1,9 @@
 import api from '../../../services/apiClient';
 import { 
-  Group, 
   SuccessResponse, 
   JoinRequestResponse 
 } from '../../../types/api.types';
+import { CreateGroupRequest, GroupResponse, UserGroupsResponse } from '@seenelm/train-core';
 
 /**
  * Service for group management operations
@@ -14,19 +14,22 @@ export const groupService = {
    * @param groupData - Group data
    * @returns Promise with the created group
    */
-  async createGroup(groupData: {
-    name: string;
-    description: string;
-    isPrivate: boolean;
-    location?: string;
-    groupPicture?: string;
-    tags?: string[];
-  }): Promise<Group> {
+  async createGroup(groupData: CreateGroupRequest): Promise<GroupResponse> {
     try {
-      const response = await api.post<Group>('/groups', groupData);
+      const response = await api.post<GroupResponse>('/group', groupData);
       return response.data;
     } catch (error) {
       console.error('Error creating group:', error);
+      throw error;
+    }
+  },
+
+  async fetchUserGroups(userId: string): Promise<UserGroupsResponse> {
+    try {
+      const response = await api.get<UserGroupsResponse>(`/user-profile/${userId}/groups`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user groups:', error);
       throw error;
     }
   },
@@ -41,10 +44,25 @@ export const groupService = {
       const response = await api.post<SuccessResponse>(`/groups/${groupId}/join`);
       return response.data;
     } catch (error) {
-      console.error('Error joining public group:', error);
+      console.error('Error creating group:', error);
       throw error;
     }
   },
+
+  /**
+   * Join a public group
+   * @param groupId - Group ID
+   * @returns Promise with success response
+   */
+  // async joinPublicGroup(groupId: string): Promise<SuccessResponse> {
+  //   try {
+  //     const response = await api.post<SuccessResponse>(`/groups/${groupId}/join`);
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error('Error joining public group:', error);
+  //     throw error;
+  //   }
+  // },
 
   /**
    * Request to join a private group
@@ -136,17 +154,7 @@ export const groupService = {
    * @param groupData - Group data to update
    * @returns Promise with success response
    */
-  async updateGroupProfile(
-    groupId: string,
-    groupData: {
-      name?: string;
-      description?: string;
-      isPrivate?: boolean;
-      location?: string;
-      groupPicture?: string;
-      tags?: string[];
-    }
-  ): Promise<SuccessResponse> {
+  async updateGroupProfile(groupId: string, groupData: CreateGroupRequest): Promise<SuccessResponse> {
     try {
       const response = await api.put<SuccessResponse>(`/groups/${groupId}`, groupData);
       return response.data;

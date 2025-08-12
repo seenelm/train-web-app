@@ -3,6 +3,7 @@ import { groupService } from '../services/groupService';
 import { Group } from '../../../types/api.types';
 import { FaUsers, FaPlus, FaEdit, FaTrash, FaLock, FaLockOpen } from 'react-icons/fa';
 import './GroupManager.css';
+import { CreateGroupRequest } from '@seenelm/train-core';
 
 interface GroupManagerProps {
   onGroupSelect?: (group: Group) => void;

@@ -4,7 +4,7 @@ import {
   EventsResponse, 
   SuccessResponse 
 } from '../../../types/api.types';
-
+import { Alert } from '@seenelm/train-core';
 /**
  * Service for event management operations
  */
@@ -20,12 +20,10 @@ export const eventService = {
     location?: string;
     startDate: string;
     endDate: string;
-    isVirtual: boolean;
-    virtualMeetingLink?: string;
-    maxParticipants?: number;
     groupId?: string;
-    eventPicture?: string;
+    imagePath?: string;
     tags?: string[];
+    alerts?: Alert[];
   }): Promise<Event> {
     try {
       const response = await api.post<Event>('/events', eventData);
