@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { eventService } from '../../services/eventService';
 import { Event } from '../../../../types/api.types';
+import { UserEventResponse, CursorPaginationResponse, EventRequest } from '@seenelm/train-core';
 import { 
   FaCalendarAlt, 
   FaPlus, 
@@ -13,6 +14,7 @@ import {
   FaFilter
 } from 'react-icons/fa';
 import './EventManager.css';
+import { tokenService } from '../../../../services/tokenService';
 
 interface EventManagerProps {
   onEventSelect?: (event: Event) => void;
@@ -20,27 +22,33 @@ interface EventManagerProps {
 }
 
 const EventManager: React.FC<EventManagerProps> = ({ onEventSelect, groupId }) => {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<UserEventResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   
+  // Pagination states
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | undefined>();
+  const [loadingMore, setLoadingMore] = useState(false);
+  
   // Filter states
   const [statusFilter, setStatusFilter] = useState<'ATTENDING' | 'INTERESTED' | 'CREATED' | 'ALL'>('ALL');
   const [timeframeFilter, setTimeframeFilter] = useState<'PAST' | 'UPCOMING' | 'ALL'>('UPCOMING');
   
-  // Form state
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [location, setLocation] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [isVirtual, setIsVirtual] = useState(false);
-  const [virtualMeetingLink, setVirtualMeetingLink] = useState('');
-  const [maxParticipants, setMaxParticipants] = useState<number | ''>('');
-  const [eventPicture, setEventPicture] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
+  // Form state using EventRequest DTO
+  const [eventData, setEventData] = useState<EventRequest>({
+    title: '',
+    admin: [], // Will be set to current user ID when creating
+    invitees: [],
+    startTime: new Date(),
+    endTime: new Date(),
+    location: '',
+    description: '',
+    alerts: [],
+    tags: []
+  });
   const [newTag, setNewTag] = useState('');
   const [selectedGroupId, setSelectedGroupId] = useState(groupId || '');
   
@@ -51,14 +59,17 @@ const EventManager: React.FC<EventManagerProps> = ({ onEventSelect, groupId }) =
         setLoading(true);
         setError(null);
         
-        const response = await eventService.getUserEvents(
-          statusFilter,
-          timeframeFilter,
-          1, // page
-          50 // limit
-        );
+        const user = tokenService.getUser();
+        if (!user) {
+          return;
+        }
+        const userId = JSON.parse(user).userId;
         
-        setEvents(response.events);
+        const response = await eventService.getUserEvents(userId, 20);
+        
+        setEvents(response.data);
+        setHasNextPage(response.pagination.hasNextPage);
+        setNextCursor(response.pagination.nextCursor);
       } catch (err) {
         console.error('Error fetching events:', err);
         setError('Failed to load events. Please try again.');
@@ -69,6 +80,32 @@ const EventManager: React.FC<EventManagerProps> = ({ onEventSelect, groupId }) =
     
     fetchEvents();
   }, [statusFilter, timeframeFilter]);
+
+  // Load more events for infinite scrolling
+  const loadMoreEvents = useCallback(async () => {
+    if (!hasNextPage || loadingMore || !nextCursor) return;
+    
+    try {
+      setLoadingMore(true);
+      
+      const user = tokenService.getUser();
+      if (!user) {
+        return;
+      }
+      const userId = JSON.parse(user).userId;
+      
+      const response = await eventService.getUserEvents(userId, 20, nextCursor);
+      
+      setEvents(prev => [...prev, ...response.data]);
+      setHasNextPage(response.pagination.hasNextPage);
+      setNextCursor(response.pagination.nextCursor);
+    } catch (err) {
+      console.error('Error loading more events:', err);
+      setError('Failed to load more events. Please try again.');
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [hasNextPage, loadingMore, nextCursor]);
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -84,44 +121,57 @@ const EventManager: React.FC<EventManagerProps> = ({ onEventSelect, groupId }) =
 
   // Reset form
   const resetForm = () => {
-    setTitle('');
-    setDescription('');
-    setLocation('');
-    setStartDate('');
-    setEndDate('');
-    setIsVirtual(false);
-    setVirtualMeetingLink('');
-    setMaxParticipants('');
-    setEventPicture('');
-    setTags([]);
+    setEventData({
+      title: '',
+      admin: [],
+      invitees: [],
+      startTime: new Date(),
+      endTime: new Date(),
+      location: '',
+      description: '',
+      alerts: [],
+      tags: []
+    });
     setNewTag('');
     setSelectedGroupId(groupId || '');
     setEditingEvent(null);
   };
 
+  // Helper function to safely convert date strings to Date objects
+  const safeDateConversion = (dateValue: string | Date): Date => {
+    if (dateValue instanceof Date) {
+      return dateValue;
+    }
+    return new Date(dateValue);
+  };
+
   // Initialize form for editing
-  const handleEditEvent = (event: Event) => {
-    setEditingEvent(event);
-    setTitle(event.title);
-    setDescription(event.description);
-    setLocation(event.location || '');
+  const handleEditEvent = (userEvent: UserEventResponse) => {
+    const event = userEvent.event;
+    setEditingEvent(event as any); // TODO: Convert UserEventResponse to Event type
     
-    // Format dates for datetime-local input
-    const formatDateForInput = (dateString: string) => {
-      const date = new Date(dateString);
-      return date.toISOString().slice(0, 16);
-    };
+    // Debug: Log the actual types of date fields
+    console.log('Event dates:', {
+      startTime: event.startTime,
+      startTimeType: typeof event.startTime,
+      endTime: event.endTime,
+      endTimeType: typeof event.endTime
+    });
     
-    setStartDate(formatDateForInput(event.startDate));
-    setEndDate(formatDateForInput(event.endDate));
+    // Update eventData with the event values, ensuring dates are properly converted
+    setEventData({
+      title: event.title,
+      admin: event.admin,
+      invitees: event.invitees,
+      startTime: safeDateConversion(event.startTime),
+      endTime: event.endTime ? safeDateConversion(event.endTime) : safeDateConversion(event.startTime),
+      location: event.location || '',
+      description: event.description || '',
+      alerts: event.alerts || [],
+      tags: event.tags || []
+    });
     
-    setIsVirtual(event.isVirtual);
-    setVirtualMeetingLink(event.virtualMeetingLink || '');
-    setMaxParticipants(event.maxParticipants || '');
-    setEventPicture(event.eventPicture || '');
-    setTags(event.tags || []);
-    setSelectedGroupId(event.groupId || '');
-    
+    setSelectedGroupId(''); // TODO: Get groupId from event if available
     setShowCreateForm(true);
   };
 
@@ -132,36 +182,93 @@ const EventManager: React.FC<EventManagerProps> = ({ onEventSelect, groupId }) =
     try {
       setError(null);
       
-      const eventData = {
-        title,
-        description,
-        location: location || undefined,
-        startDate,
-        endDate,
-        isVirtual,
-        virtualMeetingLink: isVirtual ? virtualMeetingLink : undefined,
-        maxParticipants: maxParticipants !== '' ? Number(maxParticipants) : undefined,
-        groupId: selectedGroupId || undefined,
-        eventPicture: eventPicture || undefined,
-        tags: tags.length > 0 ? tags : undefined
+      // Get current user ID for admin field
+      const user = tokenService.getUser();
+      if (!user) {
+        setError('User not authenticated');
+        return;
+      }
+      const userId = JSON.parse(user).userId;
+      
+      // Prepare event data using EventRequest structure
+      const eventRequest: EventRequest = {
+        title: eventData.title,
+        admin: [userId], // Current user as admin
+        invitees: eventData.invitees,
+        startTime: eventData.startTime,
+        endTime: eventData.endTime,
+        location: eventData.location || undefined,
+        description: eventData.description || undefined,
+        alerts: eventData.alerts,
+        tags: eventData.tags
       };
       
       if (editingEvent) {
-        // Update existing event
-        await eventService.updateEvent(editingEvent.id, eventData);
+        // Update existing event - convert EventRequest to the format expected by updateEvent
+        const updateData = {
+          title: eventRequest.title,
+          description: eventRequest.description || '',
+          location: eventRequest.location,
+          startDate: eventRequest.startTime.toISOString(),
+          endDate: eventRequest.endTime?.toISOString() || eventRequest.startTime.toISOString(),
+          tags: eventRequest.tags
+        };
+        
+        await eventService.updateEvent(editingEvent.id, updateData);
         
         // Update local state
-        setEvents(events.map(event => 
-          event.id === editingEvent.id 
-            ? { ...event, ...eventData } 
-            : event
+        setEvents(events.map(userEvent => 
+          userEvent.event.id === editingEvent?.id 
+            ? { 
+                ...userEvent, 
+                event: { 
+                  ...userEvent.event, 
+                  title: eventRequest.title,
+                  description: eventRequest.description || userEvent.event.description,
+                  location: eventRequest.location || userEvent.event.location,
+                  tags: eventRequest.tags || userEvent.event.tags
+                } 
+              } 
+            : userEvent
         ));
       } else {
-        // Create new event
-        const newEvent = await eventService.createEvent(eventData);
+        // Create new event using EventRequest
+        // Note: We need to update the backend to accept EventRequest directly
+        // For now, we'll convert it to the format expected by createEvent
+        const createData = {
+          title: eventRequest.title,
+          description: eventRequest.description || '',
+          location: eventRequest.location,
+          startDate: eventRequest.startTime.toISOString(),
+          endDate: eventRequest.endTime?.toISOString() || eventRequest.startTime.toISOString(),
+          groupId: selectedGroupId || undefined,
+          imagePath: undefined, // Not supported in EventRequest
+          tags: eventRequest.tags,
+          alerts: eventRequest.alerts
+        };
         
-        // Update local state
-        setEvents([...events, newEvent]);
+        const newEvent = await eventService.createEvent(createData);
+        
+        // Log the created event for debugging
+        console.log('Created event:', newEvent);
+        
+        // Update local state - convert Event to UserEventResponse format
+        const newUserEvent: UserEventResponse = {
+          event: {
+            id: newEvent.id,
+            title: newEvent.title,
+            admin: [userId], // Current user as admin
+            invitees: [],
+            startTime: new Date(newEvent.startDate), // Convert string to Date
+            endTime: new Date(newEvent.endDate),     // Convert string to Date
+            location: newEvent.location || '',
+            description: newEvent.description || '',
+            alerts: [],
+            tags: newEvent.tags || []
+          },
+          status: 2 // EventStatus.Accepted
+        };
+        setEvents([...events, newUserEvent]);
       }
       
       // Reset form and hide it
@@ -186,7 +293,7 @@ const EventManager: React.FC<EventManagerProps> = ({ onEventSelect, groupId }) =
       await eventService.deleteEvent(eventId);
       
       // Update local state
-      setEvents(events.filter(event => event.id !== eventId));
+      setEvents(events.filter(event => event.event.id !== eventId));
     } catch (err) {
       console.error('Error deleting event:', err);
       setError('Failed to delete event. Please try again.');
@@ -195,22 +302,29 @@ const EventManager: React.FC<EventManagerProps> = ({ onEventSelect, groupId }) =
 
   // Handle tag addition
   const handleAddTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags([...tags, newTag.trim()]);
+    if (newTag.trim() && !eventData.tags?.includes(newTag.trim())) {
+      setEventData(prev => ({
+        ...prev,
+        tags: [...(prev.tags || []), newTag.trim()]
+      }));
       setNewTag('');
     }
   };
 
   // Handle tag removal
   const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
+    setEventData(prev => ({
+      ...prev,
+      tags: (prev.tags || []).filter(tag => tag !== tagToRemove)
+    }));
   };
 
   // Get event status class
-  const getEventStatusClass = (event: Event) => {
+  const getEventStatusClass = (userEvent: UserEventResponse) => {
+    const event = userEvent.event;
     const now = new Date();
-    const startDate = new Date(event.startDate);
-    const endDate = new Date(event.endDate);
+    const startDate = new Date(event.startTime);
+    const endDate = new Date(event.endTime);
     
     if (endDate < now) {
       return 'event-past';
@@ -284,8 +398,8 @@ const EventManager: React.FC<EventManagerProps> = ({ onEventSelect, groupId }) =
               <input
                 type="text"
                 id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                value={eventData.title}
+                onChange={(e) => setEventData(prev => ({ ...prev, title: e.target.value }))}
                 required
                 placeholder="Enter event title"
               />
@@ -295,8 +409,8 @@ const EventManager: React.FC<EventManagerProps> = ({ onEventSelect, groupId }) =
               <label htmlFor="description">Description</label>
               <textarea
                 id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                value={eventData.description || ''}
+                onChange={(e) => setEventData(prev => ({ ...prev, description: e.target.value }))}
                 required
                 rows={3}
                 placeholder="Describe your event"
@@ -309,8 +423,11 @@ const EventManager: React.FC<EventManagerProps> = ({ onEventSelect, groupId }) =
                 <input
                   type="datetime-local"
                   id="startDate"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
+                  value={eventData.startTime.toISOString().slice(0, 16)}
+                  onChange={(e) => setEventData(prev => ({ 
+                    ...prev, 
+                    startTime: new Date(e.target.value) 
+                  }))}
                   required
                 />
               </div>
@@ -320,77 +437,35 @@ const EventManager: React.FC<EventManagerProps> = ({ onEventSelect, groupId }) =
                 <input
                   type="datetime-local"
                   id="endDate"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+                  value={eventData.endTime?.toISOString().slice(0, 16) || eventData.startTime.toISOString().slice(0, 16)}
+                  onChange={(e) => setEventData(prev => ({ 
+                    ...prev, 
+                    endTime: new Date(e.target.value) 
+                  }))}
                   required
                 />
               </div>
             </div>
             
-            <div className="form-group checkbox-group">
-              <input
-                type="checkbox"
-                id="isVirtual"
-                checked={isVirtual}
-                onChange={(e) => setIsVirtual(e.target.checked)}
-              />
-              <label htmlFor="isVirtual">
-                <FaVideo /> Virtual Event
-              </label>
-            </div>
-            
-            {isVirtual ? (
-              <div className="form-group">
-                <label htmlFor="virtualMeetingLink">Meeting Link</label>
-                <input
-                  type="text"
-                  id="virtualMeetingLink"
-                  value={virtualMeetingLink}
-                  onChange={(e) => setVirtualMeetingLink(e.target.value)}
-                  placeholder="Enter meeting URL"
-                  required={isVirtual}
-                />
-              </div>
-            ) : (
-              <div className="form-group">
-                <label htmlFor="location">Location</label>
-                <input
-                  type="text"
-                  id="location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Enter event location"
-                />
-              </div>
-            )}
-            
             <div className="form-group">
-              <label htmlFor="maxParticipants">Maximum Participants (Optional)</label>
-              <input
-                type="number"
-                id="maxParticipants"
-                value={maxParticipants}
-                onChange={(e) => setMaxParticipants(e.target.value ? Number(e.target.value) : '')}
-                min="1"
-                placeholder="Leave blank for unlimited"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="eventPicture">Event Image URL (Optional)</label>
+              <label htmlFor="location">Location</label>
               <input
                 type="text"
-                id="eventPicture"
-                value={eventPicture}
-                onChange={(e) => setEventPicture(e.target.value)}
-                placeholder="Enter image URL"
+                id="location"
+                value={eventData.location || ''}
+                onChange={(e) => setEventData(prev => ({ ...prev, location: e.target.value }))}
+                placeholder="Enter event location"
               />
             </div>
+            
+
+            
+
             
             <div className="form-group">
               <label>Tags</label>
               <div className="tags-container">
-                {tags.map((tag, index) => (
+                {eventData.tags?.map((tag, index) => (
                   <div key={index} className="tag">
                     <span>{tag}</span>
                     <button 
@@ -448,84 +523,93 @@ const EventManager: React.FC<EventManagerProps> = ({ onEventSelect, groupId }) =
         </div>
       ) : (
         <div className="events-list">
-          {events.map(event => (
-            <div key={event.id} className={`event-card ${getEventStatusClass(event)}`}>
-              <div 
-                className="event-card-content"
-                onClick={() => onEventSelect && onEventSelect(event)}
-              >
-                <div className="event-image">
-                  {event.eventPicture ? (
-                    <img src={event.eventPicture} alt={event.title} />
-                  ) : (
+          {events.map(userEvent => {
+            const event = userEvent.event;
+            
+            // Debug: Log the event data structure
+            console.log('Rendering event:', {
+              id: event.id,
+              title: event.title,
+              startTime: event.startTime,
+              startTimeType: typeof event.startTime,
+              endTime: event.endTime,
+              endTimeType: typeof event.endTime
+            });
+            
+            return (
+              <div key={event.id} className={`event-card ${getEventStatusClass(userEvent)}`}>
+                <div 
+                  className="event-card-content"
+                  onClick={() => onEventSelect && onEventSelect(event as any)}
+                >
+                  <div className="event-image">
                     <div className="event-image-placeholder">
                       <FaCalendarAlt />
                     </div>
-                  )}
-                </div>
-                <div className="event-info">
-                  <h3 className="event-title">{event.title}</h3>
-                  <div className="event-dates">
-                    <FaClock />
-                    <span>{formatDate(event.startDate)}</span>
-                    {new Date(event.startDate).toDateString() !== new Date(event.endDate).toDateString() && (
-                      <>
-                        <span> to </span>
-                        <span>{formatDate(event.endDate)}</span>
-                      </>
+                  </div>
+                  <div className="event-info">
+                    <h3 className="event-title">{event.title}</h3>
+                    <div className="event-dates">
+                      <FaClock />
+                      <span>{formatDate(new Date(event.startTime).toISOString())}</span>
+                      {new Date(event.startTime).toDateString() !== new Date(event.endTime).toDateString() && (
+                        <>
+                          <span> to </span>
+                          <span>{formatDate(new Date(event.endTime).toISOString())}</span>
+                        </>
+                      )}
+                    </div>
+                    
+                    {event.location && (
+                      <div className="event-location">
+                        <FaMapMarkerAlt />
+                        <span>{event.location}</span>
+                      </div>
+                    )}
+                    
+                    <p className="event-description">{event.description}</p>
+                    
+                    {event.tags && event.tags.length > 0 && (
+                      <div className="event-tags">
+                        {event.tags.map((tag, index) => (
+                          <span key={index} className="event-tag">{tag}</span>
+                        ))}
+                      </div>
                     )}
                   </div>
-                  
-                  {event.location && (
-                    <div className="event-location">
-                      <FaMapMarkerAlt />
-                      <span>{event.location}</span>
-                    </div>
-                  )}
-                  
-                  {event.isVirtual && (
-                    <div className="event-virtual">
-                      <FaVideo />
-                      <span>Virtual Event</span>
-                    </div>
-                  )}
-                  
-                  {event.maxParticipants && (
-                    <div className="event-participants">
-                      <FaUsers />
-                      <span>Max {event.maxParticipants} participants</span>
-                    </div>
-                  )}
-                  
-                  <p className="event-description">{event.description}</p>
-                  
-                  {event.tags && event.tags.length > 0 && (
-                    <div className="event-tags">
-                      {event.tags.map((tag, index) => (
-                        <span key={index} className="event-tag">{tag}</span>
-                      ))}
-                    </div>
-                  )}
+                </div>
+                <div className="event-actions">
+                  <button 
+                    className="edit-button"
+                    onClick={() => handleEditEvent(userEvent)}
+                    aria-label="Edit event"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button 
+                    className="delete-button"
+                    onClick={() => handleDeleteEvent(event.id)}
+                    aria-label="Delete event"
+                  >
+                    <FaTrash />
+                  </button>
                 </div>
               </div>
-              <div className="event-actions">
-                <button 
-                  className="edit-button"
-                  onClick={() => handleEditEvent(event)}
-                  aria-label="Edit event"
-                >
-                  <FaEdit />
-                </button>
-                <button 
-                  className="delete-button"
-                  onClick={() => handleDeleteEvent(event.id)}
-                  aria-label="Delete event"
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
+        </div>
+      )}
+      
+      {/* Load More Button */}
+      {!loading && events.length > 0 && hasNextPage && (
+        <div className="load-more-container">
+          <button 
+            className="load-more-button"
+            onClick={loadMoreEvents}
+            disabled={loadingMore}
+          >
+            {loadingMore ? 'Loading...' : 'Load More Events'}
+          </button>
         </div>
       )}
     </div>

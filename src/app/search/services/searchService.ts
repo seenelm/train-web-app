@@ -1,8 +1,9 @@
-import api from '../../../services/apiClient';
-import { 
-  CertificationsSearchResponse, 
-  ProfilesSearchResponse 
-} from '../../../types/api.types';
+import api from "../../../services/apiClient";
+import {
+  PaginationResponse,
+  CertificationResponse,
+  SearchProfilesResponse,
+} from "@seenelm/train-core";
 
 /**
  * Service for search operations
@@ -16,22 +17,22 @@ export const searchService = {
    * @returns Promise with certifications search response
    */
   async searchCertifications(
-    query: string,
+    searchTerm: string,
     page: number = 1,
     limit: number = 10
-  ): Promise<CertificationsSearchResponse> {
+  ): Promise<PaginationResponse<CertificationResponse>> {
     try {
       const params = new URLSearchParams();
-      params.append('query', query);
-      params.append('page', page.toString());
-      params.append('limit', limit.toString());
-      
-      const response = await api.get<CertificationsSearchResponse>(
+      params.append("searchTerm", searchTerm);
+      params.append("page", page.toString());
+      params.append("limit", limit.toString());
+
+      const response = await api.get<PaginationResponse<CertificationResponse>>(
         `/search/certifications?${params.toString()}`
       );
       return response.data;
     } catch (error) {
-      console.error('Error searching certifications:', error);
+      console.error("Error searching certifications:", error);
       throw error;
     }
   },
@@ -44,25 +45,25 @@ export const searchService = {
    * @returns Promise with profiles search response
    */
   async searchProfilesAndGroups(
-    query: string,
+    searchTerm: string,
     page: number = 1,
     limit: number = 10
-  ): Promise<ProfilesSearchResponse> {
+  ): Promise<PaginationResponse<SearchProfilesResponse>> {
     try {
       const params = new URLSearchParams();
-      params.append('query', query);
-      params.append('page', page.toString());
-      params.append('limit', limit.toString());
-      
-      const response = await api.get<ProfilesSearchResponse>(
-        `/search/profiles?${params.toString()}`
-      );
+      params.append("searchTerm", searchTerm);
+      params.append("page", page.toString());
+      params.append("limit", limit.toString());
+
+      const response = await api.get<
+        PaginationResponse<SearchProfilesResponse>
+      >(`/search/profiles?${params.toString()}`);
       return response.data;
     } catch (error) {
-      console.error('Error searching profiles and groups:', error);
+      console.error("Error searching profiles and groups:", error);
       throw error;
     }
-  }
+  },
 };
 
 export default searchService;
