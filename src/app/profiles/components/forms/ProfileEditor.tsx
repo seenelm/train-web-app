@@ -4,6 +4,7 @@ import { userProfileService } from '../../services/userProfileService';
 import { UserProfile } from '../../../../types/api.types';
 import { FaUser, FaSave, FaTimes } from 'react-icons/fa';
 import './ProfileEditor.css';
+import { UserProfileResponse } from '@seenelm/train-core';
 
 interface ProfileEditorProps {
   userId?: string; // Optional: if not provided, edit current user's profile
@@ -12,7 +13,7 @@ interface ProfileEditorProps {
 }
 
 const ProfileEditor: React.FC<ProfileEditorProps> = ({ userId, onSave, onCancel }) => {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<UserProfileResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,12 +38,12 @@ const ProfileEditor: React.FC<ProfileEditorProps> = ({ userId, onSave, onCancel 
         setLoading(true);
         setError(null);
         
-        let profileData: UserProfile;
+        let profileData: UserProfileResponse;
         
         if (userId) {
-          profileData = await userService.getUserProfile(userId);
+          profileData = await userProfileService.getUserProfile(userId);
         } else {
-          profileData = await userService.getCurrentUserProfile();
+          profileData = await userProfileService.getCurrentUserProfile();
         }
         
         setProfile(profileData);

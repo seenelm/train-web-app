@@ -3,25 +3,39 @@ import { groupService } from '../services/groupService';
 import { Group } from '../../../types/api.types';
 import { FaUsers, FaPlus, FaEdit, FaTrash, FaLock, FaLockOpen } from 'react-icons/fa';
 import './GroupManager.css';
-import { CreateGroupRequest, UserGroupsResponse } from '@seenelm/train-core';
+import { CreateGroupRequest, GroupResponse, GroupRequest, ProfileAccess } from '@seenelm/train-core';
+import { tokenService } from '../../../services/tokenService';
 
 interface GroupManagerProps {
-  onGroupSelect?: (group: Group) => void;
+  onGroupSelect?: (group: GroupResponse) => void;
 }
 
 const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
-  const [groups, setGroups] = useState<Group[]>([]);
+  const [groups, setGroups] = useState<GroupResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingGroup, setEditingGroup] = useState<Group | null>(null);
-  
-  const [groupData, setGroupData] = useState<CreateGroupRequest>();
+  const [editingGroup, setEditingGroup] = useState<GroupResponse | null>(null);
+
+  const [groupData, setGroupData] = useState<GroupRequest>({
+    name: '',
+    description: '',
+    accountType: ProfileAccess.Public,
+    location: '',
+    tags: []
+  });
+  const [newTag, setNewTag] = useState('');
     
   
   // Load user's groups
   useEffect(() => {
-      groupService.fetchUserGroups()
+    const user = tokenService.getUser();
+    if (!user) {
+      return;
+    }
+    const userId = JSON.parse(user).userId;
+
+      groupService.fetchUserGroups(userId)
       .then((groupData) => {
         setGroups(groupData.groups);
         setLoading(false);
@@ -35,25 +49,27 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
 
   // Reset form
   const resetForm = () => {
-    setName('');
-    setDescription('');
-    setIsPrivate(false);
-    setLocation('');
-    setGroupPicture('');
-    setTags([]);
+    setGroupData({
+      name: '',
+      description: '',
+      accountType: ProfileAccess.Public,
+      location: '',
+      tags: []
+    });
     setNewTag('');
     setEditingGroup(null);
   };
 
   // Initialize form for editing
-  const handleEditGroup = (group: Group) => {
+  const handleEditGroup = (group: GroupResponse) => {
     setEditingGroup(group);
-    setName(group.name);
-    setDescription(group.description);
-    setIsPrivate(group.isPrivate);
-    setLocation(group.location || '');
-    setGroupPicture(group.groupPicture || '');
-    setTags(group.tags || []);
+    setGroupData({
+      name: group.name,
+      description: group.description || '',
+      accountType: group.accountType,
+      location: group.location || '',
+      tags: group.tags || []
+    });
     setShowCreateForm(true);
   };
 
@@ -63,8 +79,6 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
     
     try {
       setError(null);
-      
-
       
       if (editingGroup) {
         // Update existing group
@@ -78,7 +92,7 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
         ));
       } else {
         // Create new group
-        const newGroup = await groupService.createGroup(CreateGroupRequest);
+        const newGroup = await groupService.createGroup(groupData);
         
         // Update local state
         setGroups([...groups, newGroup]);
@@ -113,17 +127,23 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
     }
   };
 
-  // Handle tag addition
+  // Handle form field changes
+  const handleInputChange = (field: keyof GroupRequest, value: any) => {
+    setGroupData(prev => ({ ...prev, [field]: value }));
+  };
+
   const handleAddTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags([...tags, newTag.trim()]);
+    if (newTag.trim() && !groupData.tags?.includes(newTag.trim())) {
+      const updatedTags = [...(groupData.tags || []), newTag.trim()];
+      handleInputChange('tags', updatedTags);
       setNewTag('');
     }
   };
 
   // Handle tag removal
   const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
+    const updatedTags = groupData.tags?.filter(tag => tag !== tagToRemove) || [];
+    handleInputChange('tags', updatedTags);
   };
 
   return (
@@ -154,8 +174,8 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
               <input
                 type="text"
                 id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={groupData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
                 required
                 placeholder="Enter group name"
               />
@@ -165,8 +185,8 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
               <label htmlFor="description">Description</label>
               <textarea
                 id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                value={groupData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
                 required
                 rows={3}
                 placeholder="Describe your group"
@@ -178,13 +198,13 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
               <input
                 type="text"
                 id="location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                value={groupData.location}
+                onChange={(e) => handleInputChange('location', e.target.value)}
                 placeholder="Where is your group based?"
               />
             </div>
             
-            <div className="form-group">
+            {/* <div className="form-group">
               <label htmlFor="groupPicture">Group Picture URL (Optional)</label>
               <input
                 type="text"
@@ -193,25 +213,25 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
                 onChange={(e) => setGroupPicture(e.target.value)}
                 placeholder="Enter image URL"
               />
-            </div>
+            </div> */}
             
             <div className="form-group checkbox-group">
               <input
                 type="checkbox"
                 id="isPrivate"
-                checked={isPrivate}
-                onChange={(e) => setIsPrivate(e.target.checked)}
+                checked={groupData.accountType === ProfileAccess.Private}
+                onChange={(e) => handleInputChange('accountType', e.target.checked ? ProfileAccess.Private : ProfileAccess.Public)}
               />
               <label htmlFor="isPrivate">
-                {isPrivate ? <FaLock /> : <FaLockOpen />}
-                {isPrivate ? 'Private Group' : 'Public Group'}
+                {groupData.accountType === ProfileAccess.Private ? <FaLock /> : <FaLockOpen />}
+                {groupData.accountType === ProfileAccess.Private ? 'Private Group' : 'Public Group'}
               </label>
             </div>
             
             <div className="form-group">
               <label>Tags</label>
               <div className="tags-container">
-                {tags.map((tag, index) => (
+                {groupData.tags?.map((tag, index) => (
                   <div key={index} className="tag">
                     <span>{tag}</span>
                     <button 
@@ -275,7 +295,7 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
                 className="group-card-content"
                 onClick={() => onGroupSelect && onGroupSelect(group)}
               >
-                <div className="group-image">
+                {/* <div className="group-image">
                   {group.groupPicture ? (
                     <img src={group.groupPicture} alt={group.name} />
                   ) : (
@@ -283,16 +303,16 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
                       <FaUsers />
                     </div>
                   )}
-                </div>
+                </div> */}
                 <div className="group-info">
                   <h3 className="group-name">
                     {group.name}
-                    {group.isPrivate && <span className="private-badge"><FaLock /></span>}
+                    {group.accountType === ProfileAccess.Private && <span className="private-badge"><FaLock /></span>}
                   </h3>
                   <p className="group-description">{group.description}</p>
                   {group.location && <p className="group-location">{group.location}</p>}
                   <div className="group-meta">
-                    <span className="member-count">{group.memberCount} members</span>
+                    <span className="member-count">{group.members.length} members</span>
                   </div>
                   {group.tags && group.tags.length > 0 && (
                     <div className="group-tags">

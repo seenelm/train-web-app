@@ -1,9 +1,12 @@
-import api from '../../../services/apiClient';
-import { 
-  SuccessResponse, 
-  JoinRequestResponse 
-} from '../../../types/api.types';
-import { CreateGroupRequest, GroupResponse, UserGroupsResponse } from '@seenelm/train-core';
+import api from "../../../services/apiClient";
+import { SuccessResponse, JoinRequestResponse } from "../../../types/api.types";
+import {
+  CreateGroupRequest,
+  GroupResponse,
+  UserGroupsResponse,
+  UpdateGroupProfileRequest,
+  GroupRequest,
+} from "@seenelm/train-core";
 
 /**
  * Service for group management operations
@@ -14,22 +17,24 @@ export const groupService = {
    * @param groupData - Group data
    * @returns Promise with the created group
    */
-  async createGroup(groupData: CreateGroupRequest): Promise<GroupResponse> {
+  async createGroup(groupData: GroupRequest): Promise<GroupResponse> {
     try {
-      const response = await api.post<GroupResponse>('/group', groupData);
+      const response = await api.post<GroupResponse>("/group", groupData);
       return response.data;
     } catch (error) {
-      console.error('Error creating group:', error);
+      console.error("Error creating group:", error);
       throw error;
     }
   },
 
   async fetchUserGroups(userId: string): Promise<UserGroupsResponse> {
     try {
-      const response = await api.get<UserGroupsResponse>(`/user-profile/${userId}/groups`);
+      const response = await api.get<UserGroupsResponse>(
+        `/user-profile/${userId}/groups`
+      );
       return response.data;
     } catch (error) {
-      console.error('Error fetching user groups:', error);
+      console.error("Error fetching user groups:", error);
       throw error;
     }
   },
@@ -41,10 +46,12 @@ export const groupService = {
    */
   async joinPublicGroup(groupId: string): Promise<SuccessResponse> {
     try {
-      const response = await api.post<SuccessResponse>(`/groups/${groupId}/join`);
+      const response = await api.post<SuccessResponse>(
+        `/groups/${groupId}/join`
+      );
       return response.data;
     } catch (error) {
-      console.error('Error creating group:', error);
+      console.error("Error creating group:", error);
       throw error;
     }
   },
@@ -69,12 +76,16 @@ export const groupService = {
    * @param groupId - Group ID
    * @returns Promise with join request response
    */
-  async requestToJoinPrivateGroup(groupId: string): Promise<JoinRequestResponse> {
+  async requestToJoinPrivateGroup(
+    groupId: string
+  ): Promise<JoinRequestResponse> {
     try {
-      const response = await api.post<JoinRequestResponse>(`/groups/${groupId}/request`);
+      const response = await api.post<JoinRequestResponse>(
+        `/groups/${groupId}/request`
+      );
       return response.data;
     } catch (error) {
-      console.error('Error requesting to join private group:', error);
+      console.error("Error requesting to join private group:", error);
       throw error;
     }
   },
@@ -85,14 +96,17 @@ export const groupService = {
    * @param requestId - Request ID
    * @returns Promise with success response
    */
-  async acceptJoinRequest(groupId: string, requestId: string): Promise<SuccessResponse> {
+  async acceptJoinRequest(
+    groupId: string,
+    requestId: string
+  ): Promise<SuccessResponse> {
     try {
       const response = await api.put<SuccessResponse>(
         `/groups/${groupId}/requests/${requestId}/accept`
       );
       return response.data;
     } catch (error) {
-      console.error('Error accepting join request:', error);
+      console.error("Error accepting join request:", error);
       throw error;
     }
   },
@@ -103,14 +117,17 @@ export const groupService = {
    * @param requestId - Request ID
    * @returns Promise with success response
    */
-  async rejectJoinRequest(groupId: string, requestId: string): Promise<SuccessResponse> {
+  async rejectJoinRequest(
+    groupId: string,
+    requestId: string
+  ): Promise<SuccessResponse> {
     try {
       const response = await api.put<SuccessResponse>(
         `/groups/${groupId}/requests/${requestId}/reject`
       );
       return response.data;
     } catch (error) {
-      console.error('Error rejecting join request:', error);
+      console.error("Error rejecting join request:", error);
       throw error;
     }
   },
@@ -122,10 +139,12 @@ export const groupService = {
    */
   async leaveGroup(groupId: string): Promise<SuccessResponse> {
     try {
-      const response = await api.delete<SuccessResponse>(`/groups/${groupId}/leave`);
+      const response = await api.delete<SuccessResponse>(
+        `/groups/${groupId}/leave`
+      );
       return response.data;
     } catch (error) {
-      console.error('Error leaving group:', error);
+      console.error("Error leaving group:", error);
       throw error;
     }
   },
@@ -136,14 +155,17 @@ export const groupService = {
    * @param userId - User ID
    * @returns Promise with success response
    */
-  async removeMember(groupId: string, userId: string): Promise<SuccessResponse> {
+  async removeMember(
+    groupId: string,
+    userId: string
+  ): Promise<SuccessResponse> {
     try {
       const response = await api.delete<SuccessResponse>(
         `/groups/${groupId}/members/${userId}`
       );
       return response.data;
     } catch (error) {
-      console.error('Error removing member:', error);
+      console.error("Error removing member:", error);
       throw error;
     }
   },
@@ -154,12 +176,18 @@ export const groupService = {
    * @param groupData - Group data to update
    * @returns Promise with success response
    */
-  async updateGroupProfile(groupId: string, groupData: CreateGroupRequest): Promise<SuccessResponse> {
+  async updateGroupProfile(
+    groupId: string,
+    groupData: GroupRequest
+  ): Promise<SuccessResponse> {
     try {
-      const response = await api.put<SuccessResponse>(`/groups/${groupId}`, groupData);
+      const response = await api.put<SuccessResponse>(
+        `/group/${groupId}/profile`,
+        groupData
+      );
       return response.data;
     } catch (error) {
-      console.error('Error updating group profile:', error);
+      console.error("Error updating group profile:", error);
       throw error;
     }
   },
@@ -171,13 +199,13 @@ export const groupService = {
    */
   async deleteGroup(groupId: string): Promise<SuccessResponse> {
     try {
-      const response = await api.delete<SuccessResponse>(`/groups/${groupId}`);
+      const response = await api.delete<SuccessResponse>(`/group/${groupId}`);
       return response.data;
     } catch (error) {
-      console.error('Error deleting group:', error);
+      console.error("Error deleting group:", error);
       throw error;
     }
-  }
+  },
 };
 
 export default groupService;
