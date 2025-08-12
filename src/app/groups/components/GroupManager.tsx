@@ -3,7 +3,7 @@ import { groupService } from '../services/groupService';
 import { Group } from '../../../types/api.types';
 import { FaUsers, FaPlus, FaEdit, FaTrash, FaLock, FaLockOpen } from 'react-icons/fa';
 import './GroupManager.css';
-import { CreateGroupRequest } from '@seenelm/train-core';
+import { CreateGroupRequest, UserGroupsResponse } from '@seenelm/train-core';
 
 interface GroupManagerProps {
   onGroupSelect?: (group: Group) => void;
@@ -16,61 +16,21 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
   
-  // Form state
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [isPrivate, setIsPrivate] = useState(false);
-  const [location, setLocation] = useState('');
-  const [groupPicture, setGroupPicture] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState('');
+  const [groupData, setGroupData] = useState<CreateGroupRequest>();
+    
   
   // Load user's groups
   useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Assuming we have a method to get user's groups
-        // This would typically come from the user profile service
-        // For now, we'll use mock data
-        const mockGroups: Group[] = [
-          {
-            id: '1',
-            name: 'Running Club',
-            description: 'Weekly running sessions for all levels',
-            isPrivate: false,
-            location: 'Central Park',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            memberCount: 24,
-            tags: ['running', 'fitness', 'outdoors'],
-            groupPicture: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5'
-          },
-          {
-            id: '2',
-            name: 'Strength Training',
-            description: 'Focus on building strength and muscle',
-            isPrivate: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            memberCount: 12,
-            tags: ['strength', 'weights', 'gym'],
-            groupPicture: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438'
-          }
-        ];
-        
-        setGroups(mockGroups);
-      } catch (err) {
-        console.error('Error fetching groups:', err);
-        setError('Failed to load groups. Please try again.');
-      } finally {
+      groupService.fetchUserGroups()
+      .then((groupData) => {
+        setGroups(groupData.groups);
         setLoading(false);
-      }
-    };
-    
-    fetchGroups();
+      })
+      .catch((error) => {
+        console.error('Error fetching user groups:', error);
+        setError('Failed to load user groups. Please try again.');
+        setLoading(false);
+      });
   }, []);
 
   // Reset form
@@ -104,14 +64,7 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
     try {
       setError(null);
       
-      const groupData = {
-        name,
-        description,
-        isPrivate,
-        location: location || undefined,
-        groupPicture: groupPicture || undefined,
-        tags: tags.length > 0 ? tags : undefined
-      };
+
       
       if (editingGroup) {
         // Update existing group
@@ -125,7 +78,7 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
         ));
       } else {
         // Create new group
-        const newGroup = await groupService.createGroup(groupData);
+        const newGroup = await groupService.createGroup(CreateGroupRequest);
         
         // Update local state
         setGroups([...groups, newGroup]);
