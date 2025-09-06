@@ -1,13 +1,14 @@
 import api from "../../../services/apiClient";
 import {
   Event,
-  EventsResponse,
   SuccessResponse,
 } from "../../../types/api.types";
 import {
   Alert,
   CursorPaginationResponse,
   UserEventResponse,
+  EventRequest,
+  EventResponse,
 } from "@seenelm/train-core";
 /**
  * Service for event management operations
@@ -18,19 +19,35 @@ export const eventService = {
    * @param eventData - Event data
    * @returns Promise with the created event
    */
-  async createEvent(eventData: {
+  async createEvent (eventData: EventRequest): Promise<Event> {
+    try {
+      const response = await api.post<Event>("/event", eventData);
+      return response.data;
+    } catch (error) {
+      console.error("Error creating event:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Create a new event
+   * @param eventData - Event data
+   * @returns Promise with the created event
+   */
+  async createEventLegacy(eventData: {
     title: string;
     description: string;
     location?: string;
-    startDate: string;
-    endDate: string;
+    startTime: string;
+    endTime: string;
     groupId?: string;
     imagePath?: string;
     tags?: string[];
     alerts?: Alert[];
+    admin?: string[];
   }): Promise<Event> {
     try {
-      const response = await api.post<Event>("/events", eventData);
+      const response = await api.post<Event>("/event", eventData);
       return response.data;
     } catch (error) {
       console.error("Error creating event:", error);
@@ -186,6 +203,26 @@ export const eventService = {
       return response.data;
     } catch (error) {
       console.error("Error removing user from event:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get all events
+   * @param page - Page number (optional)
+   * @param limit - Number of events per page (optional)
+   * @returns Promise with events array
+   */
+  async getEvents(userId: string, page: number = 1, limit: number = 10): Promise<EventResponse[]> {
+    try {
+      const params = new URLSearchParams();
+      params.append("page", page.toString());
+      params.append("limit", limit.toString());
+      
+      const response = await api.get<{ data: Array<{ event: EventResponse, status: number }> }>(`/event/user/${userId}`);
+      return response.data.data.map(item => item.event) || [];
+    } catch (error) {
+      console.error("Error getting events:", error);
       throw error;
     }
   },

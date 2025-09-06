@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { groupService } from '../services/groupService';
-import { Group } from '../../../types/api.types';
 import { FaUsers, FaPlus, FaEdit, FaTrash, FaLock, FaLockOpen } from 'react-icons/fa';
 import './GroupManager.css';
-import { CreateGroupRequest, GroupResponse, GroupRequest, ProfileAccess } from '@seenelm/train-core';
+import { GroupResponse, CreateGroupRequest, ProfileAccess } from '@seenelm/train-core';
 import { tokenService } from '../../../services/tokenService';
 
 interface GroupManagerProps {
@@ -17,7 +16,7 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingGroup, setEditingGroup] = useState<GroupResponse | null>(null);
 
-  const [groupData, setGroupData] = useState<GroupRequest>({
+  const [groupData, setGroupData] = useState<CreateGroupRequest>({
     name: '',
     description: '',
     accountType: ProfileAccess.Public,
@@ -128,7 +127,7 @@ const GroupManager: React.FC<GroupManagerProps> = ({ onGroupSelect }) => {
   };
 
   // Handle form field changes
-  const handleInputChange = (field: keyof GroupRequest, value: any) => {
+  const handleInputChange = (field: keyof CreateGroupRequest, value: any) => {
     setGroupData(prev => ({ ...prev, [field]: value }));
   };
 

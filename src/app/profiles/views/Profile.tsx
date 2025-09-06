@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Profile.css';
 import { userService, UserProfile } from '../services/userService';
 import { FaEnvelope, FaPhone, FaEdit } from 'react-icons/fa';
-import ProfileEditor from '../components/forms/ProfileEditor';
+
 
 
 const Profile: React.FC = () => {
@@ -10,7 +10,7 @@ const Profile: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const [activeTab, setActiveTab] = useState<string>('activity');
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  // const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const fetchUserProfile = async () => {
     try {
@@ -29,18 +29,18 @@ const Profile: React.FC = () => {
     fetchUserProfile();
   }, []);
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
+  // const handleEditClick = () => {
+  //   setIsEditing(true);
+  // };
 
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-  };
+  // const handleCancelEdit = () => {
+  //   setIsEditing(false);
+  // };
 
-  const handleSaveEdit = () => {
-    setIsEditing(false);
+  // const handleSaveEdit = () => {
+    // setIsEditing(false);
     fetchUserProfile(); // Refresh profile data after saving
-  };
+  // };
 
   if (loading) {
     return <div className="loading-container">Loading profile...</div>;
@@ -121,16 +121,16 @@ const Profile: React.FC = () => {
     }
   };
 
-  if (isEditing) {
-    return (
-      <div className="profile-container">
-        <ProfileEditor 
-          onSave={handleSaveEdit} 
-          onCancel={handleCancelEdit} 
-        />
-      </div>
-    );
-  }
+  // if (isEditing) {
+  //   return (
+  //     <div className="profile-container">
+  //       <ProfileEditor 
+  //         onSave={handleSaveEdit} 
+  //         onCancel={handleCancelEdit} 
+  //       />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="profile-container">
@@ -138,8 +138,8 @@ const Profile: React.FC = () => {
 
       <div className="profile-main">
         <div className="profile-edit-button">
-          <button onClick={handleEditClick} className="edit-profile-btn">
-            <FaEdit /> Edit
+          <button onClick={() => {}} className="edit-profile-btn">
+            <FaEdit /> Edit 
           </button>
         </div>
         <div className="profile-info-section">

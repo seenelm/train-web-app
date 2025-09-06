@@ -1,11 +1,10 @@
 import api from "../../../services/apiClient";
 import { SuccessResponse, JoinRequestResponse } from "../../../types/api.types";
 import {
-  CreateGroupRequest,
   GroupResponse,
   UserGroupsResponse,
+  CreateGroupRequest,
   UpdateGroupProfileRequest,
-  GroupRequest,
 } from "@seenelm/train-core";
 
 /**
@@ -17,7 +16,7 @@ export const groupService = {
    * @param groupData - Group data
    * @returns Promise with the created group
    */
-  async createGroup(groupData: GroupRequest): Promise<GroupResponse> {
+  async createGroup(groupData: CreateGroupRequest): Promise<GroupResponse> {
     try {
       const response = await api.post<GroupResponse>("/group", groupData);
       return response.data;
@@ -178,7 +177,7 @@ export const groupService = {
    */
   async updateGroupProfile(
     groupId: string,
-    groupData: GroupRequest
+    groupData: UpdateGroupProfileRequest
   ): Promise<SuccessResponse> {
     try {
       const response = await api.put<SuccessResponse>(

@@ -77,7 +77,8 @@ const RegistrationForm: React.FC = () => {
         name: registrationForm.name,
         email: registrationForm.email,
         password: registrationForm.password,
-        deviceId: tokenService.getDeviceId()
+        deviceId: tokenService.getDeviceId(),
+        agreeToTerms: registrationForm.agreeToTerms
       };
       
       // Register user using authService
