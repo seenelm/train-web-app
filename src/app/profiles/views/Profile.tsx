@@ -39,7 +39,7 @@ const Profile: React.FC = () => {
 
   // const handleSaveEdit = () => {
     // setIsEditing(false);
-    fetchUserProfile(); // Refresh profile data after saving
+    // fetchUserProfile(); // Refresh profile data after saving
   // };
 
   if (loading) {

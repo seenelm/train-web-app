@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { eventService } from '../../services/eventService';
+import eventService from '../../services/EventService2';
 import { EventResponse } from '@seenelm/train-core';
 import CreateEventForm from '../forms/CreateEventForm';
 import EventCard from './EventCard';

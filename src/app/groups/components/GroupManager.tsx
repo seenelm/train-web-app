@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { groupService } from '../services/groupService';
+import { groupService } from '../services/GroupService2';
 import { FaUsers, FaPlus, FaEdit, FaTrash, FaLock, FaLockOpen } from 'react-icons/fa';
 import './GroupManager.css';
 import { GroupResponse, CreateGroupRequest, ProfileAccess } from '@seenelm/train-core';

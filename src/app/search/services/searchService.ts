@@ -1,4 +1,4 @@
-import api from "../../../services/apiClient";
+import { BaseApiService, QueryParams } from "../../../services/BaseApiService";
 import {
   PaginationResponse,
   CertificationResponse,
@@ -8,10 +8,19 @@ import {
 /**
  * Service for search operations
  */
-export const searchService = {
+class SearchService extends BaseApiService<any, any, any> {
+  constructor() {
+    super("/search", "search");
+  }
+
+  protected getBaseEndpoint(): string {
+    return this.baseEndpoint;
+  }
+
   /**
    * Search certifications
-   * @param query - Search query
+   * GET /search/certifications
+   * @param searchTerm - Search query
    * @param page - Page number
    * @param limit - Results limit
    * @returns Promise with certifications search response
@@ -21,25 +30,22 @@ export const searchService = {
     page: number = 1,
     limit: number = 10
   ): Promise<PaginationResponse<CertificationResponse>> {
-    try {
-      const params = new URLSearchParams();
-      params.append("searchTerm", searchTerm);
-      params.append("page", page.toString());
-      params.append("limit", limit.toString());
+    const params: QueryParams = {
+      searchTerm,
+      page,
+      limit,
+    };
 
-      const response = await api.get<PaginationResponse<CertificationResponse>>(
-        `/search/certifications?${params.toString()}`
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error searching certifications:", error);
-      throw error;
-    }
-  },
+    return this.get<PaginationResponse<CertificationResponse>>(
+      "/search/certifications",
+      params
+    );
+  }
 
   /**
    * Search profiles and groups
-   * @param query - Search query
+   * GET /search/profiles
+   * @param searchTerm - Search query
    * @param page - Page number
    * @param limit - Results limit
    * @returns Promise with profiles search response
@@ -49,21 +55,19 @@ export const searchService = {
     page: number = 1,
     limit: number = 10
   ): Promise<PaginationResponse<SearchProfilesResponse>> {
-    try {
-      const params = new URLSearchParams();
-      params.append("searchTerm", searchTerm);
-      params.append("page", page.toString());
-      params.append("limit", limit.toString());
+    const params: QueryParams = {
+      searchTerm,
+      page,
+      limit,
+    };
 
-      const response = await api.get<
-        PaginationResponse<SearchProfilesResponse>
-      >(`/search/profiles?${params.toString()}`);
-      return response.data;
-    } catch (error) {
-      console.error("Error searching profiles and groups:", error);
-      throw error;
-    }
-  },
-};
+    return this.get<PaginationResponse<SearchProfilesResponse>>(
+      "/search/profiles",
+      params
+    );
+  }
+}
 
+// Export singleton instance
+export const searchService = new SearchService();
 export default searchService;

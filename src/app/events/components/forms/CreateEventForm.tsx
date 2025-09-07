@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { eventService } from '../../services/eventService';
+// import { eventService } from '../../services/eventService';
+import { eventService } from '../../services/EventService2';
 import { authService } from '../../../access/services/authService';
 import { EventRequest } from '@seenelm/train-core';
 import '../../components/ui/EventManager.css';

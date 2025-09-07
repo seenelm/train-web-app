@@ -1,8 +1,5 @@
 import api from "../../../services/apiClient";
-import {
-  Event,
-  SuccessResponse,
-} from "../../../types/api.types";
+import { Event, SuccessResponse } from "../../../types/api.types";
 import {
   Alert,
   CursorPaginationResponse,
@@ -19,7 +16,7 @@ export const eventService = {
    * @param eventData - Event data
    * @returns Promise with the created event
    */
-  async createEvent (eventData: EventRequest): Promise<Event> {
+  async createEvent(eventData: EventRequest): Promise<Event> {
     try {
       const response = await api.post<Event>("/event", eventData);
       return response.data;
@@ -213,14 +210,20 @@ export const eventService = {
    * @param limit - Number of events per page (optional)
    * @returns Promise with events array
    */
-  async getEvents(userId: string, page: number = 1, limit: number = 10): Promise<EventResponse[]> {
+  async getEvents(
+    userId: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<EventResponse[]> {
     try {
       const params = new URLSearchParams();
       params.append("page", page.toString());
       params.append("limit", limit.toString());
-      
-      const response = await api.get<{ data: Array<{ event: EventResponse, status: number }> }>(`/event/user/${userId}`);
-      return response.data.data.map(item => item.event) || [];
+
+      const response = await api.get<{
+        data: Array<{ event: EventResponse; status: number }>;
+      }>(`/event/user/${userId}`);
+      return response.data.data.map((item) => item.event) || [];
     } catch (error) {
       console.error("Error getting events:", error);
       throw error;
