@@ -7,6 +7,7 @@ import Groups from "../app/groups/views/Groups";
 import Events from "../app/events/views/EventsPage";
 import Search from "../app/search/views/Search";
 import Programs from "../app/programs/views/Programs";
+import ProgramBuilder from "../app/programs/views/ProgramBuilder";
 
 import {
   AiOutlineHome,
@@ -49,6 +50,7 @@ const Dashboard: React.FC = () => {
             <Route path="/events" element={<Events />} />
             <Route path="/search" element={<Search />} />
             <Route path="/programs" element={<Programs />} />
+            <Route path="/programs/builder" element={<ProgramBuilder />} />
           </Routes>
         </ContentView>
       </div>
