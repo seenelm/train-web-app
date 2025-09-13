@@ -34,34 +34,55 @@ const Navigation: React.FC<NavigationProps> = () => {
 
   return (
     <Routes>
-      <Route path="/" element={
+    {/* Protected section of the app */}
+    <Route
+      path="/*"
+      element={
         <ProtectedRoute>
           <Dashboard />
         </ProtectedRoute>
-      } />
-      <Route path="/login" element={
+      }
+    />
+
+    {/* Public / Auth routes */}
+    <Route
+      path="/login"
+      element={
         <AuthRoute>
           <AuthPage authType="login" />
         </AuthRoute>
-      } />
-      <Route path="/register" element={
+      }
+    />
+    <Route
+      path="/register"
+      element={
         <AuthRoute>
           <AuthPage authType="register" />
         </AuthRoute>
-      } />
-      <Route path="/forgot-password" element={
+      }
+    />
+    <Route
+      path="/forgot-password"
+      element={
         <AuthRoute>
           <AuthPage authType="forgot-password" />
         </AuthRoute>
-      } />
-      <Route path="/reset-password" element={
+      }
+    />
+    <Route
+      path="/reset-password"
+      element={
         <ResetPasswordRoute>
           <AuthPage authType="reset-password" />
         </ResetPasswordRoute>
-      } />
-      <Route path="/privacy" element={<PrivacyPolicy />} />
-      <Route path="/terms-of-service" element={<TermsOfService />} />
-    </Routes>
+      }
+    />
+
+    {/* Public pages */}
+    <Route path="/privacy" element={<PrivacyPolicy />} />
+    <Route path="/terms-of-service" element={<TermsOfService />} />
+  </Routes>
+
   );
 };
 

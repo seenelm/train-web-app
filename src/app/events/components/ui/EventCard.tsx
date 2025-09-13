@@ -6,9 +6,10 @@ interface EventCardProps {
   event: EventResponse;
   onEdit?: (event: EventResponse) => void;
   onDelete?: (id: string) => void;
+  onClick?: (event: EventResponse) => void;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, onEdit, onDelete }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, onEdit, onDelete, onClick }) => {
   const startDate = new Date(event.startTime as unknown as string);
   const endDate = event.endTime ? new Date(event.endTime as unknown as string) : null;
   
@@ -27,8 +28,23 @@ const EventCard: React.FC<EventCardProps> = ({ event, onEdit, onDelete }) => {
     });
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Prevent click when clicking on action buttons
+    if ((e.target as HTMLElement).closest('.event-actions')) {
+      return;
+    }
+    
+    if (onClick) {
+      onClick(event);
+    }
+  };
+
   return (
-    <div className="event-card">
+    <div 
+      className="event-card" 
+      onClick={handleCardClick}
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
+    >
       <div className="event-card-content">
         <div className="calendar-icon">
           <span className="calendar-icon-month">{startDate.toLocaleDateString('en-US', { month: 'short' })}</span>

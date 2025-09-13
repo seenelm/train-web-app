@@ -3,12 +3,15 @@ import eventService from '../../services/EventService2';
 import { EventResponse } from '@seenelm/train-core';
 import CreateEventForm from '../forms/CreateEventForm';
 import EventCard from './EventCard';
+import EventDetails from './EventDetails';
 import { authService } from '../../../access/services/authService';
 
 export default function EventManager() {
   const [events, setEvents] = useState<EventResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<EventResponse | null>(null);
   const user = authService.getCurrentUser();
 
   useEffect(() => {
@@ -28,19 +31,67 @@ export default function EventManager() {
 
   const handleCreateEvent = (event: EventResponse) => {
     setEvents(prev => [...prev, event]);
+    setShowCreateForm(false); // Hide form after successful creation
   };
+
+  const handleToggleForm = (show: boolean) => {
+    setShowCreateForm(show);
+    // Clear selected event when showing form
+    if (show) {
+      setSelectedEvent(null);
+    }
+  };
+
+  const handleSelectEvent = (event: EventResponse) => {
+    setSelectedEvent(event);
+  };
+
+  const handleBackToEvents = () => {
+    setSelectedEvent(null);
+  };
+
+  // Render event details if an event is selected
+  if (selectedEvent) {
+    return (
+      <div className="event-manager">
+        <EventDetails 
+          event={selectedEvent} 
+          onBack={handleBackToEvents} 
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="event-manager">
       <h2>Events</h2>
       {loading && <p>Loading…</p>}
       {err && <p className="error">{err}</p>}
-      <CreateEventForm onCreated={handleCreateEvent} />
-      <div className="events-list">
-        {events.map(event => (
-          <EventCard key={event.id} event={event} />
-        ))}
-      </div>
+      
+      {showCreateForm ? (
+        <CreateEventForm 
+          onCreated={handleCreateEvent} 
+          onCancel={() => handleToggleForm(false)}
+        />
+      ) : (
+        <>
+          <button 
+            className="create-event-button" 
+            onClick={() => handleToggleForm(true)}
+          >
+            + Create New Event
+          </button>
+          <div className="events-list">
+            {events.map(event => (
+              <EventCard 
+                key={event.id} 
+                event={event} 
+                onClick={handleSelectEvent}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { FaEnvelope, FaPhone, FaEdit } from 'react-icons/fa';
 
 
 
+
 const Profile: React.FC = () => {
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);

@@ -1,14 +1,5 @@
 .content-view {
   flex: 1;
-  padding: 24px;
-  overflow-y: auto;
-  height: calc(100% - 40px);
-  width: 100%;
-  box-sizing: border-box;
-  background-color: var(--bg-secondary);
-  border-radius: 16px;
-  margin: 20px;
-  margin-left: 0;
 }
 
 /* Responsive styles */

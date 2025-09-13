@@ -1,63 +1,50 @@
-import React, { useState } from 'react';
-import Sidebar from '../components/Sidebar';
-import ContentView from '../components/ContentView';
-import Profile from '../app/profiles/views/Profile';
-import Groups from '../app/groups/views/Groups';
-import Events from '../app/events/views/EventsPage';
-import Search from '../app/search/views/Search';
-import { AiOutlineHome, AiOutlineUser, AiOutlineTeam, AiOutlineCalendar, AiOutlineSearch } from 'react-icons/ai';
+import React from "react";
+import { Routes, Route } from "react-router";
+import Sidebar from "../components/Sidebar";
+import ContentView from "../components/ContentView";
+import Profile from "../app/profiles/views/Profile";
+import Groups from "../app/groups/views/Groups";
+import Events from "../app/events/views/EventsPage";
+import Search from "../app/search/views/Search";
+import {
+  AiOutlineHome,
+  AiOutlineUser,
+  AiOutlineTeam,
+  AiOutlineCalendar,
+  AiOutlineSearch,
+} from "react-icons/ai";
 
 const Dashboard: React.FC = () => {
   const tabs = [
-    { id: 'home', label: 'Home', icon: <AiOutlineHome /> },
-    { id: 'profile', label: 'Profile', icon: <AiOutlineUser /> },
-    { id: 'groups', label: 'Groups', icon: <AiOutlineTeam /> },
-    { id: 'events', label: 'Events', icon: <AiOutlineCalendar /> },
-    { id: 'search', label: 'Search', icon: <AiOutlineSearch /> }
+    { id: "", label: "Home", icon: <AiOutlineHome /> }, // id "" so route = "/"
+    { id: "profile", label: "Profile", icon: <AiOutlineUser /> },
+    { id: "groups", label: "Groups", icon: <AiOutlineTeam /> },
+    { id: "events", label: "Events", icon: <AiOutlineCalendar /> },
+    { id: "search", label: "Search", icon: <AiOutlineSearch /> },
   ];
-
-  const [activeTab, setActiveTab] = useState(tabs[0].id);
-
-  const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
-  };
-
-
-  // Content to display based on active tab
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'home':
-        return (
-          <>
-            <h1>Home Content</h1>
-            <p>This is the home tab content area.</p>
-          </>
-        );
-      case 'profile':
-        return <Profile />;
-      case 'groups':
-        return <Groups />;
-      case 'events':
-        return <Events />;
-      case 'search':
-        return <Search />;
-      default:
-        return <p>Select a tab</p>;
-    }
-  };
 
   return (
     <div className="app-container">
       <div className="sidebar-container">
-        <Sidebar 
-          tabs={tabs} 
-          defaultActiveTab="home" 
-          onTabChange={handleTabChange} 
-        />
+        <Sidebar tabs={tabs} />
       </div>
       <div className="content-area">
         <ContentView>
-          {renderContent()}
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <>
+                  <h1>Home Content</h1>
+                  <p>This is the home tab content area.</p>
+                </>
+              }
+            />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/groups" element={<Groups />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/search" element={<Search />} />
+          </Routes>
         </ContentView>
       </div>
     </div>

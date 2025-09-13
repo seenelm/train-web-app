@@ -515,10 +515,82 @@
   border-left-color: var(--border-color); /* Blue for upcoming events */
 }
 
-@media (prefers-color-scheme: dark) {
-  .event-title {
-    color: white;
-  }
+/* Event Details Styles */
+.event-details {
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px var(--shadow-color);
+  border: 1px solid var(--border-color);
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 24px;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: var(--border-color);
+}
+
+.event-details-header {
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 16px;
+}
+
+.event-details-header h2 {
+  margin: 0;
+  font-size: 28px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.event-details-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.event-details-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.event-details-section h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.event-details-section p {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.event-details-section ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--text-secondary);
+}
+
+.event-details-section li {
+  margin-bottom: 4px;
 }
 
 @media (max-width: 768px) {
@@ -542,6 +614,16 @@
   }
 }
 
+@media (max-width: 768px) {
+  .event-details {
+    padding: 16px;
+  }
+  
+  .event-details-header h2 {
+    font-size: 24px;
+  }
+}
+
 @media (max-width: 600px) {
   .event-card-content {
     flex-direction: column;
@@ -561,5 +643,11 @@
   .cancel-button,
   .submit-button {
     width: 100%;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .event-title {
+    color: white;
   }
 }
