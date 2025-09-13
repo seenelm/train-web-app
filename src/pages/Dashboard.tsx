@@ -6,12 +6,15 @@ import Profile from "../app/profiles/views/Profile";
 import Groups from "../app/groups/views/Groups";
 import Events from "../app/events/views/EventsPage";
 import Search from "../app/search/views/Search";
+import Programs from "../app/programs/views/Programs";
+
 import {
   AiOutlineHome,
   AiOutlineUser,
   AiOutlineTeam,
   AiOutlineCalendar,
   AiOutlineSearch,
+  AiOutlineSchedule
 } from "react-icons/ai";
 
 const Dashboard: React.FC = () => {
@@ -21,7 +24,8 @@ const Dashboard: React.FC = () => {
     { id: "groups", label: "Groups", icon: <AiOutlineTeam /> },
     { id: "events", label: "Events", icon: <AiOutlineCalendar /> },
     { id: "search", label: "Search", icon: <AiOutlineSearch /> },
-  ];
+    { id: "programs", label: "Programs", icon: <AiOutlineSchedule /> },
+    ];
 
   return (
     <div className="app-container">
@@ -44,6 +48,7 @@ const Dashboard: React.FC = () => {
             <Route path="/groups" element={<Groups />} />
             <Route path="/events" element={<Events />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/programs" element={<Programs />} />
           </Routes>
         </ContentView>
       </div>

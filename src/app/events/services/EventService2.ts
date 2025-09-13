@@ -110,13 +110,12 @@ class EventService extends BaseApiService<
 
   /**
    * Delete an event (owner only)
-   * DELETE /event/{eventId}/{groupId}
+   * DELETE /event/{eventId}
    */
   async deleteEvent(
-    eventId: string,
-    groupId: string
+    eventId: string
   ): Promise<SuccessResponse> {
-    return this.delete<SuccessResponse>(`/event/${eventId}/${groupId}`);
+    return this.delete<SuccessResponse>(`/event/user/event/${eventId}`);
   }
 
   /**

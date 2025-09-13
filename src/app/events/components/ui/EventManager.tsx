@@ -50,6 +50,25 @@ export default function EventManager() {
     setSelectedEvent(null);
   };
 
+  const handleDeleteEvent = async (eventId: string) => {
+    // Add confirmation dialog
+    if (!window.confirm('Are you sure you want to delete this event?')) {
+      return; // User canceled the deletion
+    }
+    
+    try {
+      const eventToDelete = events.find(event => event.id === eventId);
+      if (eventToDelete) {
+        await eventService.deleteEvent(eventId);
+      }
+      
+      setEvents(prev => prev.filter(event => event.id !== eventId));
+    } catch (error) {
+      setErr('Failed to delete event.');
+      console.error('Error deleting event:', error);
+    }
+  };
+
   // Render event details if an event is selected
   if (selectedEvent) {
     return (
@@ -64,7 +83,6 @@ export default function EventManager() {
 
   return (
     <div className="event-manager">
-      <h2>Events</h2>
       {loading && <p>Loading…</p>}
       {err && <p className="error">{err}</p>}
       
@@ -87,6 +105,7 @@ export default function EventManager() {
                 key={event.id} 
                 event={event} 
                 onClick={handleSelectEvent}
+                onDelete={handleDeleteEvent}
               />
             ))}
           </div>

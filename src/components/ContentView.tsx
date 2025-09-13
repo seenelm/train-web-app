@@ -47,6 +47,10 @@ const getPageTitleFromPath = (path: string): string => {
       return 'Groups';
     case 'profile':
       return 'Profile';
+    case 'search':
+      return 'Search';
+    case 'programs':
+      return 'Programs';
     default:
       // Convert kebab-case or camelCase to Title Case
       return segment
