@@ -2,6 +2,10 @@ import { BaseApiService } from "../../../services/BaseApiService";
 import {
   ProgramResponse,
   ProgramRequest,
+  WorkoutRequest,
+  WorkoutResponse,
+  MealRequest,
+  MealResponse,
 } from "@seenelm/train-core";
 
 /**
@@ -29,14 +33,6 @@ class ProgramService extends BaseApiService<
   }
 
   /**
-   * Get all programs
-   * GET /program
-   */
-  async getPrograms(): Promise<ProgramResponse[]> {
-    return this.getAll();
-  }
-
-  /**
    * Get All User Programs
    * GET /program/user
    */
@@ -45,11 +41,52 @@ class ProgramService extends BaseApiService<
   }
 
   /**
-   * Get Program Details by ID
-   * GET /program/:id
+   * Create a new workout
+   * POST /program/:programId/week/:weekId/workout
    */
-  async fetchProgramDetails(programId: string): Promise<ProgramResponse> {
-    return this.getById(programId);
+  async createWorkout(
+    programId: string,
+    weekId: string,
+    workoutRequest: WorkoutRequest
+  ): Promise<WorkoutResponse> {
+    return this.post(
+      `/program/${programId}/week/${weekId}/workout`,
+      workoutRequest
+    );
+  }
+
+  /**
+   * Create a new meal
+   * POST /program/:programId/week/:weekId/meal
+   */
+  async createMeal(
+    programId: string,
+    weekId: string,
+    mealRequest: MealRequest
+  ): Promise<MealResponse> {
+    return this.post(`/program/${programId}/week/${weekId}/meal`, mealRequest);
+  }
+
+  /**
+   * Get all workouts for a week
+   * GET /program/:programId/week/:weekId/workouts
+   */
+  async getWeekWorkouts(
+    programId: string,
+    weekId: string
+  ): Promise<WorkoutResponse[]> {
+    return this.get(`/program/${programId}/week/${weekId}/workouts`);
+  }
+
+  /**
+   * Get all meals for a week
+   * GET /program/:programId/week/:weekId/meals
+   */
+  async getWeekMeals(
+    programId: string,
+    weekId: string
+  ): Promise<MealResponse[]> {
+    return this.get(`/program/${programId}/week/${weekId}/meals`);
   }
 }
 
