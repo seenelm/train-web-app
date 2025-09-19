@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 
 interface Program {
   id: string;
@@ -13,8 +14,14 @@ interface ProgramCardProps {
 }
 
 export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
+  const navigate = useNavigate();
+
+  const handleProgramClick = () => {
+    navigate(`/programs/${program.id}`);
+  };
+
   return (
-    <div className="program-card">
+    <div className="program-card" onClick={handleProgramClick}>
       <h3>{program.title}</h3>
       <p>{program.description}</p>
       <p>
@@ -26,5 +33,3 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
     </div>
   );
 };
-
-

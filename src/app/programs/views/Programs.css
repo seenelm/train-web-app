@@ -68,6 +68,7 @@
     width: calc(33.333% - 1rem);
     min-width: 250px;
     flex-grow: 1;
+    cursor: pointer;
 }
 
 .program-card:hover {

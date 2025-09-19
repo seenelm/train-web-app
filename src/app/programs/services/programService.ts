@@ -22,12 +22,35 @@ class ProgramService extends BaseApiService<
 
   /**
    * Create a new program
-   * POST /programs
+   * POST /program
    */
   async createProgram(programData: ProgramRequest): Promise<ProgramResponse> {
     return this.create(programData);
   }
 
+  /**
+   * Get all programs
+   * GET /program
+   */
+  async getPrograms(): Promise<ProgramResponse[]> {
+    return this.getAll();
+  }
+
+  /**
+   * Get All User Programs
+   * GET /program/user
+   */
+  async fetchUserPrograms(userId: string): Promise<ProgramResponse[]> {
+    return this.get<ProgramResponse[]>(`/program/user/${userId}`);
+  }
+
+  /**
+   * Get Program Details by ID
+   * GET /program/:id
+   */
+  async fetchProgramDetails(programId: string): Promise<ProgramResponse> {
+    return this.getById(programId);
+  }
 }
 
 // Export singleton instance
