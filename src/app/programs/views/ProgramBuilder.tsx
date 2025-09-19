@@ -90,6 +90,7 @@ const ProgramBuilder: React.FC = () => {
       hasNutritionProgram: programData.includesNutrition,
       phases: formattedPhases,
       accessType: accessType,
+      admins: [userId],
       createdBy: userId,
     };
   };

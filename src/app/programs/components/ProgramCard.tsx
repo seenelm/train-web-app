@@ -17,7 +17,7 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
   const navigate = useNavigate();
 
   const handleProgramClick = () => {
-    navigate(`/programs/${program.id}`);
+    navigate(`/programs/${program.id}`, { state: { program } });
   };
 
   return (
