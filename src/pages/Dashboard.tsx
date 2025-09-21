@@ -54,7 +54,7 @@ const Dashboard: React.FC = () => {
             <Route path="/programs" element={<Programs />} />
             <Route path="/programs/builder" element={<ProgramBuilder />} />
             <Route path="/programs/:programId" element={<ProgramView />} />
-            <Route path="/programs/:programId/weeks/:weekNumber" element={<WeekView />} />
+            <Route path="/programs/:programId/weeks/:weekId" element={<WeekView />} />
           </Routes>
         </ContentView>
       </div>
