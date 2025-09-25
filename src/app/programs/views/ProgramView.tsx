@@ -7,22 +7,22 @@ interface Week {
   weekNumber: number;
 }
 
-interface Program {
-  id: string;
-  title?: string;
-  description?: string;
-  weeks?: Week[];
-  includesNutrition?: boolean;
-  name?: string;
-  numWeeks?: number;
-  hasNutritionProgram?: boolean;
-  phases?: Array<{
-    name: string;
-    startWeek: number;
-    endWeek: number;
-  }>;
-  types?: string[];
-}
+// interface Program {
+//   id: string;
+//   title?: string;
+//   description?: string;
+//   weeks?: Week[];
+//   includesNutrition?: boolean;
+//   name?: string;
+//   numWeeks?: number;
+//   hasNutritionProgram?: boolean;
+//   phases?: Array<{
+//     name: string;
+//     startWeek: number;
+//     endWeek: number;
+//   }>;
+//   types?: string[];
+// }
 
 const ProgramView: React.FC = () => {
   const { programId } = useParams<{ programId: string }>();

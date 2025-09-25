@@ -2,17 +2,18 @@ import React from 'react';
 import { ProgramCard } from './ProgramCard';
 import Button from '../../../components/ui/Button';
 
-interface Program {
+// Renamed to ProgramSectionItem to avoid conflicts
+interface ProgramSectionItem {
   id: string;
   title: string;
   description: string;
-  weeks: number;
+  numWeeks: number; // Changed from weeks: number to match Programs.tsx
   includesNutrition: boolean;
 }
 
 interface ProgramSectionProps {
   title: string;
-  programs: Program[];
+  programs: ProgramSectionItem[]; // Updated to use the renamed interface
   showAddButton?: boolean;
   onAddProgram?: () => void;
 }

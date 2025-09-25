@@ -1,0 +1,430 @@
+:root {
+  /* Workout view specific colors */
+  --workout-accent-primary: #4a90e2;
+  --workout-accent-secondary: #5cb85c;
+  --workout-accent-tertiary: #f0ad4e;
+  --workout-accent-danger: #d9534f;
+  --workout-highlight: rgba(74, 144, 226, 0.1);
+  --workout-completed: rgba(92, 184, 92, 0.2);
+  --workout-hover: rgba(74, 144, 226, 0.05);
+  --workout-border-light: rgba(255, 255, 255, 0.1);
+  --workout-border-dark: rgba(0, 0, 0, 0.1);
+}
+
+.workout-view {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  color: var(--text-primary);
+}
+
+.workout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.back-button, .edit-button {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--workout-border-dark);
+  padding: 8px 16px;
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color var(--transition-speed);
+}
+
+.back-button:hover, .edit-button:hover {
+  background-color: var(--workout-hover);
+}
+
+.workout-details {
+  margin-bottom: 30px;
+}
+
+.workout-details h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.workout-description {
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.workout-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.duration-section, .muscle-groups-section {
+  flex: 1;
+  min-width: 300px;
+}
+
+.duration-section h3, .muscle-groups-section h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+}
+
+.muscle-groups-section {
+  flex: 1;
+  min-width: 300px;
+}
+
+.muscle-groups-section h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+}
+
+.combined-percentage-bar {
+  height: 8px;
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 10px;
+  border: 1px solid var(--workout-border-dark);
+  display: flex;
+}
+
+.percentage-segment {
+  height: 100%;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.segment-color-0 { background-color: var(--workout-accent-primary); }
+.segment-color-1 { background-color: var(--workout-accent-secondary); }
+.segment-color-2 { background-color: var(--workout-accent-tertiary); }
+.segment-color-3 { background-color: var(--workout-accent-danger); }
+.segment-color-4 { background-color: #9c27b0; } /* Purple */
+.segment-color-5 { background-color: #ff9800; } /* Orange */
+.segment-color-6 { background-color: #795548; } /* Brown */
+.segment-color-7 { background-color: #607d8b; } /* Blue Grey */
+
+.muscle-group-labels {
+  display: flex;
+  margin-top: 8px;
+}
+
+.muscle-group-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex-grow: 0;
+  flex-shrink: 0;
+  text-align: left;
+  padding-right: 10px;
+}
+
+.muscle-name {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.muscle-percentage {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.duration-input, .sets-input, .weight-input, .reps-input {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 5px;
+  border-radius: var(--input-border-radius);
+}
+
+.circuits-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.circuit-block {
+  background-color: rgb(241, 241, 241);
+  border-radius: 3px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.circuit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;  
+  padding: 15px;
+  background-color: rgb(241, 241, 241);
+  border-bottom: 1px solid var(--workout-border-dark);
+}
+
+.circuit-title-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.circuit-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.circuit-drag-handle {
+  color: var(--text-secondary);
+  cursor: grab;
+  font-size: 16px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.circuit-drag-handle:hover {
+  opacity: 1;
+  color: var(--workout-accent-primary);
+}
+
+.circuit-block.dragging {
+  box-shadow: 0 8px 16px var(--shadow-color);
+  z-index: 10;
+}
+
+.circuit-sets {
+  color: var(--text-primary);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.set-control-btn {
+  background-color: var(--bg-secondary);   
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: background-color var(--transition-speed);
+}
+
+.set-control-btn:hover {
+  background-color: var(--workout-hover);
+}
+
+.set-control-btn:active {
+  background-color: var(--workout-accent-primary);
+  color: white;
+}
+
+.sets-input {
+  width: 40px;
+  text-align: center;
+}
+
+.exercises-list {
+  padding: 10px;
+}
+
+.exercise-item {
+  display: flex;
+  align-items: center;
+  padding: 16px 15px;
+  border-bottom: 1px solid var(--workout-border-dark);
+  background-color: var(--bg-secondary);
+  transition: background-color var(--transition-speed);
+  margin-bottom: 8px;
+  border-radius: 2px;
+}
+
+.exercise-item:hover {
+  background-color: var(--workout-hover);
+}
+
+.exercise-item.dragging {
+  opacity: 0.8;
+  background-color: var(--workout-highlight);
+  box-shadow: 0 4px 8px var(--shadow-color);
+  z-index: 10;
+}
+
+.exercise-item:last-child {
+  border-bottom: none;
+}
+
+.exercise-item.completed {
+  opacity: 0.8;
+  background-color: var(--workout-completed);
+}
+
+.exercise-check {
+  margin-right: 15px;
+}
+
+.exercise-name {
+  flex: 1;
+  color: var(--text-primary);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.drag-handle {
+  margin-left: 8px;
+  color: var(--text-primary);
+  cursor: grab;
+  font-size: 14px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+.exercise-weight, .exercise-reps {
+  min-width: 80px;
+  text-align: right;
+  color: var(--text-primary);
+}
+
+.add-exercise-btn, .add-circuit-btn {
+  background-color: var(--bg-secondary);
+  color: var(--workout-accent-primary);
+  border: 1px dashed var(--workout-accent-primary);
+  padding: 10px;
+  width: 100%;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: var(--button-border-radius);
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+.add-exercise-btn:hover, .add-circuit-btn:hover {
+  background-color: var(--workout-highlight);
+}
+
+.exercise-name-input {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 5px;
+  width: 100%;
+  border-radius: var(--input-border-radius);
+}
+
+input[type="checkbox"] {
+  accent-color: var(--workout-accent-secondary);
+  width: 18px;
+  height: 18px;
+}
+
+.muscle-groups-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.muscle-group-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.muscle-name-input {
+  flex: 1;
+  min-width: 120px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 8px;
+  border-radius: var(--input-border-radius);
+  font-size: 14px;
+}
+
+.percentage-input-container {
+  display: flex;
+  align-items: center;
+  width: 80px;
+}
+
+.percentage-input {
+  width: 60px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 8px;
+  border-radius: var(--input-border-radius);
+  font-size: 14px;
+  text-align: right;
+}
+
+.percentage-symbol {
+  margin-left: 4px;
+  color: var(--text-secondary);
+}
+
+.remove-group-btn {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.remove-group-btn:hover {
+  color: var(--workout-accent-danger);
+  background-color: rgba(217, 83, 79, 0.1);
+}
+
+.muscle-groups-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.add-group-btn {
+  background-color: var(--bg-secondary);
+  color: var(--workout-accent-primary);
+  border: 1px dashed var(--workout-accent-primary);
+  padding: 8px 12px;
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.add-group-btn:hover {
+  background-color: var(--workout-highlight);
+}
+
+.total-percentage {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}

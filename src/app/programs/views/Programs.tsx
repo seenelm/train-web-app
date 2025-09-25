@@ -6,12 +6,18 @@ import { programService } from '../services/programService';
 import { tokenService } from '../../../services/tokenService';
 import { ProgramResponse } from '@seenelm/train-core';
 
+interface WeekDetail {
+  id: string;
+  weekNumber: number;
+  // Add other properties as needed
+}
+
 interface Program {
   id: string;
   title: string;
   description: string;
   numWeeks: number;
-  weeks: Week[];
+  weeks: WeekDetail[];
   includesNutrition: boolean;
 }
 
@@ -28,7 +34,14 @@ const Programs = () => {
       title: 'Strength Training Basics',
       description: 'A 6-week program focused on building foundational strength.',
       numWeeks: 6,
-      weeks: [  { id: '1', weekNumber: 1 }, { id: '2', weekNumber: 2 }, { id: '3', weekNumber: 3 }, { id: '4', weekNumber: 4 }, { id: '5', weekNumber: 5 }, { id: '6', weekNumber: 6 }],
+      weeks: [
+        { id: '1', weekNumber: 1 },
+        { id: '2', weekNumber: 2 },
+        { id: '3', weekNumber: 3 },
+        { id: '4', weekNumber: 4 },
+        { id: '5', weekNumber: 5 },
+        { id: '6', weekNumber: 6 },
+      ],
       includesNutrition: false,
     },
     {
@@ -36,7 +49,16 @@ const Programs = () => {
       title: 'Lean & Clean',
       description: '8 weeks of workouts paired with nutrition guidance.',
       numWeeks: 8,
-      weeks: [  { id: '1', weekNumber: 1 }, { id: '2', weekNumber: 2 }, { id: '3', weekNumber: 3 }, { id: '4', weekNumber: 4 }, { id: '5', weekNumber: 5 }, { id: '6', weekNumber: 6 }, { id: '7', weekNumber: 7 }, { id: '8', weekNumber: 8 }],
+      weeks: [
+        { id: '1', weekNumber: 1 },
+        { id: '2', weekNumber: 2 },
+        { id: '3', weekNumber: 3 },
+        { id: '4', weekNumber: 4 },
+        { id: '5', weekNumber: 5 },
+        { id: '6', weekNumber: 6 },
+        { id: '7', weekNumber: 7 },
+        { id: '8', weekNumber: 8 },
+      ],
       includesNutrition: true,
     }
   ];
@@ -68,12 +90,27 @@ const Programs = () => {
         const mappedPrograms = programsData.map((program: ProgramResponse) => {
           console.log(`Program ${program.id} weeks:`, program.weeks);
           
+          // Handle weeks data properly
+          let weekDetails: WeekDetail[] = [];
+          if (Array.isArray(program.weeks)) {
+            // If weeks is already an array of objects with id and weekNumber
+            if (program.weeks.length > 0 && typeof program.weeks[0] === 'object') {
+              weekDetails = program.weeks as WeekDetail[];
+            } else {
+              // If weeks is an array of numbers or other primitive values
+              weekDetails = program.weeks.map((week, index) => ({
+                id: week.toString(),
+                weekNumber: index + 1
+              }));
+            }
+          }
+          
           return {
             id: program.id || '',
             title: program.name,
             description: `A ${program.numWeeks}-week program${program.hasNutritionProgram ? ' with nutrition guidance' : ''}.`,
             numWeeks: program.numWeeks,
-            weeks: Array.isArray(program.weeks) ? program.weeks : [],
+            weeks: weekDetails,
             includesNutrition: program.hasNutritionProgram === true
           };
         });

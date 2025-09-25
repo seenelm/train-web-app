@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router';
 import './WeekView.css';
 import { programService } from '../services/programService';
 import { WorkoutRequest, MealRequest } from '@seenelm/train-core';
+import { tokenService } from '../../../services/tokenService';
 
 // Types for our workout events
 interface WorkoutEvent {
@@ -21,6 +22,8 @@ interface SelectedBlock {
 }
 
 const WeekView: React.FC = () => {
+  const userString = tokenService.getUser();
+  const user = userString ? JSON.parse(userString) : null
   const { programId, weekId } = useParams<{ programId: string; weekId: string }>();
   const navigate = useNavigate();
   
@@ -56,6 +59,7 @@ const WeekView: React.FC = () => {
       if (programId && weekId) {
         try {
           const workoutsData = await programService.getWeekWorkouts(programId, weekId);
+          console.log('Fetched workouts:', workoutsData);
           
           // Transform API response to WorkoutEvent format
           const transformedWorkouts = workoutsData.map(workout => {
@@ -64,22 +68,22 @@ const WeekView: React.FC = () => {
             let timeOfDay = '9AM';
             
             if (workout.startDate) {
-              // If startDate is a Date object
-              if (workout.startDate instanceof Date) {
-                // Get day of week as three-letter abbreviation
-                const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-                dayOfWeek = days[workout.startDate.getDay()];
-                
-                // Format time as AM/PM
-                const hours = workout.startDate.getHours();
-                const ampm = hours >= 12 ? 'PM' : 'AM';
-                const hour = hours % 12 || 12; // Convert 0 to 12
-                timeOfDay = `${hour}${ampm}`;
-              } else if (typeof workout.startDate === 'string') {
-                // If it's already a string, use it directly
-                dayOfWeek = workout.startDate;
-                timeOfDay = workout.startDate;
-              }
+              // Convert string date to Date object if needed
+              const startDate = typeof workout.startDate === 'string' 
+                ? new Date(workout.startDate) 
+                : workout.startDate;
+              
+              // Get day of week as three-letter abbreviation
+              const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+              dayOfWeek = days[startDate.getDay()];
+              
+              // Format time as AM/PM
+              const hours = startDate.getHours();
+              const ampm = hours >= 12 ? 'PM' : 'AM';
+              const hour = hours % 12 || 12; // Convert 0 to 12
+              timeOfDay = `${hour}${ampm}`;
+              
+              console.log(`Workout ${workout.name}: day=${dayOfWeek}, time=${timeOfDay}`);
             }
             
             return {
@@ -92,6 +96,7 @@ const WeekView: React.FC = () => {
             };
           });
           
+          console.log('Transformed workouts:', transformedWorkouts);
           setWorkouts(transformedWorkouts);
         } catch (error) {
           console.error('Error fetching workouts:', error);
@@ -287,8 +292,8 @@ const WeekView: React.FC = () => {
           description: newItemDescription,
           duration: duration,
           blocks: [],
-          accessType: 1,
-          createdBy: localStorage.getItem('userId') || 'anonymous',
+          accessType: user?.accessType,
+          createdBy: user?.userId,
           // Use the Date objects directly
           startDate,
           endDate
@@ -306,12 +311,52 @@ const WeekView: React.FC = () => {
           completed: false
         }]);
       } else {
+        // Create start date with the correct day and time for meal
+        const today = new Date();
+        
+        // Parse the time from firstBlock.time (e.g., "9AM" to hours)
+        let startHour = 9; // Default to 9AM
+        if (firstBlock.time) {
+          const timeMatch = firstBlock.time.match(/(\d+)(AM|PM)/i);
+          if (timeMatch) {
+            let hour = parseInt(timeMatch[1], 10);
+            const isPM = timeMatch[2].toUpperCase() === 'PM';
+            
+            // Convert to 24-hour format
+            if (isPM && hour < 12) hour += 12;
+            if (!isPM && hour === 12) hour = 0;
+            
+            startHour = hour;
+          }
+        }
+        
+        // Set the day of week
+        let dayOffset = 0;
+        const dayMap: Record<string, number> = {
+          'SUN': 0, 'MON': 1, 'TUE': 2, 'WED': 3, 'THU': 4, 'FRI': 5, 'SAT': 6
+        };
+        
+        if (firstBlock.day in dayMap) {
+          const currentDay = today.getDay();
+          dayOffset = (dayMap[firstBlock.day] - currentDay + 7) % 7;
+        }
+        
+        // Create start date with the correct day and time
+        const startDate = new Date(today);
+        startDate.setDate(today.getDate() + dayOffset);
+        startDate.setHours(startHour, 0, 0, 0);
+        
+        // Create end date based on duration
+        const endDate = new Date(startDate);
+        endDate.setHours(startDate.getHours() + duration);
+
         const mealRequest: MealRequest = {
           mealName: newItemTitle,
-          description: newItemDescription,
-          day: firstBlock.day,
-          time: firstBlock.time,
-          foods: []
+          instructions: newItemDescription,
+          startDate,
+          endDate,
+          ingredients: [],
+          createdBy: user?.userId
         };
         
         await programService.createMeal(programId!, weekId!, mealRequest);
