@@ -167,6 +167,12 @@ const WeekView: React.FC = () => {
     navigate(`/programs/${programId}/weeks/${weekId}/workouts/${workoutId}`);
   };
 
+  // Handle log workout click
+  const handleLogWorkout = (workoutId: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent triggering the parent onClick
+    navigate(`/programs/${programId}/weeks/${weekId}/workouts/${workoutId}?mode=log`);
+  };
+
   // Function to go back to program view
   const handleBackClick = () => {
     navigate(`/programs/${programId}`);
@@ -452,9 +458,21 @@ const WeekView: React.FC = () => {
                           key={`${day}-${time}`}
                           className={`workout-cell ${workout.completed ? 'completed' : ''}`}
                           rowSpan={getWorkoutRowSpan(workout.duration)}
-                          onClick={() => handleWorkoutClick(workout.id)}
                         >
-                          {workout.title}
+                          <div className="workout-cell-content">
+                            <div 
+                              className="workout-cell-title"
+                              onClick={() => handleWorkoutClick(workout.id)}
+                            >
+                              {workout.title}
+                            </div>
+                            <button 
+                              className="workout-cell-log-btn"
+                              onClick={(e) => handleLogWorkout(workout.id, e)}
+                            >
+                              Log
+                            </button>
+                          </div>
                         </td>
                       );
                     }
@@ -487,6 +505,7 @@ const WeekView: React.FC = () => {
                 </div>
                 <div className="workout-title">{workout.title}</div>
                 <div className="workout-duration">{workout.duration} hour{workout.duration !== 1 ? 's' : ''}</div>
+                <button className="log-workout" onClick={(e) => handleLogWorkout(workout.id, e)}>Log Workout</button>
               </div>
             ))}
           </div>

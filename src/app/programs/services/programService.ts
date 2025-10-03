@@ -41,6 +41,14 @@ class ProgramService extends BaseApiService<
   }
 
   /**
+   * Get a specific program by ID
+   * GET /program/:programId
+   */
+  async getProgram(programId: string): Promise<ProgramResponse> {
+    return this.get<ProgramResponse>(`/program/${programId}`);
+  }
+
+  /**
    * Create a new workout
    * POST /program/:programId/week/:weekId/workout
    */
@@ -87,6 +95,34 @@ class ProgramService extends BaseApiService<
     weekId: string
   ): Promise<MealResponse[]> {
     return this.get(`/program/${programId}/week/${weekId}/meals`);
+  }
+
+  /**
+   * Get a specific workout by ID
+   * GET /program/:programId/week/:weekId/workout/:workoutId
+   */
+  async getWorkout(
+    programId: string,
+    weekId: string,
+    workoutId: string
+  ): Promise<WorkoutResponse> {
+    return this.get(`/program/${programId}/week/${weekId}/workout/${workoutId}`);
+  }
+
+  /**
+   * Update a workout
+   * PUT /program/:programId/week/:weekId/workout/:workoutId
+   */
+  async updateWorkout(
+    programId: string,
+    weekId: string,
+    workoutId: string,
+    workoutRequest: WorkoutRequest
+  ): Promise<WorkoutResponse> {
+    return this.put(
+      `/program/${programId}/week/${weekId}/workout/${workoutId}`,
+      workoutRequest
+    );
   }
 }
 

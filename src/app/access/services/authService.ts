@@ -78,7 +78,8 @@ import { AxiosError } from 'axios';
         // Send the token to your backend with device ID
         const response = await api.post<UserResponse>(`${API_URL}/user/google-auth`, {
           name: result.user.displayName,
-          deviceId: tokenService.getDeviceId()
+          deviceId: tokenService.getDeviceId(),
+          agreeToTerms: true
         }, {
           headers: {
             Authorization: `Bearer ${idToken}`
@@ -104,7 +105,10 @@ import { AxiosError } from 'axios';
             'Content-Type': 'application/json',
             Authorization: `Bearer ${idToken}`
           },
-          body: JSON.stringify({ name }),
+          body: JSON.stringify({ 
+            name,
+            agreeToTerms: true
+          }),
         });
         
         if (!response.ok) {

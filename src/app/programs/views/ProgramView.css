@@ -6,14 +6,14 @@
 
 .program-header {
   margin-bottom: 30px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 20px;
 }
 
 .program-header h1 {
   margin-bottom: 10px;
   font-size: 2rem;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .program-meta {
@@ -24,28 +24,39 @@
 
 .program-duration,
 .program-nutrition {
-  background-color: #f0f0f0;
+  background-color: var(--bg-secondary);
   padding: 5px 12px;
   border-radius: 20px;
   font-size: 0.9rem;
-  color: #555;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
 }
 
 .program-nutrition {
-  background-color: #e6f7ff;
-  color: #0077cc;
+  background-color: var(--bg-secondary);
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.program-types {
+  background-color: var(--bg-secondary);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
 }
 
 .program-description {
   font-size: 1.1rem;
   line-height: 1.6;
-  color: #555;
+  color: var(--text-secondary);
 }
 
 .program-weeks h2 {
   margin-bottom: 20px;
   font-size: 1.5rem;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .weeks-container {
@@ -55,19 +66,20 @@
 }
 
 .week-card {
-  background-color: white;
-  border-radius: 8px;
+  background-color: var(--bg-secondary);
+  border-radius: var(--card-border-radius);
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: var(--card-shadow);
+  transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
   display: flex;
   flex-direction: column;
   height: 100%;
+  border: 1px solid var(--border-color);
 }
 
 .week-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 5px 15px var(--shadow-color);
   cursor: pointer;
 }
 
@@ -99,12 +111,12 @@
 .week-card h3 {
   margin-bottom: 10px;
   font-size: 1.2rem;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .week-card p {
   margin-bottom: 15px;
-  color: #666;
+  color: var(--text-secondary);
   line-height: 1.5;
   flex-grow: 1;
 }
@@ -115,6 +127,7 @@
 
 .workout-count {
   margin-bottom: 10px;
+  color: var(--text-secondary);
 }
 
 .progress-container {
@@ -125,19 +138,22 @@
   margin-bottom: 5px;
   display: flex;
   justify-content: space-between;
+  color: var(--text-secondary);
 }
 
 .progress-bar {
   height: 8px;
-  background-color: #e0e0e0;
+  background-color: var(--bg-primary);
   border-radius: 4px;
   overflow: hidden;
+  border: 1px solid var(--border-color);
 }
 
 .progress-fill {
   height: 100%;
-  background-color: #4caf50;
+  background-color: var(--accent-color);
   border-radius: 4px;
+  transition: width var(--transition-speed) ease;
 }
 
 .loading-container,
@@ -145,11 +161,27 @@
 .no-weeks {
   padding: 40px;
   text-align: center;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .error-container {
-  color: #e53935;
+  color: var(--error-color);
+}
+
+.error-container button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity var(--transition-speed);
+}
+
+.error-container button:hover {
+  opacity: 0.9;
 }
 
 @media (max-width: 768px) {

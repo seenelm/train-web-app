@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import './WorkoutView.css';
 import {
@@ -18,6 +18,9 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { programService } from '../services/programService';
+import { WorkoutResponse, WorkoutRequest } from '@seenelm/train-core';
+import { tokenService } from '../../../services/tokenService';
 
 // Exercise interface
 interface Exercise {
@@ -56,89 +59,12 @@ interface WorkoutDetails {
   completed: boolean;
 }
 
-// Dummy workout data
-const workoutData: Record<string, WorkoutDetails> = {
-  '1': {
-    id: '1',
-    title: 'Upper Body Strength',
-    description: 'Focus on building strength in chest, shoulders, and arms with compound movements.',
-    duration: 60,
-    muscleGroups: [
-      { name: 'Chest', percentage: 40 },
-      { name: 'Back', percentage: 20 },
-      { name: 'Shoulders', percentage: 20 },
-      { name: 'Arms', percentage: 20 }
-    ],
-    circuits: [
-      {
-        id: 'c1',
-        name: 'Circuit 1',
-        sets: 4,
-        exercises: [
-          {
-            id: 'e1',
-            name: 'Chest Fly',
-            sets: 4,
-            reps: 15,
-            weight: 40,
-            weightUnit: 'lbs',
-            completed: false
-          },
-          {
-            id: 'e2',
-            name: 'Tricep Rope Pulls',
-            sets: 4,
-            reps: 10,
-            weight: 20,
-            weightUnit: 'lbs',
-            completed: false
-          }
-        ]
-      },
-      {
-        id: 'c2',
-        name: 'Circuit 2',
-        sets: 3,
-        exercises: [
-          {
-            id: 'e3',
-            name: 'Leg Raises',
-            sets: 3,
-            reps: 15,
-            weight: 30,
-            weightUnit: 'lbs',
-            completed: false
-          },
-          {
-            id: 'e4',
-            name: 'Incline Chest Press',
-            sets: 3,
-            reps: 15,
-            weight: 40,
-            weightUnit: 'lbs',
-            completed: true
-          },
-          {
-            id: 'e5',
-            name: 'Dumbbell Rows',
-            sets: 3,
-            reps: 10,
-            weight: 20,
-            weightUnit: 'lbs',
-            completed: true
-          }
-        ]
-      }
-    ],
-    completed: false
-  }
-};
-
 // Sortable exercise item component
 interface SortableExerciseItemProps {
   exercise: Exercise;
   circuitId: string;
   toggleExerciseCompletion: (circuitId: string, exerciseId: string) => void;
+  removeExercise: (circuitId: string, exerciseId: string) => void;
   editMode: boolean;
 }
 
@@ -146,6 +72,7 @@ const SortableExerciseItem: React.FC<SortableExerciseItemProps> = ({
   exercise, 
   circuitId,
   toggleExerciseCompletion,
+  removeExercise,
   editMode
 }) => {
   const {
@@ -225,6 +152,15 @@ const SortableExerciseItem: React.FC<SortableExerciseItemProps> = ({
         )}
         <span> reps</span>
       </div>
+      {editMode && (
+        <button 
+          className="remove-exercise-btn"
+          onClick={() => removeExercise(circuitId, exercise.id)}
+          title="Remove exercise"
+        >
+          ✕
+        </button>
+      )}
     </div>
   );
 };
@@ -234,6 +170,7 @@ interface SortableCircuitItemProps {
   circuit: Circuit;
   editMode: boolean;
   toggleExerciseCompletion: (circuitId: string, exerciseId: string) => void;
+  removeExercise: (circuitId: string, exerciseId: string) => void;
   addExercise: (circuitId: string) => void;
   handleDragEnd: (event: DragEndEvent, circuitId?: string) => void;
   updateCircuitSets: (circuitId: string, sets: number) => void;
@@ -243,6 +180,7 @@ const SortableCircuitItem: React.FC<SortableCircuitItemProps> = ({
   circuit,
   editMode,
   toggleExerciseCompletion,
+  removeExercise,
   addExercise,
   handleDragEnd,
   updateCircuitSets
@@ -339,6 +277,7 @@ const SortableCircuitItem: React.FC<SortableCircuitItemProps> = ({
                 exercise={exercise}
                 circuitId={circuit.id}
                 toggleExerciseCompletion={toggleExerciseCompletion}
+                removeExercise={removeExercise}
                 editMode={editMode}
               />
             ))}
@@ -363,6 +302,11 @@ const WorkoutView: React.FC = () => {
   const navigate = useNavigate();
   const [workout, setWorkout] = useState<WorkoutDetails | null>(null);
   const [editMode, setEditMode] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [isOwner, setIsOwner] = useState<boolean>(false);
   
   // Set up sensors for drag-and-drop
   const sensors = useSensors(
@@ -444,6 +388,24 @@ const WorkoutView: React.FC = () => {
     });
   };
   
+  // Remove exercise from circuit
+  const removeExercise = (circuitId: string, exerciseId: string) => {
+    if (!workout) return;
+    
+    const updatedCircuits = workout.circuits.map(circuit => {
+      if (circuit.id === circuitId) {
+        const updatedExercises = circuit.exercises.filter(exercise => exercise.id !== exerciseId);
+        return { ...circuit, exercises: updatedExercises };
+      }
+      return circuit;
+    });
+    
+    setWorkout({
+      ...workout,
+      circuits: updatedCircuits
+    });
+  };
+  
   // Add a new circuit
   const addCircuit = () => {
     if (!workout) return;
@@ -504,32 +466,147 @@ const WorkoutView: React.FC = () => {
     });
   };
   
-  // Load workout data
-  React.useEffect(() => {
-    console.log('WorkoutView - Attempting to load workout with ID:', workoutId);
-    console.log('Available workout IDs:', Object.keys(workoutData));
-    
-    if (workoutId && workoutData[workoutId]) {
-      console.log('Found workout data, setting state');
-      setWorkout(workoutData[workoutId]);
-    } else {
-      // If the specific workout isn't found, use the first workout as a fallback
-      // This is temporary until the backend is working
-      console.log('Workout not found, using fallback data');
-      const fallbackWorkoutId = Object.keys(workoutData)[0];
-      if (fallbackWorkoutId) {
-        // Create a copy of the fallback workout with the requested ID
-        const fallbackWorkout = {
-          ...workoutData[fallbackWorkoutId],
-          id: workoutId || 'unknown'
-        };
-        setWorkout(fallbackWorkout);
+  // Load workout data from API
+  useEffect(() => {
+    const fetchWorkout = async () => {
+      if (!programId || !weekId || !workoutId) {
+        setError('Missing required parameters');
+        setLoading(false);
+        return;
       }
+
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // TODO: Check ownership once backend provides program owner info
+        // For now, check if workout response contains userId/createdBy field
+        // Or pass program data through navigation state from ProgramView
+        const currentUserData = tokenService.getUser();
+        const currentUser = currentUserData ? JSON.parse(currentUserData) : null;
+        
+        const workoutResponse = await programService.getWorkout(programId, weekId, workoutId);
+        
+        // Check if workout has owner/creator information
+        // Adjust this based on your actual API response structure
+        const workoutOwnerId = (workoutResponse as any).userId || (workoutResponse as any).createdBy;
+        const userIsOwner = currentUser && workoutOwnerId && workoutOwnerId === currentUser.userId;
+        
+        // Temporarily allow editing if no owner info is available (for development)
+        setIsOwner(userIsOwner || !workoutOwnerId);
+        
+        // Transform API response to WorkoutDetails format
+        const transformedWorkout: WorkoutDetails = {
+          id: workoutResponse._id || workoutId,
+          title: workoutResponse.title || 'Untitled Workout',
+          description: workoutResponse.description || '',
+          duration: workoutResponse.duration || 60,
+          muscleGroups: workoutResponse.muscleGroups || [],
+          circuits: workoutResponse.circuits || [],
+          completed: workoutResponse.completed || false
+        };
+        
+        setWorkout(transformedWorkout);
+        
+        // If no circuits exist and user is owner, enable edit mode automatically
+        if (!transformedWorkout.circuits || transformedWorkout.circuits.length === 0) {
+          if (userIsOwner || !workoutOwnerId) {
+            setEditMode(true);
+          }
+        }
+      } catch (err: any) {
+        console.error('Error fetching workout:', err);
+        
+        // If workout doesn't exist (404), create an empty workout structure
+        if (err.response?.status === 404) {
+          // Allow creating new workouts (assume user has permission)
+          setIsOwner(true);
+          
+          const emptyWorkout: WorkoutDetails = {
+            id: workoutId,
+            title: 'New Workout',
+            description: 'Add a description for your workout',
+            duration: 60,
+            muscleGroups: [
+              { name: 'Full Body', percentage: 100 }
+            ],
+            circuits: [],
+            completed: false
+          };
+          setWorkout(emptyWorkout);
+          setEditMode(true);
+          setError(null);
+        } else {
+          setError(err.message || 'Failed to load workout');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkout();
+  }, [programId, weekId, workoutId]);
+  
+  // Save workout to API
+  const saveWorkout = async () => {
+    if (!workout || !programId || !weekId || !workoutId) return;
+    
+    try {
+      setSaving(true);
+      setError(null);
+      
+      // Transform WorkoutDetails to WorkoutRequest format
+      const workoutRequest: WorkoutRequest = {
+        title: workout.title,
+        description: workout.description,
+        duration: workout.duration,
+        muscleGroups: workout.muscleGroups,
+        circuits: workout.circuits,
+        completed: workout.completed
+      };
+      
+      await programService.updateWorkout(programId, weekId, workoutId, workoutRequest);
+      setHasUnsavedChanges(false);
+      
+      // Show success message (you can add a toast notification here)
+      console.log('Workout saved successfully');
+    } catch (err: any) {
+      console.error('Error saving workout:', err);
+      setError(err.message || 'Failed to save workout');
+    } finally {
+      setSaving(false);
     }
-  }, [workoutId]);
+  };
+  
+  // Mark changes as unsaved whenever workout is modified
+  const updateWorkout = (updatedWorkout: WorkoutDetails) => {
+    setWorkout(updatedWorkout);
+    setHasUnsavedChanges(true);
+  };
+  
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading workout...</p>
+      </div>
+    );
+  }
+  
+  if (error && !workout) {
+    return (
+      <div className="error-container">
+        <h2>Error Loading Workout</h2>
+        <p>{error}</p>
+        <button onClick={() => navigate(`/programs/${programId}/weeks/${weekId}`)}>
+          Back to Week
+        </button>
+      </div>
+    );
+  }
   
   if (!workout) {
-    return <div className="loading-container">Loading workout...</div>;
+    return <div className="loading-container">No workout data available</div>;
   }
   
   return (
@@ -538,10 +615,32 @@ const WorkoutView: React.FC = () => {
         <button className="back-button" onClick={handleBackClick}>
           &larr; Back to Week
         </button>
-        <button className="edit-button" onClick={() => setEditMode(!editMode)}>
-          {editMode ? 'Done' : 'Edit'}
-        </button>
+        <div className="header-actions">
+          {hasUnsavedChanges && (
+            <span className="unsaved-indicator">Unsaved changes</span>
+          )}
+          {editMode && isOwner && (
+            <button 
+              className="save-button" 
+              onClick={saveWorkout}
+              disabled={saving}
+            >
+              {saving ? 'Saving...' : 'Save'}
+            </button>
+          )}
+          {isOwner && (
+            <button className="edit-button" onClick={() => setEditMode(!editMode)}>
+              {editMode ? 'Done' : 'Edit'}
+            </button>
+          )}
+        </div>
       </div>
+      
+      {error && (
+        <div className="error-banner">
+          {error}
+        </div>
+      )}
       
       <div className="workout-details">
         <h1>{workout.title}</h1>
@@ -550,11 +649,11 @@ const WorkoutView: React.FC = () => {
         <div className="workout-meta">
           <div className="duration-section">
             <h3>Duration</h3>
-            {editMode ? (
+            {editMode && isOwner ? (
               <input 
                 type="number" 
                 value={workout.duration} 
-                onChange={(e) => setWorkout({...workout, duration: parseInt(e.target.value)})}
+                onChange={(e) => updateWorkout({...workout, duration: parseInt(e.target.value)})}
                 min="1"
                 className="duration-input"
               />
@@ -565,7 +664,7 @@ const WorkoutView: React.FC = () => {
           
           <div className="muscle-groups-section">
             <h3>Muscle Groups</h3>
-            {editMode ? (
+            {editMode && isOwner ? (
               <div className="muscle-groups-list">
                 {workout.muscleGroups.map((group, index) => (
                   <div key={index} className="muscle-group-item">
@@ -578,7 +677,7 @@ const WorkoutView: React.FC = () => {
                           ...group,
                           name: e.target.value
                         };
-                        setWorkout({...workout, muscleGroups: updatedGroups});
+                        updateWorkout({...workout, muscleGroups: updatedGroups});
                       }}
                       className="muscle-name-input"
                       placeholder="Muscle group"
@@ -593,12 +692,10 @@ const WorkoutView: React.FC = () => {
                           const newPercentage = Math.min(100, Math.max(0, parseInt(e.target.value) || 0));
                           const updatedGroups = [...workout.muscleGroups];
                           
-                          // Calculate the current total excluding this group
                           const otherGroupsTotal = workout.muscleGroups.reduce((sum, g, i) => 
                             i === index ? sum : sum + g.percentage, 0
                           );
                           
-                          // If the new total would exceed 100%, adjust this group's percentage
                           const adjustedPercentage = otherGroupsTotal + newPercentage > 100 
                             ? 100 - otherGroupsTotal 
                             : newPercentage;
@@ -608,7 +705,7 @@ const WorkoutView: React.FC = () => {
                             percentage: adjustedPercentage
                           };
                           
-                          setWorkout({...workout, muscleGroups: updatedGroups});
+                          updateWorkout({...workout, muscleGroups: updatedGroups});
                         }}
                         className="percentage-input"
                       />
@@ -620,7 +717,6 @@ const WorkoutView: React.FC = () => {
                         if (workout.muscleGroups.length > 1) {
                           const updatedGroups = workout.muscleGroups.filter((_, i) => i !== index);
                           
-                          // Redistribute the removed percentage to other groups
                           const removedPercentage = group.percentage;
                           const remainingGroups = updatedGroups.length;
                           
@@ -633,7 +729,7 @@ const WorkoutView: React.FC = () => {
                             });
                           }
                           
-                          setWorkout({...workout, muscleGroups: updatedGroups});
+                          updateWorkout({...workout, muscleGroups: updatedGroups});
                         }
                       }}
                     >
@@ -645,17 +741,15 @@ const WorkoutView: React.FC = () => {
                   <button 
                     className="add-group-btn"
                     onClick={() => {
-                      // Calculate available percentage
                       const currentTotal = workout.muscleGroups.reduce((sum, g) => sum + g.percentage, 0);
                       const availablePercentage = Math.max(0, 100 - currentTotal);
                       
-                      // Add new group with available percentage (or 0 if none available)
                       const newGroup = {
                         name: "New Group",
                         percentage: availablePercentage
                       };
                       
-                      setWorkout({
+                      updateWorkout({
                         ...workout, 
                         muscleGroups: [...workout.muscleGroups, newGroup]
                       });
@@ -681,7 +775,6 @@ const WorkoutView: React.FC = () => {
                 </div>
                 <div className="muscle-group-labels">
                   {workout.muscleGroups.map((group, index) => {
-                    // Calculate the width for this label based on the percentage
                     const width = `${group.percentage}%`;
                     
                     return (
@@ -708,23 +801,38 @@ const WorkoutView: React.FC = () => {
         onDragEnd={handleDragEnd}
       >
         <div className="circuits-container">
-          <SortableContext 
-            items={workout.circuits.map(circuit => circuit.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            {workout.circuits.map(circuit => (
-              <SortableCircuitItem
-                key={circuit.id}
-                circuit={circuit}
-                editMode={editMode}
-                toggleExerciseCompletion={toggleExerciseCompletion}
-                addExercise={addExercise}
-                handleDragEnd={handleDragEnd}
-                updateCircuitSets={updateCircuitSets}
-              />
-            ))}
-          </SortableContext>
-          {editMode && (
+          {workout.circuits.length === 0 && !editMode ? (
+            <div className="empty-state">
+              <p>No circuits added yet.</p>
+              {isOwner && (
+                <button 
+                  className="add-circuit-btn"
+                  onClick={() => setEditMode(true)}
+                >
+                  Start Building Workout
+                </button>
+              )}
+            </div>
+          ) : (
+            <SortableContext 
+              items={workout.circuits.map(circuit => circuit.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {workout.circuits.map(circuit => (
+                <SortableCircuitItem
+                  key={circuit.id}
+                  circuit={circuit}
+                  editMode={editMode && isOwner}
+                  toggleExerciseCompletion={toggleExerciseCompletion}
+                  removeExercise={removeExercise}
+                  addExercise={addExercise}
+                  handleDragEnd={handleDragEnd}
+                  updateCircuitSets={updateCircuitSets}
+                />
+              ))}
+            </SortableContext>
+          )}
+          {editMode && isOwner && (
             <button 
               className="add-circuit-btn"
               onClick={addCircuit}

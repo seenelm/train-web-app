@@ -19,7 +19,7 @@
 .programs-header h2 {
     margin: 0;
     font-size: 1.5rem;
-    color: #222;
+    color: var(--text-primary);
 }
 
 /* Custom styling for the Button component */
@@ -33,12 +33,12 @@
     background-color: #4a90e2;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--button-border-radius);
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--transition-speed);
 }
 
 .add-program-button:hover {
@@ -52,19 +52,19 @@
 }
 
 .no-programs-message {
-    color: #666;
+    color: var(--text-secondary);
     font-style: italic;
     padding: 1rem 0;
 }
 
 .program-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--card-border-radius);
     padding: 1rem;
     margin-bottom: 1rem;
-    background: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: var(--bg-secondary);
+    box-shadow: var(--card-shadow);
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
     width: calc(33.333% - 1rem);
     min-width: 250px;
     flex-grow: 1;
@@ -73,28 +73,28 @@
 
 .program-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px var(--shadow-color);
 }
 
 .program-card h3 {
     margin: 0 0 0.5rem;
     font-size: 1.25rem;
-    color: #222;
+    color: var(--text-primary);
 }
 
 .program-card p {
     margin: 0.25rem 0;
     font-size: 0.95rem;
-    color: #555;
+    color: var(--text-secondary);
 }
 
 .program-card p strong {
-    color: #333;
+    color: var(--text-primary);
 }
 
 .program-meta {
     font-size: 0.9rem;
-    color: #444;
+    color: var(--text-secondary);
     margin-top: 0.5rem;
 }
 
