@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import './WeekView.css';
 import { programService } from '../services/programService';
-import { WorkoutRequest, MealRequest } from '@seenelm/train-core';
-import { tokenService } from '../../../services/tokenService';
+//import { tokenService } from '../../../services/tokenService';
 
 // Types for our workout events
 interface WorkoutEvent {
@@ -22,18 +21,18 @@ interface SelectedBlock {
 }
 
 const WeekView: React.FC = () => {
-  const userString = tokenService.getUser();
-  const user = userString ? JSON.parse(userString) : null
+  //const userString = tokenService.getUser();
+  //const user = userString ? JSON.parse(userString) : null
   const { programId, weekId } = useParams<{ programId: string; weekId: string }>();
   const navigate = useNavigate();
   
   // Days of the week
   const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   
-  // Time slots from 6AM to 10PM
+  // All 24 hours of the day
   const timeSlots = [
-    '6AM', '7AM', '8AM', '9AM', '10AM', '11AM', '12PM',
-    '1PM', '2PM', '3PM', '4PM', '5PM', '6PM', '7PM', '8PM', '9PM', '10PM'
+    '12AM', '1AM', '2AM', '3AM', '4AM', '5AM', '6AM', '7AM', '8AM', '9AM', '10AM', '11AM',
+    '12PM', '1PM', '2PM', '3PM', '4PM', '5PM', '6PM', '7PM', '8PM', '9PM', '10PM', '11PM'
   ];
 
   // State for workouts
@@ -45,14 +44,15 @@ const WeekView: React.FC = () => {
   // State for selection mode
   const [isSelectionMode, setIsSelectionMode] = useState<boolean>(false);
   
-  // State for creation modal
-  const [showCreationModal, setShowCreationModal] = useState<boolean>(false);
-  const [creationType, setCreationType] = useState<'workout' | 'meal'>('workout');
+  // State for drag selection
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [dragStart, setDragStart] = useState<SelectedBlock | null>(null);
   
-  // Form state for new workout/meal
-  const [newItemTitle, setNewItemTitle] = useState<string>('');
-  const [newItemDescription, setNewItemDescription] = useState<string>('');
-
+  // State for creation popup
+  const [showCreationPopup, setShowCreationPopup] = useState(false);
+  const [startTime, setStartTime] = useState('09:00');
+  const [endTime, setEndTime] = useState('10:00');
+  
   // Fetch workouts when component mounts
   useEffect(() => {
     const fetchWorkouts = async () => {
@@ -146,32 +146,82 @@ const WeekView: React.FC = () => {
 
   // Handle cell click for selection
   const handleCellClick = (day: string, time: string) => {
-    if (!isSelectionMode) return;
-    
     // Check if there's already a workout at this time
     if (getWorkoutAtDayAndTime(day, time)) return;
     
-    // Toggle selection
-    if (isBlockSelected(day, time)) {
-      setSelectedBlocks(selectedBlocks.filter(
-        block => !(block.day === day && block.time === time)
-      ));
-    } else {
-      setSelectedBlocks([...selectedBlocks, { day, time }]);
+    // Single click opens popup immediately
+    setSelectedBlocks([{ day, time }]);
+    openCreationPopup();
+  };
+
+  // Handle mouse down to start drag selection
+  const handleMouseDown = (day: string, time: string) => {
+    if (getWorkoutAtDayAndTime(day, time)) return;
+    
+    setIsDragging(true);
+    setDragStart({ day, time });
+    setSelectedBlocks([{ day, time }]);
+  };
+
+  // Handle mouse enter during drag
+  const handleMouseEnter = (day: string, time: string) => {
+    if (!isDragging || !dragStart) return;
+    if (getWorkoutAtDayAndTime(day, time)) return;
+    
+    // Calculate all blocks between drag start and current position
+    const startDayIndex = days.indexOf(dragStart.day);
+    const endDayIndex = days.indexOf(day);
+    const startTimeIndex = timeSlots.indexOf(dragStart.time);
+    const endTimeIndex = timeSlots.indexOf(time);
+    
+    const minDay = Math.min(startDayIndex, endDayIndex);
+    const maxDay = Math.max(startDayIndex, endDayIndex);
+    const minTime = Math.min(startTimeIndex, endTimeIndex);
+    const maxTime = Math.max(startTimeIndex, endTimeIndex);
+    
+    const newSelection: SelectedBlock[] = [];
+    for (let d = minDay; d <= maxDay; d++) {
+      for (let t = minTime; t <= maxTime; t++) {
+        if (!getWorkoutAtDayAndTime(days[d], timeSlots[t])) {
+          newSelection.push({ day: days[d], time: timeSlots[t] });
+        }
+      }
+    }
+    
+    setSelectedBlocks(newSelection);
+  };
+
+  // Handle mouse up to end drag selection
+  const handleMouseUp = () => {
+    if (isDragging && selectedBlocks.length > 0) {
+      setIsDragging(false);
+      setDragStart(null);
+      openCreationPopup();
     }
   };
 
+  // Add global mouse up listener
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isDragging) {
+        handleMouseUp();
+      }
+    };
+    
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
+  }, [isDragging, selectedBlocks]);
+
   // Handle click on a workout
   const handleWorkoutClick = (workoutId: string) => {
-    if (isSelectionMode) return; // Don't navigate when in selection mode
     navigate(`/programs/${programId}/weeks/${weekId}/workouts/${workoutId}`);
   };
 
   // Handle log workout click
-  const handleLogWorkout = (workoutId: string, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent triggering the parent onClick
-    navigate(`/programs/${programId}/weeks/${weekId}/workouts/${workoutId}?mode=log`);
-  };
+  // const handleLogWorkout = (workoutId: string, event: React.MouseEvent) => {
+  //   event.stopPropagation(); // Prevent triggering the parent onClick
+  //   navigate(`/programs/${programId}/weeks/${weekId}/workouts/${workoutId}?mode=log`);
+  // };
 
   // Function to go back to program view
   const handleBackClick = () => {
@@ -179,203 +229,75 @@ const WeekView: React.FC = () => {
   };
 
   // Toggle selection mode
-  const toggleSelectionMode = () => {
-    setIsSelectionMode(!isSelectionMode);
-    if (isSelectionMode) {
-      // Clear selections when exiting selection mode
-      setSelectedBlocks([]);
-    }
-  };
+  // const toggleSelectionMode = () => {
+  //   setIsSelectionMode(!isSelectionMode);
+  //   if (isSelectionMode) {
+  //     // Clear selections when exiting selection mode
+  //     setSelectedBlocks([]);
+  //   }
+  // };
 
-  // Open creation modal
-  const openCreationModal = (type: 'workout' | 'meal') => {
-    if (selectedBlocks.length === 0) {
-      alert('Please select at least one time block first.');
-      return;
-    }
-    
-    setCreationType(type);
-    setShowCreationModal(true);
-  };
-
-  // Close creation modal
-  const closeCreationModal = () => {
-    setShowCreationModal(false);
-    setNewItemTitle('');
-    setNewItemDescription('');
-  };
-
-  // Create new workout or meal
-  const handleCreateItem = async () => {
-    if (!newItemTitle) {
-      alert('Please enter a title.');
-      return;
-    }
-    
-    try {
-      // Sort selected blocks by day and time
+  const openCreationPopup = () => {
+    if (selectedBlocks.length > 0) {
+      // Calculate default times from selected blocks
       const sortedBlocks = [...selectedBlocks].sort((a, b) => {
-        if (a.day !== b.day) {
-          return days.indexOf(a.day) - days.indexOf(b.day);
-        }
+        if (a.day !== b.day) return days.indexOf(a.day) - days.indexOf(b.day);
         return timeSlots.indexOf(a.time) - timeSlots.indexOf(b.time);
       });
       
-      if (sortedBlocks.length === 0) return;
-      
-      // Get first block for start time and day
       const firstBlock = sortedBlocks[0];
+      const lastBlock = sortedBlocks[sortedBlocks.length - 1];
       
-      // Calculate duration based on consecutive blocks
-      let duration = 0;
-      let currentDay = firstBlock.day;
-      let consecutiveCount = 0;
+      // Convert time format from "12AM" to "00:00"
+      const convertTo24Hour = (timeStr: string) => {
+        const match = timeStr.match(/(\d+)(AM|PM)/i);
+        if (!match) return '09:00';
+        
+        let hour = parseInt(match[1], 10);
+        const isPM = match[2].toUpperCase() === 'PM';
+        
+        if (isPM && hour < 12) hour += 12;
+        if (!isPM && hour === 12) hour = 0;
+        
+        return `${hour.toString().padStart(2, '0')}:00`;
+      };
       
-      for (const block of sortedBlocks) {
-        if (block.day === currentDay) {
-          consecutiveCount++;
-        } else {
-          // Reset for new day
-          currentDay = block.day;
-          consecutiveCount = 1;
-        }
-      }
+      setStartTime(convertTo24Hour(firstBlock.time || '9AM'));
       
-      // Each block represents 1 hour
-      duration = Math.max(1, consecutiveCount);
+      // Calculate end time (1 hour after last block)
+      const lastBlockTime = convertTo24Hour(lastBlock.time || '10AM');
+      const [lastHour] = lastBlockTime.split(':').map(Number);
+      const endHour = (lastHour + 1) % 24;
+      setEndTime(`${endHour.toString().padStart(2, '0')}:00`);
       
-      if (creationType === 'workout') {
-        // Create a proper date object for startDate and endDate
-        const today = new Date();
-        
-        // Parse the time from firstBlock.time (e.g., "9AM" to hours)
-        let startHour = 9; // Default to 9AM
-        if (firstBlock.time) {
-          const timeMatch = firstBlock.time.match(/(\d+)(AM|PM)/i);
-          if (timeMatch) {
-            let hour = parseInt(timeMatch[1], 10);
-            const isPM = timeMatch[2].toUpperCase() === 'PM';
-            
-            // Convert to 24-hour format
-            if (isPM && hour < 12) hour += 12;
-            if (!isPM && hour === 12) hour = 0;
-            
-            startHour = hour;
-          }
-        }
-        
-        // Set the day of week
-        let dayOffset = 0;
-        const dayMap: Record<string, number> = {
-          'SUN': 0, 'MON': 1, 'TUE': 2, 'WED': 3, 'THU': 4, 'FRI': 5, 'SAT': 6
-        };
-        
-        if (firstBlock.day in dayMap) {
-          const currentDay = today.getDay();
-          dayOffset = (dayMap[firstBlock.day] - currentDay + 7) % 7;
-        }
-        
-        // Create start date with the correct day and time
-        const startDate = new Date(today);
-        startDate.setDate(today.getDate() + dayOffset);
-        startDate.setHours(startHour, 0, 0, 0);
-        
-        // Create end date based on duration
-        const endDate = new Date(startDate);
-        endDate.setHours(startDate.getHours() + duration);
-        
-        // Debug: Log the date objects to see their format
-        console.log('Start Date:', startDate);
-        console.log('Start Date Type:', typeof startDate);
-        console.log('Start Date instanceof Date:', startDate instanceof Date);
-        console.log('End Date:', endDate);
-        console.log('End Date Type:', typeof endDate);
-        console.log('End Date instanceof Date:', endDate instanceof Date);
-        
-        // Create a request with all required fields
-        const workoutRequest: WorkoutRequest = {
-          name: newItemTitle,
-          description: newItemDescription,
-          duration: duration,
-          blocks: [],
-          accessType: user?.accessType,
-          createdBy: user?.userId,
-          // Use the Date objects directly
-          startDate,
-          endDate
-        };
-        
-        const response = await programService.createWorkout(programId!, weekId!, workoutRequest);
-        
-        // Add new workout to the list with proper string values for day and startTime
-        setWorkouts([...workouts, {
-          id: response.id || '',
-          title: response.name,
-          day: firstBlock.day,
-          startTime: firstBlock.time,
-          duration: response.duration || duration,
-          completed: false
-        }]);
-      } else {
-        // Create start date with the correct day and time for meal
-        const today = new Date();
-        
-        // Parse the time from firstBlock.time (e.g., "9AM" to hours)
-        let startHour = 9; // Default to 9AM
-        if (firstBlock.time) {
-          const timeMatch = firstBlock.time.match(/(\d+)(AM|PM)/i);
-          if (timeMatch) {
-            let hour = parseInt(timeMatch[1], 10);
-            const isPM = timeMatch[2].toUpperCase() === 'PM';
-            
-            // Convert to 24-hour format
-            if (isPM && hour < 12) hour += 12;
-            if (!isPM && hour === 12) hour = 0;
-            
-            startHour = hour;
-          }
-        }
-        
-        // Set the day of week
-        let dayOffset = 0;
-        const dayMap: Record<string, number> = {
-          'SUN': 0, 'MON': 1, 'TUE': 2, 'WED': 3, 'THU': 4, 'FRI': 5, 'SAT': 6
-        };
-        
-        if (firstBlock.day in dayMap) {
-          const currentDay = today.getDay();
-          dayOffset = (dayMap[firstBlock.day] - currentDay + 7) % 7;
-        }
-        
-        // Create start date with the correct day and time
-        const startDate = new Date(today);
-        startDate.setDate(today.getDate() + dayOffset);
-        startDate.setHours(startHour, 0, 0, 0);
-        
-        // Create end date based on duration
-        const endDate = new Date(startDate);
-        endDate.setHours(startDate.getHours() + duration);
+      setShowCreationPopup(true);
+    }
+  };
 
-        const mealRequest: MealRequest = {
-          mealName: newItemTitle,
-          instructions: newItemDescription,
-          startDate,
-          endDate,
-          ingredients: [],
-          createdBy: user?.userId
-        };
-        
-        await programService.createMeal(programId!, weekId!, mealRequest);
-        // Note: We don't show meals in the calendar yet
-      }
+  const closeCreationPopup = () => {
+    setShowCreationPopup(false);
+    setSelectedBlocks([]);
+  };
+
+  // Handle option selection from popup
+  const handleOptionSelect = async (type: 'workout' | 'meal' | 'note') => {
+    if (selectedBlocks.length === 0) return;
+    
+    if (type === 'workout') {
+      // Calculate duration in minutes
+      const [startHour, startMin] = startTime.split(':').map(Number);
+      const [endHour, endMin] = endTime.split(':').map(Number);
+      const durationMinutes = (endHour * 60 + endMin) - (startHour * 60 + startMin);
       
-      // Close modal and reset selection
-      closeCreationModal();
-      setSelectedBlocks([]);
-      setIsSelectionMode(false);
-    } catch (error) {
-      console.error(`Error creating ${creationType}:`, error);
-      alert(`Failed to create ${creationType}. Please try again.`);
+      // Navigate to workout builder with duration
+      closeCreationPopup();
+      navigate(`/programs/${programId}/weeks/${weekId}/workouts/new?duration=${durationMinutes}`);
+    } else if (type === 'meal') {
+      alert('Meal creation coming soon!');
+      closeCreationPopup();
+    } else {
+      alert('Note creation coming soon!');
+      closeCreationPopup();
     }
   };
 
@@ -405,31 +327,6 @@ const WeekView: React.FC = () => {
         </div>
       </div>
       
-      {viewMode === 'week' && (
-        <div className="selection-controls">
-          <button 
-            className={`selection-toggle ${isSelectionMode ? 'active' : ''}`}
-            onClick={toggleSelectionMode}
-          >
-            {isSelectionMode ? 'Cancel Selection' : 'Select Time Blocks'}
-          </button>
-          
-          {isSelectionMode && (
-            <div className="creation-buttons">
-              <button onClick={() => openCreationModal('workout')}>
-                Create Workout
-              </button>
-              <button onClick={() => openCreationModal('meal')}>
-                Create Meal
-              </button>
-              <span className="selected-count">
-                {selectedBlocks.length} block{selectedBlocks.length !== 1 ? 's' : ''} selected
-              </span>
-            </div>
-          )}
-        </div>
-      )}
-
       {viewMode === 'week' ? (
         <div className="calendar-container">
           <table className="calendar">
@@ -466,12 +363,7 @@ const WeekView: React.FC = () => {
                             >
                               {workout.title}
                             </div>
-                            <button 
-                              className="workout-cell-log-btn"
-                              onClick={(e) => handleLogWorkout(workout.id, e)}
-                            >
-                              Log
-                            </button>
+
                           </div>
                         </td>
                       );
@@ -482,6 +374,8 @@ const WeekView: React.FC = () => {
                         key={`${day}-${time}`} 
                         className={`empty-cell ${isSelectionMode ? 'selectable' : ''} ${isBlockSelected(day, time) ? 'selected' : ''}`}
                         onClick={() => handleCellClick(day, time)}
+                        onMouseDown={(e) => handleMouseDown(day, time)}
+                        onMouseEnter={(e) => handleMouseEnter(day, time)}
                       ></td>
                     );
                   })}
@@ -492,58 +386,72 @@ const WeekView: React.FC = () => {
         </div>
       ) : (
         <div className="agenda-view">
-          <h2>Workouts</h2>
-          <div className="workout-list">
-            {workouts.map(workout => (
-              <div 
-                key={workout.id} 
-                className={`workout-item ${workout.completed ? 'completed' : ''}`}
-                onClick={() => handleWorkoutClick(workout.id)}
-              >
-                <div className="workout-time">
-                  {workout.day} • {workout.startTime}
+          {days.map(day => {
+            const dayWorkouts = workouts
+              .filter(w => w.day === day)
+              .sort((a, b) => {
+                // Sort by start time
+                const timeA = a.startTime || '00:00';
+                const timeB = b.startTime || '00:00';
+                return timeA.localeCompare(timeB);
+              });
+            
+            if (dayWorkouts.length === 0) return null;
+            
+            return (
+              <div key={day} className="agenda-day-section">
+                <h2 className="agenda-day-title">{day}</h2>
+                <div className="agenda-workout-grid">
+                  {dayWorkouts.map(workout => (
+                    <div 
+                      key={workout.id} 
+                      className={`agenda-workout-card ${workout.completed ? 'completed' : ''}`}
+                      onClick={() => handleWorkoutClick(workout.id)}
+                    >
+                      <div className="workout-image-placeholder"></div>
+                      <div className="workout-time">{workout.startTime}</div>
+                      <div className="workout-title">{workout.title}</div>
+                      <div className="workout-duration">{workout.duration} hour{workout.duration !== 1 ? 's' : ''}</div>
+                    </div>
+                  ))}
                 </div>
-                <div className="workout-title">{workout.title}</div>
-                <div className="workout-duration">{workout.duration} hour{workout.duration !== 1 ? 's' : ''}</div>
-                <button className="log-workout" onClick={(e) => handleLogWorkout(workout.id, e)}>Log Workout</button>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       )}
       
-      {/* Creation Modal */}
-      {showCreationModal && (
-        <div className="modal-overlay">
-          <div className="creation-modal">
-            <h2>Create New {creationType === 'workout' ? 'Workout' : 'Meal'}</h2>
-            <div className="form-group">
-              <label>Title:</label>
-              <input 
-                type="text" 
-                value={newItemTitle} 
-                onChange={(e) => setNewItemTitle(e.target.value)}
-                placeholder={`Enter ${creationType} title`}
-              />
+      {/* Creation Popup */}
+      {showCreationPopup && (
+        <div className="modal-overlay" onClick={closeCreationPopup}>
+          <div className="creation-popup" onClick={(e) => e.stopPropagation()}>
+            <h2>Create New Item</h2>
+            
+            <div className="time-inputs">
+              <div className="time-input-group">
+                <label>Start Time</label>
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="time-input"
+                />
+              </div>
+              <div className="time-input-group">
+                <label>End Time</label>
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="time-input"
+                />
+              </div>
             </div>
-            <div className="form-group">
-              <label>Description:</label>
-              <textarea 
-                value={newItemDescription} 
-                onChange={(e) => setNewItemDescription(e.target.value)}
-                placeholder={`Enter ${creationType} description`}
-                rows={3}
-              />
-            </div>
-            <div className="selected-info">
-              <p>Selected blocks: {selectedBlocks.length}</p>
-              <p>Start: {selectedBlocks.length > 0 ? `${selectedBlocks[0].day} at ${selectedBlocks[0].time}` : 'None'}</p>
-            </div>
-            <div className="modal-actions">
-              <button className="cancel-btn" onClick={closeCreationModal}>Cancel</button>
-              <button className="create-btn" onClick={handleCreateItem}>
-                Create {creationType === 'workout' ? 'Workout' : 'Meal'}
-              </button>
+
+            <div className="option-buttons">
+              <button onClick={() => handleOptionSelect('workout')}>Workout</button>
+              <button onClick={() => handleOptionSelect('meal')}>Meal</button>
+              <button onClick={() => handleOptionSelect('note')}>Note</button>
             </div>
           </div>
         </div>

@@ -208,45 +208,12 @@
   margin: 0 0 16px 0;
 }
 
-.program-cards-container {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
 
-.program-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 16px;
-  background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  position: relative;
-  overflow: hidden;
-  flex: 1;
-  min-width: 240px;
-  max-width: 300px;
-}
 
-.program-card.active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background-color: #4caf50;
-}
 
-.program-card.cancelled::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background-color: #9e9e9e;
-}
+
+
+
 
 .program-status {
   display: flex;
@@ -265,29 +232,6 @@
   margin-right: 6px;
 }
 
-.program-card.active .program-status {
-  color: #4caf50;
-}
-
-.program-card.active .program-status::before {
-  background-color: #4caf50;
-}
-
-.program-card.cancelled .program-status {
-  color: #9e9e9e;
-}
-
-.program-card.cancelled .program-status::before {
-  background-color: #9e9e9e;
-}
-
-.program-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  color: #333;
-}
-
 .program-schedule {
   font-size: 14px;
   color: #666;
@@ -298,14 +242,7 @@
   margin-right: 4px;
   color: #888;
 }
-
-.program-card-actions {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  color: #888;
-  font-size: 16px;
-}
+  
 
 /* Tabs Section */
 .profile-tabs-section {

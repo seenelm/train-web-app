@@ -1,6 +1,5 @@
 import React from 'react';
 import { ProgramCard } from './ProgramCard';
-import Button from '../../../components/ui/Button';
 
 // Renamed to ProgramSectionItem to avoid conflicts
 interface ProgramSectionItem {
@@ -28,21 +27,22 @@ export const ProgramSection: React.FC<ProgramSectionProps> = ({
     <div className="program-section">
       <div className="programs-header">
         <h2>{title}</h2>
-        {showAddButton && (
-          <Button 
-            variant="primary" 
-            className="add-program-btn"
-            onClick={onAddProgram}
-          >
-            Add Program
-          </Button>
-        )}
       </div>
       <div className="programs-container">
         {programs.length > 0 ? (
-          programs.map(program => (
-            <ProgramCard key={program.id} program={program} />
-          ))
+          <>
+            {programs.map(program => (
+              <ProgramCard key={program.id} program={program} />
+            ))}
+            {showAddButton && (
+              <div className="add-program-card" onClick={onAddProgram}>
+                <div className="add-program-circle">
+                  <span>+</span>
+                </div>
+                <p>Add New Program</p>
+              </div>
+            )}
+          </>
         ) : (
           <p className="no-programs-message">No programs available.</p>
         )}

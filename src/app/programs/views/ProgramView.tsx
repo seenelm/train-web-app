@@ -110,7 +110,7 @@ const ProgramView: React.FC = () => {
       {weekCards.length > 0 ? (
         <div className="program-weeks">
           <h2>Program Schedule</h2>
-          <div className="weeks-container">
+          <div className="weeks-grid">
             {weekCards
               .sort((a, b) => a.weekNumber - b.weekNumber)
               .map(week => (
@@ -119,12 +119,11 @@ const ProgramView: React.FC = () => {
                   className="week-card" 
                   onClick={() => handleWeekClick(week.id)}
                 >
+                  <div className="week-image-placeholder"></div>
                   <div className="week-content">
                     <h3>Week {week.weekNumber}</h3>
-                    <div className="week-stats">
-                      <div className="workout-count">
-                        <strong>Week ID:</strong> {week.id}
-                      </div>
+                    <div className="week-description">
+                      Build strength and endurance
                     </div>
                   </div>
                 </div>

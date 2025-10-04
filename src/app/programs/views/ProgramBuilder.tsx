@@ -3,11 +3,11 @@ import Button from "../../../components/ui/Button";
 import "./ProgramBuilder.css";
 
 // Step components
-import ProgramNameStep from "../components/builder/ProgramNameStep";
-import ProgramFrequencyStep from "../components/builder/ProgramFrequencyStep";
-import NutritionStep from "../components/builder/NutritionStep";
-import PhasesStep from "../components/builder/PhasesStep";
-import VisibilityStep from "../components/builder/VisibilityStep";
+import ProgramNameStep from "../components/programBuilder/ProgramNameStep";
+import ProgramFrequencyStep from "../components/programBuilder/ProgramFrequencyStep";
+import NutritionStep from "../components/programBuilder/NutritionStep";
+import PhasesStep from "../components/programBuilder/PhasesStep";
+import VisibilityStep from "../components/programBuilder/VisibilityStep";
 import { useNavigate } from "react-router"; // if using React Router v6
 import { programService } from "../services/programService";
 import { ProgramRequest, ProfileAccess } from "@seenelm/train-core";

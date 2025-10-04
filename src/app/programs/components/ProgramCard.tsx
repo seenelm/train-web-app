@@ -29,14 +29,17 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
 
   return (
     <div className="program-card" onClick={handleProgramClick}>
-      <h3>{program.title}</h3>
-      <p>{program.description}</p>
-      <p>
-        <strong>Length:</strong> {programLength} weeks
-      </p>
-      <p>
-        <strong>Nutrition:</strong> {program.includesNutrition ? 'Yes' : 'No'}
-      </p>
+      <div className="program-image-placeholder"></div>
+      <div className="program-card-content">
+        <h3>{program.title}</h3>
+        <p className="program-card-description">{program.description}</p>
+        <div className="program-card-meta">
+          <span className="program-length">{programLength} weeks</span>
+          {program.includesNutrition && (
+            <span className="program-nutrition">Nutrition included</span>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

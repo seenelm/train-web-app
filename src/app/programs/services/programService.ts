@@ -6,6 +6,10 @@ import {
   WorkoutResponse,
   MealRequest,
   MealResponse,
+  WeekRequest,
+  WorkoutLogRequest,
+  WorkoutLogResponse, 
+  WeekResponse
 } from "@seenelm/train-core";
 
 /**
@@ -44,8 +48,16 @@ class ProgramService extends BaseApiService<
    * Get a specific program by ID
    * GET /program/:programId
    */
-  async getProgram(programId: string): Promise<ProgramResponse> {
+  async getProgramById(programId: string): Promise<ProgramResponse> {
     return this.get<ProgramResponse>(`/program/${programId}`);
+  }
+
+  /**
+   * Update a week
+   * PUT /program/:programId/week/:weekId
+   */
+  async updateWeek(programId: number, weekId: number, weekRequest: WeekRequest): Promise<void> {
+    return this.put(`/program/${programId}/week/${weekId}`, weekRequest);
   }
 
   /**
@@ -61,6 +73,56 @@ class ProgramService extends BaseApiService<
       `/program/${programId}/week/${weekId}/workout`,
       workoutRequest
     );
+  }
+
+  /**
+   * Update a workout
+   * PUT /program/:programId/week/:weekId/workout/:workoutId
+   */
+  async updateWorkout(
+    programId: string,
+    weekId: string,
+    workoutId: string,
+    workoutRequest: WorkoutRequest
+  ): Promise<WorkoutResponse> {
+    return this.put(
+      `/program/${programId}/week/${weekId}/workout/${workoutId}`,
+      workoutRequest
+    );
+  }
+
+  /**
+   * Delete a workout
+   * DELETE /program/:programId/week/:weekId/workout/:workoutId
+   */
+  async deleteWorkout(
+    programId: string,
+    weekId: string,
+    workoutId: string,
+  ): Promise<void> {
+    return this.delete(
+      `/program/${programId}/week/${weekId}/workout/${workoutId}`
+    );
+  }
+
+  /**
+   * Get a specific workout by ID
+   * GET /program/:programId/week/:weekId/workout/:workoutId
+   */
+  async getWorkout(
+    programId: string,
+    weekId: string,
+    workoutId: string
+  ): Promise<WorkoutResponse> {
+    return this.get(`/program/${programId}/week/${weekId}/workout/${workoutId}`);
+  }
+
+  /**
+   * Log a users workout
+   * POST /program/:programId/week/:weekId/workout/log
+   */
+  async createWorkoutLog(programId: number, weekId: number, workoutLogRequest: WorkoutLogRequest): Promise<WorkoutLogResponse> {
+    return this.post<WorkoutLogResponse>(`/program/${programId}/week/${weekId}/workout/log`, workoutLogRequest);
   }
 
   /**
@@ -98,32 +160,13 @@ class ProgramService extends BaseApiService<
   }
 
   /**
-   * Get a specific workout by ID
-   * GET /program/:programId/week/:weekId/workout/:workoutId
+   * Get all details of a week
+   * GET /program/:programId/week/:weekId
    */
-  async getWorkout(
-    programId: string,
-    weekId: string,
-    workoutId: string
-  ): Promise<WorkoutResponse> {
-    return this.get(`/program/${programId}/week/${weekId}/workout/${workoutId}`);
+  async getWeek(programId: number, weekId: number): Promise<WeekResponse> {
+    return this.get(`/program/${programId}/week/${weekId}`);
   }
-
-  /**
-   * Update a workout
-   * PUT /program/:programId/week/:weekId/workout/:workoutId
-   */
-  async updateWorkout(
-    programId: string,
-    weekId: string,
-    workoutId: string,
-    workoutRequest: WorkoutRequest
-  ): Promise<WorkoutResponse> {
-    return this.put(
-      `/program/${programId}/week/${weekId}/workout/${workoutId}`,
-      workoutRequest
-    );
-  }
+  
 }
 
 // Export singleton instance
