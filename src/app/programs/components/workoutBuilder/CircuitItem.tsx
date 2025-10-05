@@ -105,12 +105,13 @@ const CircuitItem: React.FC<Props> = ({
 
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={block.exercises.map((e) => e.order)} strategy={verticalListSortingStrategy}>
-          {block.exercises.map((exercise) => (
+          {block.exercises.map((exercise, exerciseIndex) => (
             <ExerciseItem
               key={exercise.order}
               exercise={exercise}
-              block={block}
               editMode={editMode}
+              blockIndex={workout.blocks?.findIndex(b => b.order === block.order) ?? 0}
+              exerciseIndex={exerciseIndex}
             />
           ))}
         </SortableContext>

@@ -21,6 +21,13 @@ const WorkoutHeader: React.FC<WorkoutHeaderProps> = ({
   hasUnsavedChanges,
   saving,
 }) => {
+  const handleDoneClick = () => {
+    if (hasUnsavedChanges) {
+      onSave();
+    }
+    onToggleEdit();
+  };
+
   return (
     <div className="workout-header">
       <button className="back-button" onClick={onBack}>
@@ -31,7 +38,7 @@ const WorkoutHeader: React.FC<WorkoutHeaderProps> = ({
         {hasUnsavedChanges && <span className="unsaved-indicator">Unsaved changes</span>}
 
         {isOwner && (
-          <button className="edit-button" onClick={onToggleEdit}>
+          <button className="edit-button" onClick={editMode ? handleDoneClick : onToggleEdit}>
             {editMode ? 'Done' : 'Edit'}
           </button>
         )}

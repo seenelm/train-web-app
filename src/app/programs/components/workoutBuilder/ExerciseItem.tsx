@@ -3,40 +3,31 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { AiOutlineProfile } from 'react-icons/ai';
-import { Block, Exercise, MeasurementType } from '@seenelm/train-core';
+import { Exercise, MeasurementType } from '@seenelm/train-core';
 import { useWorkoutContext } from '../../contexts/WorkoutContext';
 import { Unit } from '@seenelm/train-core';
 
 interface Props {
   exercise: Exercise;
-  block: Block;
   editMode: boolean;
-  // updateCircuit: (updated: Block) => void;
+  blockIndex: number;
+  exerciseIndex: number;
 }
 
-const ExerciseItem: React.FC<Props> = ({ exercise, block: circuit, editMode }) => {
+const ExerciseItem: React.FC<Props> = ({ exercise, editMode, blockIndex, exerciseIndex }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: exercise.order });
   const style = { transform: CSS.Transform.toString(transform), transition };
   const [showNotes, setShowNotes] = React.useState(false);
-  const { updateExerciseInBlockPartial } = useWorkoutContext();
+  const { updateExerciseInBlockPartial, removeExerciseFromBlock } = useWorkoutContext();
 
   const measurementType = exercise.measurementType || MeasurementType.REPS;
-  const isRest = exercise.rest || false;
+  const isRest = exercise.name?.toLowerCase().includes('rest') || false;
   const hasNotes = !!exercise.notes;
 
-  const updateExercise = (blockOrder: number, exerciseOrder: number, updatedExercise: Partial<Exercise>) => {
-    // const updated = {
-    //   ...circuit,
-    //   exercises: circuit.exercises.map((e) =>
-    //     e.id === exercise.id ? { ...e, ...updates } : e
-    //   ),
-    // };
-    // updateCircuit(updated);
-    updateExerciseInBlockPartial(blockOrder, exerciseOrder, updatedExercise );
+  const updateExercise = (blockIdx: number, exerciseIdx: number, updatedExercise: Partial<Exercise>) => {
+    updateExerciseInBlockPartial(blockIdx, exerciseIdx, updatedExercise );
     
   };
-
-  
 
   return (
     <div ref={setNodeRef} style={style} className={`exercise-item ${isRest ? 'rest-item' : ''}`} {...attributes}>
@@ -44,7 +35,7 @@ const ExerciseItem: React.FC<Props> = ({ exercise, block: circuit, editMode }) =
         <input
           type="checkbox"
           checked={exercise.completed}
-          onChange={() => updateExercise(circuit.order, exercise.order, { completed: !exercise.completed })}
+          onChange={() => updateExercise(blockIndex, exerciseIndex, { completed: !exercise.completed })}
         />
       </div> */}
 
@@ -56,7 +47,7 @@ const ExerciseItem: React.FC<Props> = ({ exercise, block: circuit, editMode }) =
           <input
             type="text"
             value={exercise.name}
-            onChange={(e) => updateExercise(circuit.order, exercise.order, { name: e.target.value })}
+            onChange={(e) => updateExercise(blockIndex, exerciseIndex, { name: e.target.value })}
             className="exercise-name-input"
             placeholder={isRest ? "Rest" : "Exercise name"}
           />
@@ -78,7 +69,7 @@ const ExerciseItem: React.FC<Props> = ({ exercise, block: circuit, editMode }) =
           <label className="exercise-input-label">Type</label>
           <select
             value={measurementType}
-            onChange={(e) => updateExercise(circuit.order, exercise.order, { measurementType: e.target.value as MeasurementType })}
+            onChange={(e) => updateExercise(blockIndex, exerciseIndex, { measurementType: e.target.value as MeasurementType })}
             className="measurement-type-select"
           >
             <option value={MeasurementType.REPS}>Reps</option>
@@ -101,7 +92,7 @@ const ExerciseItem: React.FC<Props> = ({ exercise, block: circuit, editMode }) =
                   type="number"
                   value={exercise.targetWeight}
                   min={0}
-                  onChange={(e) => updateExercise(circuit.order, exercise.order, { targetWeight: parseInt(e.target.value) || 0 })}
+                  onChange={(e) => updateExercise(blockIndex, exerciseIndex, { targetWeight: parseInt(e.target.value) || 0 })}
                   className="weight-input"
                   placeholder={measurementType === MeasurementType.DISTANCE ? 'Distance' : 'Weight'}
                 />
@@ -114,7 +105,7 @@ const ExerciseItem: React.FC<Props> = ({ exercise, block: circuit, editMode }) =
                   type="number"
                   value={exercise.targetReps}
                   min={1}
-                  onChange={(e) => updateExercise(circuit.order, exercise.order, { targetReps: parseInt(e.target.value) || 1 })}
+                  onChange={(e) => updateExercise(blockIndex, exerciseIndex, { targetReps: parseInt(e.target.value) || 1 })}
                   className="reps-input"
                   placeholder={measurementType === MeasurementType.TIME ? 'Seconds' : 'Reps'}
                 />
@@ -156,7 +147,7 @@ const ExerciseItem: React.FC<Props> = ({ exercise, block: circuit, editMode }) =
           <input
             type="number"
             value={exercise.targetDurationSec || 60}
-            onChange={(e) => updateExercise(circuit.order, exercise.order, { targetDurationSec: parseInt(e.target.value) || 60 })}
+            onChange={(e) => updateExercise(blockIndex, exerciseIndex, { targetDurationSec: parseInt(e.target.value) || 60 })}
             className="reps-input"
             placeholder="Seconds"
           />
@@ -170,7 +161,7 @@ const ExerciseItem: React.FC<Props> = ({ exercise, block: circuit, editMode }) =
             <input
               type="number"
               value={exercise.rest || 0}
-              onChange={(e) => updateExercise(circuit.order, exercise.order, { rest: parseInt(e.target.value) || 0 })}
+              onChange={(e) => updateExercise(blockIndex, exerciseIndex, { rest: parseInt(e.target.value) || 0 })}
               className="rest-input"
               placeholder="Seconds"
               min={0}
@@ -193,12 +184,7 @@ const ExerciseItem: React.FC<Props> = ({ exercise, block: circuit, editMode }) =
           {!showNotes && (
             <button
               className="remove-exercise-btn"
-              onClick={() =>
-                updateExerciseInBlockPartial(circuit.order, exercise.order, {
-                  ...circuit,
-
-                })
-              }
+              onClick={() => removeExerciseFromBlock(blockIndex, exerciseIndex)}
             >
               ✕
             </button>
@@ -210,18 +196,13 @@ const ExerciseItem: React.FC<Props> = ({ exercise, block: circuit, editMode }) =
                 <input
                   type="text"
                   value={exercise.notes || ''}
-                  onChange={(e) => updateExercise(circuit.order, exercise.order, { notes: e.target.value })}
+                  onChange={(e) => updateExercise(blockIndex, exerciseIndex, { notes: e.target.value })}
                   className="exercise-notes-input"
                   placeholder="Add note..."
                 />
                 <button
                   className="remove-exercise-btn"
-                  onClick={() =>
-                    updateExerciseInBlockPartial(circuit.order, exercise.order, {
-                      ...circuit,
-                      
-                    })
-                  }
+                  onClick={() => removeExerciseFromBlock(blockIndex, exerciseIndex)}
                 >
                   ✕
                 </button>
