@@ -1,7 +1,7 @@
 /* Sidebar container */
 .sidebar-container {
   display: flex;
-  height: 100%;
+
 }
 
 /* Mobile menu button */
@@ -32,18 +32,24 @@
 .sidebar {
   background-color: var(--bg-secondary);
   color: var(--text-primary);
-  height: 100%;
   width: 250px;
+  height: 100vh;
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
   border-right: 1px solid var(--border-color);
 }
 
 /* Collapsed sidebar */
 .sidebar.collapsed {
   width: 60px;
+}
+
+.sidebar.collapsed ~ .content-view {
+  margin-left: 60px;
 }
 
 /* Sidebar header with logo and toggle button */
@@ -190,38 +196,42 @@
   .sidebar {
     position: fixed;
     top: 0;
-    left: -250px; /* Hide sidebar off-screen by default */
-    height: 100%;
-    z-index: 99;
+    left: 0;
+    height: 100vh;
     width: 250px;
-    box-shadow: 0 0 10px var(--shadow-color);
+    z-index: 99;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 2px 0 10px var(--shadow-color);
   }
   
   .sidebar.mobile-open {
-    left: 0; /* Show sidebar when open */
+    transform: translateX(0);
   }
   
   .sidebar-overlay {
-    display: block; /* Show overlay when sidebar is open */
+    display: block;
   }
   
-  .sidebar-container {
-    width: 0;
-  }
-  
-  .tab-content, .tab-panel {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* Don't collapse width on mobile, just hide off-screen */
-  .sidebar.mobile.collapsed {
+  /* Reset collapsed state on mobile */
+  .sidebar.collapsed {
     width: 250px;
+    transform: translateX(-100%);
+  }
+  
+  .sidebar.collapsed.mobile-open {
+    transform: translateX(0);
+  }
+  
+  /* Remove margin adjustments on mobile */
+  .sidebar.collapsed ~ .content-view {
+    margin-left: 0;
   }
 }
 
-/* Adjust main content when sidebar is collapsed */
-.sidebar.collapsed + .content-area {
-  margin-left: 60px;
+/* Adjust main content when sidebar is collapsed on desktop only */
+@media (min-width: 769px) {
+  .sidebar.collapsed + .content-area {
+    margin-left: 60px;
+  }
 }

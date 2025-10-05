@@ -49,17 +49,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  height: 100vh;
+  height: 100dvh;
 }
 
-html, body, #root {
-  height: 100%;
-}
 
 #root {
   display: flex;
   flex-direction: row;
-  height: 100%;
 }
 
 .app-root {

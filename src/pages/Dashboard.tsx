@@ -15,8 +15,8 @@ import WorkoutView from "../app/programs/views/WorkoutView";
 import {
   AiOutlineHome,
   AiOutlineUser,
-  AiOutlineTeam,
-  AiOutlineCalendar,
+  // AiOutlineTeam,
+  // AiOutlineCalendar,
   AiOutlineSearch,
   AiOutlineSchedule
 } from "react-icons/ai";
@@ -24,30 +24,19 @@ import {
 const Dashboard: React.FC = () => {
   const tabs = [
     { id: "", label: "Home", icon: <AiOutlineHome /> }, // id "" so route = "/"
-    { id: "profile", label: "Profile", icon: <AiOutlineUser /> },
-    { id: "groups", label: "Groups", icon: <AiOutlineTeam /> },
-    { id: "events", label: "Events", icon: <AiOutlineCalendar /> },
-    { id: "search", label: "Search", icon: <AiOutlineSearch /> },
     { id: "programs", label: "Programs", icon: <AiOutlineSchedule /> },
+    { id: "profile", label: "Profile", icon: <AiOutlineUser /> },
+    // { id: "groups", label: "Groups", icon: <AiOutlineTeam /> },
+    // { id: "events", label: "Events", icon: <AiOutlineCalendar /> },
+    { id: "search", label: "Search", icon: <AiOutlineSearch /> },
     ];
 
   return (
     <div className="app-container">
-      <div className="sidebar-container">
-        <Sidebar tabs={tabs} />
-      </div>
-      <div className="content-area">
-        <ContentView>
+      <Sidebar tabs={tabs} />
+      <ContentView>
           <Routes>
-            <Route
-              path="/"
-              element={
-                <>
-                  <h1>Home Content</h1>
-                  <p>This is the home tab content area.</p>
-                </>
-              }
-            />
+            <Route path="/" element={<><h1>Home Content</h1><p>This is the home tab content area.</p></>} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/groups" element={<Groups />} />
             <Route path="/events" element={<Events />} />
@@ -58,8 +47,7 @@ const Dashboard: React.FC = () => {
             <Route path="/programs/:programId/weeks/:weekId" element={<WeekView />} />
             <Route path="/programs/:programId/weeks/:weekId/workouts/:workoutId" element={<WorkoutView />} />
           </Routes>
-        </ContentView>
-      </div>
+      </ContentView>
     </div>
   );
 };
