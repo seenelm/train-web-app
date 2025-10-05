@@ -2,14 +2,14 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Exercise, Circuit } from '../../views/types';
+import { Exercise, Block } from '../../views/types';
 import { AiOutlineProfile } from 'react-icons/ai';
 
 interface Props {
   exercise: Exercise;
-  circuit: Circuit;
+  circuit: Block;
   editMode: boolean;
-  updateCircuit: (updated: Circuit) => void;
+  updateCircuit: (updated: Block) => void;
 }
 
 const ExerciseItem: React.FC<Props> = ({ exercise, circuit, editMode, updateCircuit }) => {

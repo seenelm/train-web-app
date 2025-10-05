@@ -1,8 +1,16 @@
 // WorkoutView/types.ts
+import { Block as CoreBlock, Exercise as CoreExercise } from '@seenelm/train-core';
 
-export interface Exercise {
+// Extend Block to include id for local state management
+export interface Block extends CoreBlock {
   id: string;
-  name: string;
+  sets?: number; // Optional for UI purposes
+  exercises: Exercise[]; // Override with our extended Exercise type
+}
+
+// Extend Exercise to include additional UI properties
+export interface Exercise extends CoreExercise {
+  id: string;
   sets: number;
   reps: number;
   weight: number;
@@ -30,6 +38,6 @@ export interface WorkoutDetails {
   description: string;
   duration: number;
   muscleGroups: MuscleGroup[];
-  circuits: Circuit[];
+  circuits: Block[];
   completed: boolean;
 }

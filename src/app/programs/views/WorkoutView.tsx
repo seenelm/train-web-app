@@ -11,6 +11,7 @@ import CircuitItem from '../components/workoutBuilder/CircuitItem';
 import EmptyState from '../components/workoutBuilder/EmptyState';
 import { arrayMove } from '@dnd-kit/sortable';
 import { WorkoutDetails } from './types';
+import { WorkoutRequest, ProfileAccess, BlockType } from '@seenelm/train-core';
 
 const WorkoutView: React.FC = () => {
   const { programId, weekId, workoutId } = useParams<{ programId: string; weekId: string; workoutId: string }>();
@@ -101,34 +102,49 @@ const WorkoutView: React.FC = () => {
   const saveWorkout = async () => {
     if (!workout) return;
     setSaving(true);
-    
-    // Transform WorkoutDetails to WorkoutRequest
-    const workoutRequest = {
+  
+    const user = JSON.parse(tokenService.getUser() || '{}');
+  
+    // Construct a properly typed WorkoutRequest object
+    const workoutRequest: WorkoutRequest = {
       name: workout.title,
       description: workout.description,
       duration: workout.duration,
-      muscleGroups: workout.muscleGroups,
-      circuits: workout.circuits,
-      completed: workout.completed,
-      accessType: 'private' as const,
-      createdBy: JSON.parse(tokenService.getUser() || '{}').userId,
-      startDate: new Date().toISOString(),
-      endDate: new Date().toISOString()
+      accessType: ProfileAccess.Public,
+      createdBy: user.userId,
+      startDate: new Date(),
+      endDate: new Date(),
+      // optional props:
+      category: workout.muscleGroups?.map(m => m.name) ?? [],
+      blocks: workout.circuits,
     };
-    
-    await programService.updateWorkout(programId!, weekId!, workoutId!, workoutRequest as any);
-    setSaving(false);
-    setHasUnsavedChanges(false);
+  
+    try {
+      await programService.updateWorkout(programId!, weekId!, workoutId!, workoutRequest);
+      setHasUnsavedChanges(false);
+    } finally {
+      setSaving(false);
+    }
   };
+  
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
     if (!over || active.id === over.id || !workout) return;
 
-    const oldIndex = workout.circuits.findIndex(c => c.id === active.id);
-    const newIndex = workout.circuits.findIndex(c => c.id === over.id);
+    const oldIndex = workout.circuits.findIndex((c, idx) => idx === active.id || c.order === active.id);
+    const newIndex = workout.circuits.findIndex((c, idx) => idx === over.id || c.order === over.id);
+    
+    if (oldIndex === -1 || newIndex === -1) return;
+    
     const reordered = arrayMove(workout.circuits, oldIndex, newIndex);
-    setWorkout({ ...workout, circuits: reordered });
+    // Update order property for all blocks
+    const reorderedWithOrder = reordered.map((circuit, idx) => ({
+      ...circuit,
+      order: idx
+    }));
+    
+    setWorkout({ ...workout, circuits: reorderedWithOrder });
     setHasUnsavedChanges(true);
   };
 
@@ -136,9 +152,11 @@ const WorkoutView: React.FC = () => {
     if (!workout) return;
     const newCircuit = {
       id: `c${Date.now()}`,
+      type: BlockType.CIRCUIT,
       name: `Circuit ${workout.circuits.length + 1}`,
       sets: 3,
-      exercises: []
+      exercises: [],
+      order: workout.circuits.length + 1
     };
     setWorkout({ ...workout, circuits: [...workout.circuits, newCircuit] });
     setHasUnsavedChanges(true);

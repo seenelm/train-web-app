@@ -2,11 +2,11 @@
 import React from 'react';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
-import { Circuit, WorkoutDetails } from '../../views/types';
+import { Block, WorkoutDetails } from '../../views/types';
 import ExerciseItem from './ExerciseItem';
 
 interface Props {
-  circuit: Circuit;
+  circuit: Block;
   editMode: boolean;
   workout: WorkoutDetails;
   setWorkout: (updated: WorkoutDetails) => void;
@@ -20,7 +20,7 @@ const CircuitItem: React.FC<Props> = ({
   setWorkout,
   setHasUnsavedChanges,
 }) => {
-  const updateCircuit = (updated: Circuit) => {
+  const updateCircuit = (updated: Block) => {
     setWorkout({
       ...workout,
       circuits: workout.circuits.map((c) => (c.id === updated.id ? updated : c)),
@@ -127,11 +127,12 @@ const CircuitItem: React.FC<Props> = ({
                 {
                   id: `e${Date.now()}`,
                   name: 'New Exercise',
-                  sets: circuit.sets,
+                  sets: circuit.sets || 3,
                   reps: 10,
                   weight: 0,
                   weightUnit: 'lbs',
                   completed: false,
+                  order: circuit.exercises.length,
                 },
               ],
             })
