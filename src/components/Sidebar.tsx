@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { AiOutlineLogout, AiOutlineMenu, AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import logo from "@/assets/logo.svg";
+import logoWhite from "@/assets/logo-white.svg";
 import { authService } from "../app/access/services/authService";
 import { tokenService } from "../services/tokenService";
 import { LogoutRequest } from "@seenelm/train-core";
@@ -22,6 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({ tabs }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Check if the screen is mobile size
   useEffect(() => {
@@ -39,6 +41,19 @@ const Sidebar: React.FC<SidebarProps> = ({ tabs }) => {
     return () => {
       window.removeEventListener('resize', checkIfMobile);
     };
+  }, []);
+
+  // Check for dark mode
+  useEffect(() => {
+    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setIsDarkMode(darkModeQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setIsDarkMode(e.matches);
+    };
+
+    darkModeQuery.addEventListener('change', handleChange);
+    return () => darkModeQuery.removeEventListener('change', handleChange);
   }, []);
 
   const handleSignOut = async () => {
@@ -75,7 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({ tabs }) => {
       <div className={sidebarClasses}>
         <div className="sidebar-header">
           <div className="sidebar-logo">
-            <img src={logo} alt="Train Logo" />
+            <img src={isDarkMode ? logoWhite : logo} alt="Train Logo" />
           </div>
           <button className="sidebar-toggle" onClick={toggleSidebar}>
             {collapsed ? <AiOutlineArrowRight /> : <AiOutlineArrowLeft />}

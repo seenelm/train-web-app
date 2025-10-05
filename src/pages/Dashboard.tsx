@@ -2,6 +2,7 @@ import React from "react";
 import { Routes, Route } from "react-router";
 import Sidebar from "../components/Sidebar";
 import ContentView from "../components/ContentView";
+import Home from "./Home";
 import Profile from "../app/profiles/views/Profile";
 import Groups from "../app/groups/views/Groups";
 import Events from "../app/events/views/EventsPage";
@@ -36,7 +37,7 @@ const Dashboard: React.FC = () => {
       <Sidebar tabs={tabs} />
       <ContentView>
           <Routes>
-            <Route path="/" element={<><h1>Home Content</h1><p>This is the home tab content area.</p></>} />
+            <Route path="/" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/groups" element={<Groups />} />
             <Route path="/events" element={<Events />} />
