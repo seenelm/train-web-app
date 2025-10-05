@@ -2,44 +2,51 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Exercise, Block } from '../../views/types';
 import { AiOutlineProfile } from 'react-icons/ai';
+import { Block, Exercise, MeasurementType } from '@seenelm/train-core';
+import { useWorkoutContext } from '../../contexts/WorkoutContext';
+import { Unit } from '@seenelm/train-core';
 
 interface Props {
   exercise: Exercise;
-  circuit: Block;
+  block: Block;
   editMode: boolean;
-  updateCircuit: (updated: Block) => void;
+  // updateCircuit: (updated: Block) => void;
 }
 
-const ExerciseItem: React.FC<Props> = ({ exercise, circuit, editMode, updateCircuit }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: exercise.id });
+const ExerciseItem: React.FC<Props> = ({ exercise, block: circuit, editMode }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: exercise.order });
   const style = { transform: CSS.Transform.toString(transform), transition };
   const [showNotes, setShowNotes] = React.useState(false);
+  const { updateExerciseInBlockPartial } = useWorkoutContext();
 
-  const updateExercise = (updates: Partial<Exercise>) => {
-    const updated = {
-      ...circuit,
-      exercises: circuit.exercises.map((e) =>
-        e.id === exercise.id ? { ...e, ...updates } : e
-      ),
-    };
-    updateCircuit(updated);
+  const measurementType = exercise.measurementType || MeasurementType.REPS;
+  const isRest = exercise.rest || false;
+  const hasNotes = !!exercise.notes;
+
+  const updateExercise = (blockOrder: number, exerciseOrder: number, updatedExercise: Partial<Exercise>) => {
+    // const updated = {
+    //   ...circuit,
+    //   exercises: circuit.exercises.map((e) =>
+    //     e.id === exercise.id ? { ...e, ...updates } : e
+    //   ),
+    // };
+    // updateCircuit(updated);
+    updateExerciseInBlockPartial(blockOrder, exerciseOrder, updatedExercise );
+    
   };
 
-  const measurementType = (exercise as any).measurementType || 'reps';
-  const isRest = (exercise as any).isRest || false;
-  const hasNotes = !!(exercise as any).notes;
+  
 
   return (
-    <div ref={setNodeRef} style={style} className={`exercise-item ${exercise.completed ? 'completed' : ''} ${isRest ? 'rest-item' : ''}`} {...attributes}>
-      <div className="exercise-check">
+    <div ref={setNodeRef} style={style} className={`exercise-item ${isRest ? 'rest-item' : ''}`} {...attributes}>
+      {/* <div className="exercise-check">
         <input
           type="checkbox"
           checked={exercise.completed}
-          onChange={() => updateExercise({ completed: !exercise.completed })}
+          onChange={() => updateExercise(circuit.order, exercise.order, { completed: !exercise.completed })}
         />
-      </div>
+      </div> */}
 
       {editMode && <span className="drag-handle" {...listeners}>☰</span>}
 
@@ -49,7 +56,7 @@ const ExerciseItem: React.FC<Props> = ({ exercise, circuit, editMode, updateCirc
           <input
             type="text"
             value={exercise.name}
-            onChange={(e) => updateExercise({ name: e.target.value })}
+            onChange={(e) => updateExercise(circuit.order, exercise.order, { name: e.target.value })}
             className="exercise-name-input"
             placeholder={isRest ? "Rest" : "Exercise name"}
           />
@@ -57,10 +64,10 @@ const ExerciseItem: React.FC<Props> = ({ exercise, circuit, editMode, updateCirc
       ) : (
         <div className="exercise-name-with-notes">
           <span className="exercise-name">{exercise.name}</span>
-          {!isRest && (exercise as any).notes && (
+          {!isRest && exercise.notes && (
             <>
               <span className="notes-separator"> • </span>
-              <span className="notes-text">{(exercise as any).notes}</span>
+              <span className="notes-text">{exercise.notes}</span>
             </>
           )}
         </div>
@@ -71,13 +78,13 @@ const ExerciseItem: React.FC<Props> = ({ exercise, circuit, editMode, updateCirc
           <label className="exercise-input-label">Type</label>
           <select
             value={measurementType}
-            onChange={(e) => updateExercise({ measurementType: e.target.value as any })}
+            onChange={(e) => updateExercise(circuit.order, exercise.order, { measurementType: e.target.value as MeasurementType })}
             className="measurement-type-select"
           >
-            <option value="reps">Reps</option>
-            <option value="time">Time</option>
-            <option value="distance">Distance</option>
-            <option value="bodyweight">Bodyweight</option>
+            <option value={MeasurementType.REPS}>Reps</option>
+            <option value={MeasurementType.TIME}>Time</option>
+            <option value={MeasurementType.DISTANCE}>Distance</option>
+            <option value={MeasurementType.BODYWEIGHT}>Bodyweight</option>
           </select>
         </div>
       )}
@@ -88,44 +95,44 @@ const ExerciseItem: React.FC<Props> = ({ exercise, circuit, editMode, updateCirc
             <>
               <div className="exercise-input-group">
                 <label className="exercise-input-label">
-                  {measurementType === 'distance' ? 'Distance' : 'Weight'}
+                  {measurementType === MeasurementType.DISTANCE ? 'Distance' : 'Weight'}
                 </label>
                 <input
                   type="number"
-                  value={exercise.weight}
+                  value={exercise.targetWeight}
                   min={0}
-                  onChange={(e) => updateExercise({ weight: parseInt(e.target.value) || 0 })}
+                  onChange={(e) => updateExercise(circuit.order, exercise.order, { targetWeight: parseInt(e.target.value) || 0 })}
                   className="weight-input"
-                  placeholder={measurementType === 'distance' ? 'Distance' : 'Weight'}
+                  placeholder={measurementType === MeasurementType.DISTANCE ? 'Distance' : 'Weight'}
                 />
               </div>
               <div className="exercise-input-group">
                 <label className="exercise-input-label">
-                  {measurementType === 'time' ? 'Duration' : 'Reps'}
+                  {measurementType === MeasurementType.TIME ? 'Duration' : 'Reps'}
                 </label>
                 <input
                   type="number"
-                  value={exercise.reps}
+                  value={exercise.targetReps}
                   min={1}
-                  onChange={(e) => updateExercise({ reps: parseInt(e.target.value) || 1 })}
+                  onChange={(e) => updateExercise(circuit.order, exercise.order, { targetReps: parseInt(e.target.value) || 1 })}
                   className="reps-input"
-                  placeholder={measurementType === 'time' ? 'Seconds' : 'Reps'}
+                  placeholder={measurementType === MeasurementType.TIME ? 'Seconds' : 'Reps'}
                 />
               </div>
             </>
           ) : (
             <div className="exercise-values-group">
               <div className="exercise-value-display">
-                <span className="exercise-value">{exercise.weight}</span>
-                <span className="exercise-unit">{exercise.weightUnit}</span>
+                <span className="exercise-value">{exercise.targetWeight}</span>
+                <span className="exercise-unit">{Unit.POUND}</span>
               </div>
               <div className="exercise-value-display">
-                <span className="exercise-value">{exercise.reps}</span>
-                <span className="exercise-unit">{measurementType === 'time' ? 'sec' : 'reps'}</span>
+                <span className="exercise-value">{exercise.targetReps}</span>
+                <span className="exercise-unit">{measurementType === MeasurementType.TIME ? 'sec' : 'reps'}</span>
               </div>
-              {(exercise as any).restDuration > 0 && (
+              {exercise.rest && exercise.rest > 0 && (
                 <div className="exercise-value-display">
-                  <span className="exercise-value">{(exercise as any).restDuration}</span>
+                  <span className="exercise-value">{exercise.rest}</span>
                   <span className="exercise-unit">sec rest</span>
                 </div>
               )}
@@ -137,7 +144,7 @@ const ExerciseItem: React.FC<Props> = ({ exercise, circuit, editMode, updateCirc
       {isRest && !editMode && (
         <div className="exercise-values-group">
           <div className="exercise-value-display">
-            <span className="exercise-value">{(exercise as any).duration || 60}</span>
+            <span className="exercise-value">{exercise.targetDurationSec || 60}</span>
             <span className="exercise-unit">seconds</span>
           </div>
         </div>
@@ -148,8 +155,8 @@ const ExerciseItem: React.FC<Props> = ({ exercise, circuit, editMode, updateCirc
           <label className="exercise-input-label">Duration</label>
           <input
             type="number"
-            value={(exercise as any).duration || 60}
-            onChange={(e) => updateExercise({ duration: parseInt(e.target.value) || 60 } as any)}
+            value={exercise.targetDurationSec || 60}
+            onChange={(e) => updateExercise(circuit.order, exercise.order, { targetDurationSec: parseInt(e.target.value) || 60 })}
             className="reps-input"
             placeholder="Seconds"
           />
@@ -162,8 +169,8 @@ const ExerciseItem: React.FC<Props> = ({ exercise, circuit, editMode, updateCirc
             <label className="exercise-input-label">Rest</label>
             <input
               type="number"
-              value={(exercise as any).restDuration || 0}
-              onChange={(e) => updateExercise({ restDuration: parseInt(e.target.value) || 0 } as any)}
+              value={exercise.rest || 0}
+              onChange={(e) => updateExercise(circuit.order, exercise.order, { rest: parseInt(e.target.value) || 0 })}
               className="rest-input"
               placeholder="Seconds"
               min={0}
@@ -187,9 +194,9 @@ const ExerciseItem: React.FC<Props> = ({ exercise, circuit, editMode, updateCirc
             <button
               className="remove-exercise-btn"
               onClick={() =>
-                updateCircuit({
+                updateExerciseInBlockPartial(circuit.order, exercise.order, {
                   ...circuit,
-                  exercises: circuit.exercises.filter((e) => e.id !== exercise.id),
+
                 })
               }
             >
@@ -202,17 +209,17 @@ const ExerciseItem: React.FC<Props> = ({ exercise, circuit, editMode, updateCirc
               <div className="exercise-notes-container">
                 <input
                   type="text"
-                  value={(exercise as any).notes || ''}
-                  onChange={(e) => updateExercise({ notes: e.target.value } as any)}
+                  value={exercise.notes || ''}
+                  onChange={(e) => updateExercise(circuit.order, exercise.order, { notes: e.target.value })}
                   className="exercise-notes-input"
                   placeholder="Add note..."
                 />
                 <button
                   className="remove-exercise-btn"
                   onClick={() =>
-                    updateCircuit({
+                    updateExerciseInBlockPartial(circuit.order, exercise.order, {
                       ...circuit,
-                      exercises: circuit.exercises.filter((e) => e.id !== exercise.id),
+                      
                     })
                   }
                 >

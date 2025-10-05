@@ -1,18 +1,22 @@
 // WorkoutView/components/WorkoutDetailsSection.tsx
 import React from 'react';
 import MuscleGroupsEditor from '../components/workoutBuilder/MuscleGroupsEditor';
-import { WorkoutDetails } from './types';
+import { WorkoutRequest } from '@seenelm/train-core';
+import { useWorkoutContext } from '../contexts/WorkoutContext';
 
 interface Props {
-  workout: WorkoutDetails;
+  // workout: WorkoutRequest;
   editMode: boolean;
-  setWorkout: (updated: WorkoutDetails) => void;
+  setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
 }
 
-const WorkoutDetailsSection: React.FC<Props> = ({ workout, editMode, setWorkout }) => {
+const WorkoutDetailsSection: React.FC<Props> = ({ editMode, setHasUnsavedChanges }) => {
+  const { state,updateWorkoutRequest } = useWorkoutContext();
+  const workout = state.workoutRequest;
+
   return (
     <div className="workout-details">
-      <h1>{workout.title}</h1>
+      <h1>{workout.name}</h1>
       <p className="workout-description">{workout.description}</p>
 
       <div className="workout-meta">
@@ -23,7 +27,7 @@ const WorkoutDetailsSection: React.FC<Props> = ({ workout, editMode, setWorkout 
               type="number"
               value={workout.duration}
               onChange={(e) =>
-                setWorkout({ ...workout, duration: parseInt(e.target.value) || 0 })
+                updateWorkoutRequest({ ...workout, duration: parseInt(e.target.value) || 0 })
               }
               className="duration-input"
               min={1}
@@ -33,12 +37,12 @@ const WorkoutDetailsSection: React.FC<Props> = ({ workout, editMode, setWorkout 
           )}
         </div>
 
-        <MuscleGroupsEditor
+        {/* <MuscleGroupsEditor
           muscleGroups={workout.muscleGroups}
           editMode={editMode}
           setWorkout={setWorkout}
           workout={workout}
-        />
+        /> */}
       </div>
     </div>
   );

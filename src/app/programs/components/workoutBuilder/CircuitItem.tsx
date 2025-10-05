@@ -2,36 +2,37 @@
 import React from 'react';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
-import { Block, WorkoutDetails } from '../../views/types';
 import ExerciseItem from './ExerciseItem';
+import { Block, WorkoutRequest, MeasurementType } from '@seenelm/train-core';
+import { useWorkoutContext } from '../../contexts/WorkoutContext';
 
 interface Props {
-  circuit: Block;
+  block: Block;
   editMode: boolean;
-  workout: WorkoutDetails;
-  setWorkout: (updated: WorkoutDetails) => void;
+  workout: WorkoutRequest;
   setHasUnsavedChanges: (v: boolean) => void;
 }
 
 const CircuitItem: React.FC<Props> = ({
-  circuit,
+  block,
   editMode,
   workout,
-  setWorkout,
   setHasUnsavedChanges,
 }) => {
-  const updateCircuit = (updated: Block) => {
-    setWorkout({
+  const { updateWorkoutRequest } = useWorkoutContext();
+
+  const updateBlock = (updated: Block) => {
+    updateWorkoutRequest({
       ...workout,
-      circuits: workout.circuits.map((c) => (c.id === updated.id ? updated : c)),
+      blocks: workout.blocks?.map((c) => (c.order === updated.order ? updated : c)),
     });
     setHasUnsavedChanges(true);
   };
 
-  const removeCircuit = () => {
-    setWorkout({
+  const removeBlock = () => {
+    updateWorkoutRequest({
       ...workout,
-      circuits: workout.circuits.filter((c) => c.id !== circuit.id),
+      blocks: workout.blocks?.filter((c) => c.order !== block.order),
     });
     setHasUnsavedChanges(true);
   };
@@ -40,10 +41,10 @@ const CircuitItem: React.FC<Props> = ({
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = circuit.exercises.findIndex((e) => e.id === active.id);
-    const newIndex = circuit.exercises.findIndex((e) => e.id === over.id);
-    const reordered = arrayMove(circuit.exercises, oldIndex, newIndex);
-    updateCircuit({ ...circuit, exercises: reordered });
+    const oldIndex = block.exercises.findIndex((e) => e.order === active.order);
+    const newIndex = block.exercises.findIndex((e) => e.order === over.order);
+    const reordered = arrayMove(block.exercises, oldIndex, newIndex);
+    updateBlock({ ...block, exercises: reordered });
   };
 
   return (
@@ -55,8 +56,8 @@ const CircuitItem: React.FC<Props> = ({
               <label>Sets:</label>
               <input
                 type="number"
-                value={circuit.sets}
-                onChange={(e) => updateCircuit({ ...circuit, sets: parseInt(e.target.value) || 1 })}
+                value={block.targetSets}
+                onChange={(e) => updateBlock({ ...block, targetSets: parseInt(e.target.value) || 1 })}
                 min="1"
                 className="sets-input"
               />
@@ -65,8 +66,8 @@ const CircuitItem: React.FC<Props> = ({
               <label>Rest:</label>
               <input
                 type="number"
-                value={(circuit as any).rest || 0}
-                onChange={(e) => updateCircuit({ ...circuit, rest: parseInt(e.target.value) || 0 } as any)}
+                value={(block as any).rest || 0}
+                onChange={(e) => updateBlock({ ...block, rest: parseInt(e.target.value) || 0 } as any)}
                 min="0"
                 className="rest-input"
                 placeholder="Seconds"
@@ -74,14 +75,14 @@ const CircuitItem: React.FC<Props> = ({
             </div>
             <input
               type="text"
-              value={circuit.name}
-              onChange={(e) => updateCircuit({ ...circuit, name: e.target.value })}
+              value={block.name}
+              onChange={(e) => updateBlock({ ...block, name: e.target.value })}
               className="circuit-name-input"
               placeholder="Circuit name"
             />
             <button
               className="remove-circuit-btn"
-              onClick={removeCircuit}
+              onClick={removeBlock}
               title="Remove circuit"
             >
               ✕
@@ -90,27 +91,26 @@ const CircuitItem: React.FC<Props> = ({
         ) : (
           <>
             <div className="circuit-sets">
-              <span className="sets-label">{circuit.sets} sets</span>
+              <span className="sets-label">{block.targetSets} sets</span>
             </div>
-            {(circuit as any).rest > 0 && (
+            {block.rest && block.rest > 0 && (
               <div className="circuit-rest">
-                <span className="rest-label">{(circuit as any).rest}s rest</span>
+                <span className="rest-label">{block.rest}s rest</span>
               </div>
             )}
-            <h3>{circuit.name}</h3>
+            <h3>{block.name}</h3>
           </>
         )}
       </div>
 
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={circuit.exercises.map((e) => e.id)} strategy={verticalListSortingStrategy}>
-          {circuit.exercises.map((exercise) => (
+        <SortableContext items={block.exercises.map((e) => e.order)} strategy={verticalListSortingStrategy}>
+          {block.exercises.map((exercise) => (
             <ExerciseItem
-              key={exercise.id}
+              key={exercise.order}
               exercise={exercise}
-              circuit={circuit}
+              block={block}
               editMode={editMode}
-              updateCircuit={updateCircuit}
             />
           ))}
         </SortableContext>
@@ -120,19 +120,20 @@ const CircuitItem: React.FC<Props> = ({
         <button
           className="add-exercise-btn"
           onClick={() =>
-            updateCircuit({
-              ...circuit,
+            updateBlock({
+              ...block,
               exercises: [
-                ...circuit.exercises,
+                ...block.exercises,
                 {
-                  id: `e${Date.now()}`,
                   name: 'New Exercise',
-                  sets: circuit.sets || 3,
-                  reps: 10,
-                  weight: 0,
-                  weightUnit: 'lbs',
-                  completed: false,
-                  order: circuit.exercises.length,
+                  rest: 0,
+                  targetReps: 10,
+                  targetDurationSec: 0,
+                  targetWeight: 0,
+                  targetDistance: 0,
+                  measurementType: MeasurementType.REPS,
+                  notes: '',
+                  order: block.exercises.length,
                 },
               ],
             })
