@@ -8,8 +8,8 @@ import {
   MealResponse,
   WeekRequest,
   WorkoutLogRequest,
-  WorkoutLogResponse, 
-  WeekResponse
+  WorkoutLogResponse,
+  WeekResponse,
 } from "@seenelm/train-core";
 
 /**
@@ -56,7 +56,11 @@ class ProgramService extends BaseApiService<
    * Update a week
    * PUT /program/:programId/week/:weekId
    */
-  async updateWeek(programId: number, weekId: number, weekRequest: WeekRequest): Promise<void> {
+  async updateWeek(
+    programId: number,
+    weekId: number,
+    weekRequest: WeekRequest
+  ): Promise<void> {
     return this.put(`/program/${programId}/week/${weekId}`, weekRequest);
   }
 
@@ -98,7 +102,7 @@ class ProgramService extends BaseApiService<
   async deleteWorkout(
     programId: string,
     weekId: string,
-    workoutId: string,
+    workoutId: string
   ): Promise<void> {
     return this.delete(
       `/program/${programId}/week/${weekId}/workout/${workoutId}`
@@ -114,15 +118,24 @@ class ProgramService extends BaseApiService<
     weekId: string,
     workoutId: string
   ): Promise<WorkoutResponse> {
-    return this.get(`/program/${programId}/week/${weekId}/workout/${workoutId}`);
+    return this.get(
+      `/program/${programId}/week/${weekId}/workout/${workoutId}`
+    );
   }
 
   /**
    * Log a users workout
    * POST /program/:programId/week/:weekId/workout/log
    */
-  async createWorkoutLog(programId: number, weekId: number, workoutLogRequest: WorkoutLogRequest): Promise<WorkoutLogResponse> {
-    return this.post<WorkoutLogResponse>(`/program/${programId}/week/${weekId}/workout/log`, workoutLogRequest);
+  async createWorkoutLog(
+    programId: number,
+    weekId: number,
+    workoutLogRequest: WorkoutLogRequest
+  ): Promise<WorkoutLogResponse> {
+    return this.post<WorkoutLogResponse>(
+      `/program/${programId}/week/${weekId}/workout/log`,
+      workoutLogRequest
+    );
   }
 
   /**
@@ -166,7 +179,6 @@ class ProgramService extends BaseApiService<
   async getWeek(programId: number, weekId: number): Promise<WeekResponse> {
     return this.get(`/program/${programId}/week/${weekId}`);
   }
-  
 }
 
 // Export singleton instance

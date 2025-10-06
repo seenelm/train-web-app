@@ -1,10 +1,9 @@
-// WorkoutView/components/ExerciseItem.tsx
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { AiOutlineProfile } from 'react-icons/ai';
 import { Exercise, MeasurementType } from '@seenelm/train-core';
-import { useWorkoutContext } from '../../contexts/WorkoutContext';
+import { useProgramContext } from '../../contexts/ProgramContext';
 import { Unit } from '@seenelm/train-core';
 
 interface Props {
@@ -18,7 +17,7 @@ const ExerciseItem: React.FC<Props> = ({ exercise, editMode, blockIndex, exercis
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: exercise.order });
   const style = { transform: CSS.Transform.toString(transform), transition };
   const [showNotes, setShowNotes] = React.useState(false);
-  const { updateExerciseInBlockPartial, removeExerciseFromBlock } = useWorkoutContext();
+  const { updateExerciseInBlockPartial, removeExerciseFromBlock } = useProgramContext();
 
   const measurementType = exercise.measurementType || MeasurementType.REPS;
   const isRest = exercise.name?.toLowerCase().includes('rest') || false;

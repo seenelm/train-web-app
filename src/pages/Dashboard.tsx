@@ -12,6 +12,7 @@ import ProgramBuilder from "../app/programs/views/ProgramBuilder";
 import ProgramView from "../app/programs/views/ProgramView";
 import WeekView from "../app/programs/views/WeekView";
 import WorkoutView from "../app/programs/views/WorkoutView";
+import { ProgramProvider } from "../app/programs/contexts/ProgramContext";
 
 import {
   AiOutlineHome,
@@ -36,6 +37,7 @@ const Dashboard: React.FC = () => {
     <div className="app-container">
       <Sidebar tabs={tabs} />
       <ContentView>
+        <ProgramProvider>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
@@ -48,6 +50,7 @@ const Dashboard: React.FC = () => {
             <Route path="/programs/:programId/weeks/:weekId" element={<WeekView />} />
             <Route path="/programs/:programId/weeks/:weekId/workouts/:workoutId" element={<WorkoutView />} />
           </Routes>
+        </ProgramProvider>
       </ContentView>
     </div>
   );

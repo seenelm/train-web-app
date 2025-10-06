@@ -4,7 +4,7 @@ import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import ExerciseItem from './ExerciseItem';
 import { Block, WorkoutRequest, MeasurementType } from '@seenelm/train-core';
-import { useWorkoutContext } from '../../contexts/WorkoutContext';
+import { useProgramContext } from '../../contexts/ProgramContext';
 
 interface Props {
   block: Block;
@@ -19,7 +19,7 @@ const CircuitItem: React.FC<Props> = ({
   workout,
   setHasUnsavedChanges,
 }) => {
-  const { updateWorkoutRequest } = useWorkoutContext();
+  const { updateWorkoutRequest } = useProgramContext();
 
   const updateBlock = (updated: Block) => {
     updateWorkoutRequest({

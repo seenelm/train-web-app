@@ -5,6 +5,7 @@ import "./Programs.css"
 import { programService } from '../services/programService';
 import { tokenService } from '../../../services/tokenService';
 import { ProgramResponse } from '@seenelm/train-core';
+import { useProgramContext } from '../contexts/ProgramContext';
 
 interface WeekDetail {
   id: string;
@@ -21,11 +22,11 @@ interface Program {
   includesNutrition: boolean;
 }
 
-const Programs = () => {
+const Programs: React.FC = () => {
   const navigate = useNavigate();
   const [allPrograms, setAllPrograms] = useState<Program[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  const { state, setLoading, setError } = useProgramContext();
   
   // Favorite programs (static for now)
   const favoritePrograms: Program[] = [
@@ -132,12 +133,12 @@ const Programs = () => {
     navigate('/programs/builder');
   };
 
-  if (loading) {
+  if (state.loading) {
     return <div className="loading-container">Loading programs...</div>;
   }
 
-  if (error) {
-    return <div className="error-container">{error}</div>;
+  if (state.error) {
+    return <div className="error-container">{state.error}</div>;
   }
 
   return (
