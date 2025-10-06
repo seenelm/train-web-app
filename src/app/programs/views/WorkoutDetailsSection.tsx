@@ -1,7 +1,6 @@
 // WorkoutView/components/WorkoutDetailsSection.tsx
 import React from 'react';
-import MuscleGroupsEditor from '../components/workoutBuilder/MuscleGroupsEditor';
-import { WorkoutRequest } from '@seenelm/train-core';
+
 import { useWorkoutContext } from '../contexts/WorkoutContext';
 
 interface Props {
@@ -10,7 +9,7 @@ interface Props {
   setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
 }
 
-const WorkoutDetailsSection: React.FC<Props> = ({ editMode, setHasUnsavedChanges }) => {
+const WorkoutDetailsSection: React.FC<Props> = ({ editMode }) => {
   const { state,updateWorkoutRequest } = useWorkoutContext();
   const workout = state.workoutRequest;
 

@@ -1,8 +1,8 @@
 // WorkoutView/types.ts
-import {
-  Block as CoreBlock,
-  Exercise as CoreExercise,
-} from "@seenelm/train-core";
+// import {
+//   Block as CoreBlock,
+//   Exercise as CoreExercise,
+// } from "@seenelm/train-core";
 
 // Extend Block to include id for local state management
 // export interface Block extends CoreBlock {

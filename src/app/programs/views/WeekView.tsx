@@ -42,7 +42,7 @@ const WeekView: React.FC = () => {
   const [selectedBlocks, setSelectedBlocks] = useState<SelectedBlock[]>([]);
   
   // State for selection mode
-  const [isSelectionMode, setIsSelectionMode] = useState<boolean>(false);
+  const [isSelectionMode] = useState<boolean>(false);
   
   // State for drag selection
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -374,8 +374,8 @@ const WeekView: React.FC = () => {
                         key={`${day}-${time}`} 
                         className={`empty-cell ${isSelectionMode ? 'selectable' : ''} ${isBlockSelected(day, time) ? 'selected' : ''}`}
                         onClick={() => handleCellClick(day, time)}
-                        onMouseDown={(e) => handleMouseDown(day, time)}
-                        onMouseEnter={(e) => handleMouseEnter(day, time)}
+                        onMouseDown={() => handleMouseDown(day, time)}
+                        onMouseEnter={() => handleMouseEnter(day, time)}
                       ></td>
                     );
                   })}
