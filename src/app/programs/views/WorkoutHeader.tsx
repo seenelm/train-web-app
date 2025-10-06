@@ -19,7 +19,6 @@ const WorkoutHeader: React.FC<WorkoutHeaderProps> = ({
   onToggleEdit,
   onSave,
   hasUnsavedChanges,
-  saving,
 }) => {
   const handleDoneClick = () => {
     if (hasUnsavedChanges) {

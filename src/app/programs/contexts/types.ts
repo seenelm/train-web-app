@@ -6,7 +6,6 @@ import {
   WorkoutResponse,
   WorkoutRequest,
   Exercise,
-  Block,
   MeasurementType,
   ProfileAccess,
   WorkoutDifficulty,

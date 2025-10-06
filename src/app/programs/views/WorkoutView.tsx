@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect,   } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import './WorkoutView.css';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -16,12 +16,10 @@ import { useProgramContext, programUtils } from '../contexts/ProgramContext';
 const WorkoutView: React.FC = () => {
   const { programId, weekId, workoutId } = useParams<{ programId: string; weekId: string; workoutId: string }>();
   const navigate = useNavigate();
-  const [newWorkoutId, setNewWorkoutId] = useState<string>("");
 
   const {
     state,
     setWorkoutRequest,
-    updateWorkoutRequest,
     setLoading,
     setSaving,
     setEditMode,
@@ -115,7 +113,6 @@ const WorkoutView: React.FC = () => {
     try {
       const response = await programService.createWorkout(programId!, weekId!, request);
       setWorkoutRequest(response);
-      setNewWorkoutId(response.id);
     } catch (error) {
       console.error('Error creating workout:', error);
       setError(error instanceof Error ? error.message : 'Failed to create workout');

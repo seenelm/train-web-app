@@ -6,7 +6,7 @@ interface Props {
   setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
 }
 
-const WorkoutDetailsSection: React.FC<Props> = ({ editMode, setHasUnsavedChanges }) => {
+const WorkoutDetailsSection: React.FC<Props> = ({ editMode }) => {
   const { state,updateWorkoutRequest } = useProgramContext();
   const workout = state.workoutRequest;
 
