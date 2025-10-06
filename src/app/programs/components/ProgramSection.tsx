@@ -29,21 +29,18 @@ export const ProgramSection: React.FC<ProgramSectionProps> = ({
         <h2>{title}</h2>
       </div>
       <div className="programs-container">
-        {programs.length > 0 ? (
-          <>
-            {programs.map(program => (
-              <ProgramCard key={program.id} program={program} />
-            ))}
-            {showAddButton && (
-              <div className="add-program-card" onClick={onAddProgram}>
-                <div className="add-program-circle">
-                  <span>+</span>
-                </div>
-                <p>Add New Program</p>
-              </div>
-            )}
-          </>
-        ) : (
+        {programs.map(program => (
+          <ProgramCard key={program.id} program={program} />
+        ))}
+        {showAddButton && (
+          <div className="add-program-card" onClick={onAddProgram}>
+            <div className="add-program-circle">
+              <span>+</span>
+            </div>
+            <p>Add New Program</p>
+          </div>
+        )}
+        {programs.length === 0 && !showAddButton && (
           <p className="no-programs-message">No programs available.</p>
         )}
       </div>

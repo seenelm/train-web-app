@@ -1,16 +1,13 @@
-// WorkoutView/components/WorkoutDetailsSection.tsx
 import React from 'react';
-
-import { useWorkoutContext } from '../contexts/WorkoutContext';
+import { useProgramContext } from '../contexts/ProgramContext';
 
 interface Props {
-  // workout: WorkoutRequest;
   editMode: boolean;
   setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
 }
 
-const WorkoutDetailsSection: React.FC<Props> = ({ editMode }) => {
-  const { state,updateWorkoutRequest } = useWorkoutContext();
+const WorkoutDetailsSection: React.FC<Props> = ({ editMode, setHasUnsavedChanges }) => {
+  const { state,updateWorkoutRequest } = useProgramContext();
   const workout = state.workoutRequest;
 
   return (

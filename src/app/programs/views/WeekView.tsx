@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import './WeekView.css';
 import { programService } from '../services/programService';
-//import { tokenService } from '../../../services/tokenService';
+import { useProgramContext, programUtils } from '../contexts/ProgramContext';
+import { tokenService } from '../../../services/tokenService';
 
 // Types for our workout events
 interface WorkoutEvent {
@@ -21,10 +22,10 @@ interface SelectedBlock {
 }
 
 const WeekView: React.FC = () => {
-  //const userString = tokenService.getUser();
-  //const user = userString ? JSON.parse(userString) : null
   const { programId, weekId } = useParams<{ programId: string; weekId: string }>();
   const navigate = useNavigate();
+
+  const { setWorkoutRequest } = useProgramContext();
   
   // Days of the week
   const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -59,19 +60,24 @@ const WeekView: React.FC = () => {
       if (programId && weekId) {
         try {
           const workoutsData = await programService.getWeekWorkouts(programId, weekId);
-          console.log('Fetched workouts:', workoutsData);
           
           // Transform API response to WorkoutEvent format
           const transformedWorkouts = workoutsData.map(workout => {
             // Format date to day of week
             let dayOfWeek = 'MON';
             let timeOfDay = '9AM';
+            let duration = 1; // Default duration in hours
             
             if (workout.startDate) {
               // Convert string date to Date object if needed
               const startDate = typeof workout.startDate === 'string' 
                 ? new Date(workout.startDate) 
                 : workout.startDate;
+              
+              console.log(`Raw workout.startDate: ${workout.startDate}`);
+              console.log(`Parsed startDate: ${startDate}`);
+              console.log(`startDate.getDay(): ${startDate.getDay()}`);
+              console.log(`startDate.getHours(): ${startDate.getHours()}`);
               
               // Get day of week as three-letter abbreviation
               const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -83,7 +89,26 @@ const WeekView: React.FC = () => {
               const hour = hours % 12 || 12; // Convert 0 to 12
               timeOfDay = `${hour}${ampm}`;
               
-              console.log(`Workout ${workout.name}: day=${dayOfWeek}, time=${timeOfDay}`);
+              // Calculate duration from startDate and endDate
+              if (workout.endDate) {
+                const endDate = typeof workout.endDate === 'string' 
+                  ? new Date(workout.endDate) 
+                  : workout.endDate;
+                
+                console.log(`Raw workout.endDate: ${workout.endDate}`);
+                console.log(`Parsed endDate: ${endDate}`);
+                console.log(`endDate.getHours(): ${endDate.getHours()}`);
+                
+                // Calculate duration in hours
+                const durationMs = endDate.getTime() - startDate.getTime();
+                const durationHours = Math.ceil(durationMs / (1000 * 60 * 60)); // Convert to hours and round up
+                duration = Math.max(1, durationHours); // Minimum 1 hour
+                
+                console.log(`Calculated duration: ${duration} hours`);
+              } else {
+                // Fallback to workout.duration if endDate is not available
+                duration = workout.duration || 1;
+              }
             }
             
             return {
@@ -91,7 +116,7 @@ const WeekView: React.FC = () => {
               title: workout.name,
               day: dayOfWeek,
               startTime: timeOfDay,
-              duration: workout.duration || 1,
+              duration: duration,
               completed: false
             };
           });
@@ -114,7 +139,15 @@ const WeekView: React.FC = () => {
 
   // Function to check if a workout exists at a specific day and time
   const getWorkoutAtDayAndTime = (day: string, time: string) => {
-    return workouts.find(workout => workout.day === day && workout.startTime === time);
+    const foundWorkout = workouts.find(workout => {
+      const matches = workout.day === day && workout.startTime === time;
+      if (matches) {
+        console.log(`Found workout: ${workout.title} at ${day} ${time}`);
+      }
+      return matches;
+    });
+    
+    return foundWorkout;
   };
 
   // Function to check if a cell should be rendered or is part of a rowspan
@@ -284,11 +317,31 @@ const WeekView: React.FC = () => {
     if (selectedBlocks.length === 0) return;
     
     if (type === 'workout') {
+      const user = JSON.parse(tokenService.getUser() || '{}');
       // Calculate duration in minutes
       const [startHour, startMin] = startTime.split(':').map(Number);
       const [endHour, endMin] = endTime.split(':').map(Number);
       const durationMinutes = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+
+      console.log("Start time: ", startTime);
+      console.log("Selected blocks: ", selectedBlocks);
+
+      // Get the selected day (use the first selected block's day)
+      const selectedDay = selectedBlocks[0]?.day;
+      if (!selectedDay) return;
+
       
+
+      const defaultRequest = programUtils.createDefaultWorkoutRequest(user.userId, durationMinutes);
+      defaultRequest.startDate = createDateWithDayAndTime(selectedDay, startTime);
+      defaultRequest.endDate = createDateWithDayAndTime(selectedDay, endTime);
+
+      console.log('Default request: ', defaultRequest);
+      console.log('Start date: ', defaultRequest.startDate);
+      console.log('End date: ', defaultRequest.endDate);
+      setWorkoutRequest(defaultRequest);
+     
+
       // Navigate to workout builder with duration
       closeCreationPopup();
       navigate(`/programs/${programId}/weeks/${weekId}/workouts/new?duration=${durationMinutes}`);
@@ -299,6 +352,28 @@ const WeekView: React.FC = () => {
       alert('Note creation coming soon!');
       closeCreationPopup();
     }
+  };
+
+  // Create proper dates with the selected day and time
+  const createDateWithDayAndTime = (day: string, timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    
+    // Get the day index (0 = Sunday, 1 = Monday, etc.)
+    const dayIndex = days.indexOf(day);
+    
+    // Create a date for the current week
+    const today = new Date();
+    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    
+    // Calculate the date for the selected day in the current week
+    const daysUntilSelectedDay = (dayIndex - currentDay + 7) % 7;
+    const selectedDate = new Date(today);
+    selectedDate.setDate(today.getDate() + daysUntilSelectedDay);
+    
+    // Set the time
+    selectedDate.setHours(hours, minutes, 0, 0);
+    
+    return selectedDate;
   };
 
   // Toggle between week view and agenda view
