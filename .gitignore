@@ -28,7 +28,7 @@ test-results
 
 
 .env
-.npmrc
+
 # Local Netlify folder
 .netlify
 playwright-report/
