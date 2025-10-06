@@ -78,7 +78,8 @@ import { AxiosError } from 'axios';
         // Send the token to your backend with device ID
         const response = await api.post<UserResponse>(`${API_URL}/user/google-auth`, {
           name: result.user.displayName,
-          deviceId: tokenService.getDeviceId()
+          deviceId: tokenService.getDeviceId(),
+          agreeToTerms: true
         }, {
           headers: {
             Authorization: `Bearer ${idToken}`
@@ -104,7 +105,10 @@ import { AxiosError } from 'axios';
             'Content-Type': 'application/json',
             Authorization: `Bearer ${idToken}`
           },
-          body: JSON.stringify({ name }),
+          body: JSON.stringify({ 
+            name,
+            agreeToTerms: true
+          }),
         });
         
         if (!response.ok) {
@@ -125,31 +129,26 @@ import { AxiosError } from 'axios';
 
     // Sign out
     async logout(logoutRequest: LogoutRequest): Promise<void> {
-        try {
-            // Call the signout endpoint first if authenticated
-            if (this.isAuthenticated()) {
-                try {
-                    await api.post(`${API_URL}/user/logout`, logoutRequest);
-                } catch (signoutError) {
-                    // Log the error but continue with local logout
-                    console.error('Error calling signout endpoint:', signoutError);
-                }
-            }
-            
-            // Always perform these actions regardless of API call success
+        // Only perform API call and Firebase signout if authenticated
+        if (this.isAuthenticated()) {
             try {
-                await firebaseSignOut(auth);
-            } catch (firebaseError) {
-                console.error('Error signing out from Firebase:', firebaseError);
-                // Continue with local logout even if Firebase signout fails
+                await api.post(`${API_URL}/user/logout`, logoutRequest);
+                
+                // Only attempt Firebase signout if API call succeeds
+                try {
+                    await firebaseSignOut(auth);
+                } catch (firebaseError) {
+                    console.error('Error signing out from Firebase:', firebaseError);
+                    // Continue with local logout even if Firebase signout fails
+                }
+                
+                // Clear tokens when authenticated
+                tokenService.clearTokens();
+            } catch (error) {
+                console.error('Error calling signout endpoint:', error);
+                // Re-throw the error to propagate it to the caller
+                throw error;
             }
-            
-            // Always clear tokens to ensure frontend logout
-            tokenService.clearTokens();
-        } catch (error) {
-            console.error('Unexpected error during logout:', error);
-            // Still clear tokens to ensure frontend logout
-            tokenService.clearTokens();
         }
     },
     

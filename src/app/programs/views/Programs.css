@@ -1,0 +1,203 @@
+/* program.css */
+
+
+.programs-page {
+    padding: 1rem;
+    max-width: 2400px;
+    margin: 0 auto;
+}
+
+.program-section {
+    margin-bottom: 3rem;
+}
+
+.programs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    margin-bottom: 0.5rem;
+}
+
+.programs-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+}
+
+/* Custom styling for the Button component */
+.add-program-btn {
+    width: auto !important; /* Override the 100% width from Button.css */
+    padding: 0.5rem 1rem !important; /* Smaller padding */
+    font-size: 0.9rem !important; /* Smaller font size */
+}
+
+.add-program-button {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: var(--button-border-radius);
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--transition-speed);
+}
+
+.add-program-button:hover {
+    background-color: #3a7bc8;
+}
+
+.programs-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  margin-top: 20px;
+}
+
+.program-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  overflow: hidden;
+  margin: 10px;
+}
+
+.program-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  border-color: var(--accent-color);
+}
+
+.program-image-placeholder {
+  width: 100%;
+  height: 150px;
+  background-image: url('https://images.unsplash.com/photo-1579758629938-03607ccdbaba?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+  background-size: cover;
+  background-position: center 30%;
+  position: relative;
+}
+
+.program-image-placeholder::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.program-card-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.program-card h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.program-card-description {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.program-card-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.program-length,
+.program-nutrition {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  background-color: var(--bg-primary);
+  border-radius: 4px;
+}
+
+.no-programs-message {
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: 1rem 0;
+}
+
+.add-program-card {
+  background-color: var(--bg-secondary);
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  overflow: hidden;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 16px;
+}
+
+.add-program-card:hover {
+  border-color: var(--accent-color);
+  background-color: rgba(108, 117, 125, 0.05);
+}
+
+.add-program-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-speed);
+}
+
+.add-program-card:hover .add-program-circle {
+  transform: scale(1.1);
+}
+
+.add-program-circle span {
+  font-size: 3rem;
+  color: white;
+  font-weight: 300;
+  line-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-program-card p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.add-program-card:hover p {
+  color: var(--text-primary);
+}
+
+@media (max-width: 1024px) {
+  .programs-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .programs-container {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { searchService } from '../../services/searchService';
-import { SearchResult, CertificationSearchResult } from '../../../../types/api.types';
+import { 
+  CertificationResponse, 
+  SearchProfilesResponse,
+} from '@seenelm/train-core';
 import { FaSearch, FaUser, FaUsers, FaCertificate, FaTimes, FaChevronRight } from 'react-icons/fa';
 import './SearchInterface.css';
 
@@ -19,18 +22,17 @@ const SearchInterface: React.FC<SearchInterfaceProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchType, setSearchType] = useState<SearchType>('all');
-  const [profileResults, setProfileResults] = useState<SearchResult[]>([]);
-  const [certificationResults, setCertificationResults] = useState<CertificationSearchResult[]>([]);
+  const [profileResults, setProfileResults] = useState<SearchProfilesResponse | null>(null);
+  const [certificationResults, setCertificationResults] = useState<CertificationResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const resultsPerPage = 10;
 
-  // Perform search when query, type, or page changes
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setProfileResults([]);
+      setProfileResults(null);
       setCertificationResults([]);
       return;
     }
@@ -47,30 +49,15 @@ const SearchInterface: React.FC<SearchInterfaceProps> = ({
             resultsPerPage
           );
           
-          // Transform API response to SearchResult[] format
-          const results: SearchResult[] = [
-            ...profileResponse.profiles.map(profile => ({
-              id: profile.id,
-              name: profile.name,
-              type: 'profile' as const,
-              description: profile.bio,
-              profilePicture: profile.profilePicture,
-              tags: []
-            })),
-            ...profileResponse.groups.map(group => ({
-              id: group.id,
-              name: group.name,
-              type: 'group' as const,
-              description: group.description,
-              groupPicture: group.groupPicture,
-              tags: []
-            }))
-          ];
+          const searchData = profileResponse.data[0]; 
           
           setProfileResults(prevResults => 
             currentPage === 1 
-              ? results 
-              : [...prevResults, ...results]
+              ? searchData 
+              : prevResults ? {
+                  userProfiles: [...prevResults.userProfiles, ...searchData.userProfiles],
+                  groups: [...prevResults.groups, ...searchData.groups]
+                } : searchData
           );
           
           setHasMore(profileResponse.pagination.hasNextPage);
@@ -83,17 +70,10 @@ const SearchInterface: React.FC<SearchInterfaceProps> = ({
             resultsPerPage
           );
           
-          // Transform API response to CertificationSearchResult[] format
-          const results: CertificationSearchResult[] = certResponse.certifications.map(cert => ({
-            id: cert.id,
-            name: cert.name,
-            issuer: cert.organization
-          }));
-          
           setCertificationResults(prevResults => 
             currentPage === 1 
-              ? results 
-              : [...prevResults, ...results]
+              ? certResponse.data 
+              : [...prevResults, ...certResponse.data]
           );
           
           if (searchType === 'certifications') {
@@ -116,27 +96,23 @@ const SearchInterface: React.FC<SearchInterfaceProps> = ({
     return () => clearTimeout(debounceTimeout);
   }, [searchQuery, searchType, currentPage]);
 
-  // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    setCurrentPage(1); // Reset to first page on new search
+    setCurrentPage(1); 
   };
 
-  // Clear search
   const handleClearSearch = () => {
     setSearchQuery('');
-    setProfileResults([]);
+    setProfileResults(null);
     setCertificationResults([]);
     setCurrentPage(1);
   };
 
-  // Handle search type change
   const handleSearchTypeChange = (type: SearchType) => {
     setSearchType(type);
-    setCurrentPage(1); // Reset to first page on type change
+    setCurrentPage(1); 
   };
 
-  // Load more results
   const handleLoadMore = () => {
     setCurrentPage(prev => prev + 1);
   };
@@ -148,16 +124,12 @@ const SearchInterface: React.FC<SearchInterfaceProps> = ({
   const showCertifications = searchType === 'certifications' || searchType === 'all';
 
   // Handle result selection
-  const handleResultSelect = (result: SearchResult | CertificationSearchResult) => {
-    if ('type' in result) {
-      // It's a SearchResult (profile or group)
-      if (result.type === 'profile' && onProfileSelect) {
-        onProfileSelect(result.id);
-      } else if (result.type === 'group' && onGroupSelect) {
-        onGroupSelect(result.id);
-      }
-    } else if (onCertificationSelect) {
-      // It's a CertificationSearchResult
+  const handleResultSelect = (result: any, type: 'profile' | 'group' | 'certification') => {
+    if (type === 'profile' && onProfileSelect) {
+      onProfileSelect(result.userId || result.id);
+    } else if (type === 'group' && onGroupSelect) {
+      onGroupSelect(result.id);
+    } else if (type === 'certification' && onCertificationSelect) {
       onCertificationSelect(result.id);
     }
   };
@@ -210,38 +182,65 @@ const SearchInterface: React.FC<SearchInterfaceProps> = ({
           <div className="search-loading">Searching...</div>
         ) : (
           <>
-            {searchQuery && !loading && profileResults.length === 0 && certificationResults.length === 0 && (
+            {searchQuery && !loading && (!profileResults || (profileResults.userProfiles.length === 0 && profileResults.groups.length === 0)) && certificationResults.length === 0 && (
               <div className="no-results">
                 No results found for "{searchQuery}". Try a different search term.
               </div>
             )}
 
-            {showProfiles && profileResults.length > 0 && (
+            {showProfiles && profileResults && (profileResults.userProfiles.length > 0 || profileResults.groups.length > 0) && (
               <div className="results-section">
                 <h3 className="results-section-title">Profiles & Groups</h3>
                 <div className="results-list">
-                  {profileResults.map(result => (
+                  {/* User Profiles */}
+                  {profileResults.userProfiles.map(profile => (
                     <div 
-                      key={result.id} 
+                      key={profile.userId} 
                       className="result-item"
-                      onClick={() => handleResultSelect(result)}
+                      onClick={() => handleResultSelect(profile, 'profile')}
                     >
                       <div className="result-icon">
-                        {result.type === 'profile' ? <FaUser /> : <FaUsers />}
+                        <FaUser />
+                      </div>
+                      <div className="result-content">
+                        <h4 className="result-title">{profile.name}</h4>
+                        {profile.bio && (
+                          <p className="result-description">{profile.bio}</p>
+                        )}
+                        {profile.location && (
+                          <p className="result-location">{profile.location}</p>
+                        )}
+                      </div>
+                      <div className="result-action">
+                        <FaChevronRight />
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {/* Groups */}
+                  {profileResults.groups.map(group => (
+                    <div 
+                      key={group.id} 
+                      className="result-item"
+                      onClick={() => handleResultSelect(group, 'group')}
+                    >
+                      <div className="result-icon">
+                        <FaUsers />
                       </div>
                       <div className="result-content">
                         <h4 className="result-title">
-                          {result.name}
-                          {result.type === 'group' && (
-                            <span className="result-type">Group</span>
-                          )}
+                          {group.name}
+                          <span className="result-type">Group</span>
                         </h4>
-                        {result.description && (
-                          <p className="result-description">{result.description}</p>
+                        {group.description && (
+                          <p className="result-description">{group.description}</p>
                         )}
-                        {result.tags && result.tags.length > 0 && (
+                        {group.location && (
+                          <p className="result-location">{group.location}</p>
+                        )}
+                        {group.tags && group.tags.length > 0 && (
                           <div className="result-tags">
-                            {result.tags.map((tag: string, index: number) => (
+                            {group.tags.map((tag: string, index: number) => (
                               <span key={index} className="result-tag">{tag}</span>
                             ))}
                           </div>
@@ -264,7 +263,7 @@ const SearchInterface: React.FC<SearchInterfaceProps> = ({
                     <div 
                       key={result.id} 
                       className="result-item"
-                      onClick={() => handleResultSelect(result)}
+                      onClick={() => handleResultSelect(result, 'certification')}
                     >
                       <div className="result-icon">
                         <FaCertificate />
@@ -274,8 +273,15 @@ const SearchInterface: React.FC<SearchInterfaceProps> = ({
                         {result.issuer && (
                           <p className="result-issuer">Issued by {result.issuer}</p>
                         )}
-                        {result.description && (
-                          <p className="result-description">{result.description}</p>
+                        {result.certType && (
+                          <p className="result-type">{result.certType}</p>
+                        )}
+                        {result.specializations && result.specializations.length > 0 && (
+                          <div className="result-tags">
+                            {result.specializations.map((spec: string, index: number) => (
+                              <span key={index} className="result-tag">{spec}</span>
+                            ))}
+                          </div>
                         )}
                       </div>
                       <div className="result-action">

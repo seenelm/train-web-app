@@ -1,0 +1,1044 @@
+:root {
+  /* Workout view specific colors */
+  --workout-accent-primary: #4a90e2;
+  --workout-accent-secondary: #5cb85c;
+  --workout-accent-tertiary: #f0ad4e;
+  --workout-accent-danger: #d9534f;
+  --workout-highlight: rgba(74, 144, 226, 0.1);
+  --workout-completed: rgba(92, 184, 92, 0.2);
+  --workout-hover: rgba(74, 144, 226, 0.05);
+  --workout-border-light: rgba(255, 255, 255, 0.1);
+  --workout-border-dark: rgba(0, 0, 0, 0.1);
+}
+
+.workout-view {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  color: var(--text-primary);
+}
+
+.workout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.unsaved-indicator {
+  color: var(--workout-accent-tertiary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.save-button {
+  background-color: var(--workout-accent-primary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color var(--transition-speed);
+}
+
+.save-button:hover:not(:disabled) {
+  background-color: #3a7bc8;
+}
+
+.save-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.back-button, .edit-button {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
+  padding: 10px 20px;
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all var(--transition-speed);
+}
+
+.back-button:hover, .edit-button:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+  background-color: rgba(108, 117, 125, 0.05);
+}
+
+.workout-details {
+  margin-bottom: 30px;
+}
+
+.workout-details h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.workout-description {
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.workout-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.duration-section, .muscle-groups-section {
+  flex: 1;
+  min-width: 300px;
+}
+
+.duration-section h3, .muscle-groups-section h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+}
+
+.muscle-groups-section {
+  flex: 1;
+  min-width: 300px;
+}
+
+.muscle-groups-section h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+}
+
+.combined-percentage-bar {
+  height: 8px;
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 10px;
+  border: 1px solid var(--workout-border-dark);
+  display: flex;
+}
+
+.percentage-segment {
+  height: 100%;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.segment-color-0 { background-color: var(--workout-accent-primary); }
+.segment-color-1 { background-color: var(--workout-accent-secondary); }
+.segment-color-2 { background-color: var(--workout-accent-tertiary); }
+.segment-color-3 { background-color: var(--workout-accent-danger); }
+.segment-color-4 { background-color: #9c27b0; } /* Purple */
+.segment-color-5 { background-color: #ff9800; } /* Orange */
+.segment-color-6 { background-color: #795548; } /* Brown */
+.segment-color-7 { background-color: #607d8b; } /* Blue Grey */
+
+.muscle-group-labels {
+  display: flex;
+  margin-top: 8px;
+}
+
+.muscle-group-label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex-grow: 0;
+  flex-shrink: 0;
+  text-align: left;
+  padding-right: 10px;
+}
+
+.muscle-name {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.muscle-percentage {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.duration-input, .sets-input, .weight-input, .reps-input {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 5px;
+  border-radius: var(--input-border-radius);
+}
+
+.circuits-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.circuit-block {
+  background-color: var(--bg-secondary);
+  border-radius: 3px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid var(--border-color);
+}
+
+.circuit-header {
+  display: flex;
+  align-items: center;  
+  padding: 15px;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  gap: 12px;
+}
+
+.circuit-title-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.circuit-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.circuit-drag-handle {
+  color: var(--text-secondary);
+  cursor: grab;
+  font-size: 16px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.circuit-drag-handle:hover {
+  opacity: 1;
+  color: var(--workout-accent-primary);
+}
+
+.circuit-block.dragging {
+  box-shadow: 0 8px 16px var(--shadow-color);
+  z-index: 10;
+}
+
+.circuit-sets {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 100px;
+}
+
+.circuit-sets label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.sets-input {
+  width: 60px;
+  padding: 6px 8px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.sets-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 6px 12px;
+  background-color: var(--bg-primary);
+  border-radius: 4px;
+}
+
+.circuit-name-input {
+  min-width: 200px;
+  max-width: 400px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: inherit;
+  transition: border-color var(--transition-speed);
+}
+
+.circuit-name-input:focus {
+  outline: none;
+  border-color: var(--workout-accent-primary);
+  box-shadow: 0 0 0 2px var(--workout-highlight);
+}
+
+.circuit-sets {
+  color: var(--text-primary);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.set-control-btn {
+  background-color: var(--bg-secondary);   
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: background-color var(--transition-speed);
+}
+
+.set-control-btn:hover {
+  background-color: var(--workout-hover);
+}
+
+.set-control-btn:active {
+  background-color: var(--workout-accent-primary);
+  color: white;
+}
+
+.sets-input {
+  width: 40px;
+  text-align: center;
+}
+
+.exercises-list {
+  padding: 10px;
+}
+
+.exercise-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  margin: 8px;
+  border-bottom: 1px solid var(--workout-border-dark);
+  background-color: var(--bg-primary);
+  transition: background-color var(--transition-speed);
+  margin-bottom: 8px;
+  border-radius: 2px;
+  position: relative;
+  gap: 12px;
+}
+
+.exercise-item:hover {
+  background-color: var(--workout-hover);
+}
+
+.exercise-item.dragging {
+  opacity: 0.8;
+  background-color: var(--workout-highlight);
+  box-shadow: 0 4px 8px var(--shadow-color);
+  z-index: 10;
+}
+
+.exercise-item:last-child {
+  border-bottom: none;
+}
+
+.exercise-item.completed {
+  opacity: 0.8;
+  background-color: var(--workout-completed);
+}
+
+.exercise-check {
+  margin-right: 15px;
+}
+
+.exercise-name-input {
+  flex: 2;
+  min-width: 250px;
+  padding: 6px 10px;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-family: inherit;
+  transition: border-color var(--transition-speed);
+}
+
+.exercise-name-input:focus {
+  outline: none;
+  border-color: var(--workout-accent-primary);
+}
+
+.weight-input,
+.reps-input {
+  width: 80px;
+  padding: 6px 10px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.weight-input:focus,
+.reps-input:focus {
+  outline: none;
+  border-color: var(--workout-accent-primary);
+}
+
+.exercise-name {
+  flex: 2;
+  min-width: 250px;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.exercise-values-group {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+  align-items: center;
+}
+
+.exercise-value-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 80px;
+}
+
+.exercise-value {
+  color: white;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.exercise-unit {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 500;
+}
+
+.drag-handle {
+  margin-left: 8px;
+  color: var(--text-primary);
+  cursor: grab;
+  font-size: 14px;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+.remove-exercise-btn {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-left: 8px;
+  margin-top: 18px;
+}
+
+.remove-exercise-btn:hover {
+  color: var(--workout-accent-danger);
+  background-color: rgba(217, 83, 79, 0.1);
+}
+
+.remove-circuit-btn {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-left: 8px;
+}
+
+.remove-circuit-btn:hover {
+  color: var(--workout-accent-danger);
+  background-color: rgba(217, 83, 79, 0.1);
+}
+
+.add-exercise-btn, .add-circuit-btn {
+  width: 98%;
+  padding: 10px 16px;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all var(--transition-speed);
+  margin: 12px;
+
+}
+
+.add-exercise-btn:hover, .add-circuit-btn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+  background-color: rgba(108, 117, 125, 0.05);
+
+}
+
+.muscle-groups-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.muscle-group-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.muscle-group-name-input {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-family: inherit;
+  transition: border-color var(--transition-speed);
+}
+
+.muscle-group-name-input:focus {
+  outline: none;
+  border-color: var(--workout-accent-primary);
+}
+
+.muscle-group-percentage-input {
+  width: 80px;
+  padding: 6px 10px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+  transition: border-color var(--transition-speed);
+}
+
+.muscle-group-percentage-input:focus {
+  outline: none;
+  border-color: var(--workout-accent-primary);
+}
+
+.percentage-symbol {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.remove-muscle-group-btn {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-left: 8px;
+}
+
+.remove-muscle-group-btn:hover {
+  color: var(--workout-accent-danger);
+  background-color: rgba(217, 83, 79, 0.1);
+}
+
+.add-muscle-group-btn {
+  width: 100%;
+  padding: 10px 16px;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all var(--transition-speed);
+}
+
+.add-muscle-group-btn:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+  background-color: rgba(108, 117, 125, 0.05);
+}
+
+.total-percentage {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--bg-secondary);
+  border-top-color: var(--workout-accent-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 20px;
+  text-align: center;
+}
+
+.error-container h2 {
+  color: var(--workout-accent-danger);
+  margin-bottom: 12px;
+}
+
+.error-container p {
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.error-container button {
+  background-color: var(--workout-accent-primary);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--button-border-radius);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.error-banner {
+  background-color: rgba(217, 83, 79, 0.1);
+  border-left: 4px solid var(--workout-accent-danger);
+  color: var(--workout-accent-danger);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  border: 2px dashed var(--border-color);
+}
+
+.empty-state p {
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.measurement-type-select {
+  padding: 6px 10px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color var(--transition-speed);
+  width: 120px;
+}
+
+.measurement-type-select:focus {
+  outline: none;
+  border-color: var(--workout-accent-primary);
+}
+
+.exercise-item.rest-item {
+  border-left: 3px solid #9e9e9e;
+  background-color: rgba(158, 158, 158, 0.05);
+}
+
+.exercise-item.rest-item .exercise-name {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.exercise-notes-container {
+  order: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 400px;
+}
+
+.exercise-notes-input {
+  flex: 1;
+  padding: 7px 10px;
+  margin-top: 13px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-family: inherit;
+  transition: all var(--transition-speed);
+}
+
+.exercise-notes-input:focus {
+  outline: none;
+  border-color: var(--workout-accent-primary);
+  color: var(--text-primary);
+}
+
+.exercise-notes-input::placeholder {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.exercise-notes-display {
+  flex-basis: 100%;
+  width: 100%;
+  margin-top: 4px;
+  padding: 6px 10px;
+  background-color: transparent;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.notes-text {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: 1.3;
+}
+
+.notes-toggle-btn {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 6px 10px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-speed);
+  opacity: 0.5;
+
+}
+
+.notes-toggle-btn:hover {
+  background-color: rgba(108, 117, 125, 0.1);
+  opacity: 1;
+}
+
+.notes-toggle-btn.has-notes {
+  opacity: 1;
+  color: var(--workout-accent-primary);
+  border-color: var(--workout-accent-primary);
+}
+
+.remove-exercise-btn {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-left: 8px;
+  margin-top: 18px;
+}
+
+.remove-exercise-btn:hover {
+  color: var(--workout-accent-danger);
+  background-color: rgba(217, 83, 79, 0.1);
+}
+
+.exercise-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+}
+
+.exercise-input-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: left;
+}
+
+.rest-checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  width: 80px;
+  padding: 6px 10px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.rest-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--workout-accent-primary);
+}
+
+.rest-input {
+  width: 80px;
+  padding: 6px 10px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.rest-input:focus {
+  outline: none;
+  border-color: var(--workout-accent-primary);
+}
+
+.rest-checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  width: 80px;
+  padding: 6px 10px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.circuit-rest {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 100px;
+}
+
+.circuit-rest label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.rest-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 6px 12px;
+  background-color: var(--bg-primary);
+  border-radius: 4px;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .workout-view {
+    padding: 15px 10px;
+  }
+  
+  .workout-header {
+    margin-bottom: 15px;
+  }
+  
+  .workout-details h1 {
+    font-size: 24px;
+  }
+  
+  .workout-meta {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .duration-section, .muscle-groups-section {
+    min-width: 100%;
+  }
+  
+  /* Exercise item mobile styles */
+  .exercise-item {
+    flex-wrap: wrap;
+    padding: 12px 10px;
+    gap: 8px;
+  }
+  
+  .exercise-check {
+    margin-right: 10px;
+  }
+  
+  .exercise-name {
+    flex: 1 1 100%;
+    order: -1;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  
+  .exercise-weight, .exercise-reps {
+    min-width: auto;
+    flex: 1;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+  }
+  
+  .exercise-weight {
+    margin-left: 35px; /* Align with exercise name */
+  }
+  
+  /* Muscle group labels mobile styles */
+  .muscle-group-labels {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .muscle-group-label {
+    min-width: 80px;
+    margin-bottom: 5px;
+  }
+  
+  /* Circuit header mobile styles */
+  .circuit-header {
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .circuit-sets {
+    margin-left: 5px;
+  }
+  
+  /* Form inputs mobile styles */
+  .muscle-group-item {
+    flex-wrap: wrap;
+  }
+  
+  .muscle-name-input {
+    flex: 1 1 100%;
+    margin-bottom: 5px;
+  }
+  
+  .percentage-input-container {
+    width: auto;
+  }
+  
+  /* Edit mode mobile adjustments */
+  .exercise-name-input, .weight-input, .reps-input {
+    width: 100%;
+    max-width: 120px;
+    font-size: 14px;
+  }
+}
+
+/* Small mobile screens */
+@media (max-width: 480px) {
+  .workout-view {
+    padding: 10px 5px;
+  }
+  
+  .back-button, .edit-button {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+  
+  .workout-details h1 {
+    font-size: 20px;
+  }
+  
+  .workout-description {
+    font-size: 14px;
+  }
+  
+  .exercise-item {
+    padding: 10px 8px;
+  }
+  
+  .circuit-block {
+    margin-bottom: 15px;
+  }
+  
+  .circuit-header h3 {
+    font-size: 15px;
+  }
+  
+  .add-exercise-btn, .add-circuit-btn {
+    padding: 8px;
+    font-size: 14px;
+  }
+}

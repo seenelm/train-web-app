@@ -73,7 +73,8 @@ describe('authService', () => {
         email: 'test@example.com',
         password: 'password123',
         name: 'Test User',
-        deviceId: 'mock-device-id'
+        deviceId: 'mock-device-id',
+        agreeToTerms: true
       };
       
       const mockResponse = {
@@ -110,7 +111,8 @@ describe('authService', () => {
         email: 'test@example.com',
         password: 'password123',
         name: 'Test User',
-        deviceId: 'mock-device-id'
+        deviceId: 'mock-device-id',
+        agreeToTerms: true
       };
       
       const mockError = new Error('Registration failed');

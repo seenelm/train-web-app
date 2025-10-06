@@ -1,114 +1,129 @@
-import React, { useState, useRef, useEffect } from 'react';
-import './styles/sidebar.css';
-import logo from '../assets/logo-white.svg';
-import { authService } from '../app/access/services/authService';
-import { useNavigate } from 'react-router-dom';
-import { AiOutlineLogout, AiOutlineMenu } from 'react-icons/ai';
-import { LogoutRequest } from '@seenelm/train-core';
-import { tokenService } from '../services/tokenService';
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router";
+import { AiOutlineLogout, AiOutlineMenu, AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
+import logo from "@/assets/logo.svg";
+import logoWhite from "@/assets/logo-white.svg";
+import { authService } from "../app/access/services/authService";
+import { tokenService } from "../services/tokenService";
+import { LogoutRequest } from "@seenelm/train-core";
+import "./styles/sidebar.css";
 
-// Define the tab interface
 interface TabItem {
   id: string;
   label: string;
-  icon: React.ReactNode; 
+  icon: React.ReactNode;
 }
 
-// Define the props for the Sidebar component
 interface SidebarProps {
   tabs: TabItem[];
-  defaultActiveTab?: string;
-  onTabChange: (tabId: string) => void;
 }
 
-// Main Sidebar component
-const Sidebar: React.FC<SidebarProps> = ({ 
-  tabs, 
-  defaultActiveTab,
-  onTabChange
-}) => {
+const Sidebar: React.FC<SidebarProps> = ({ tabs }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState(defaultActiveTab || (tabs.length > 0 ? tabs[0].id : ''));
-  const [expanded, setExpanded] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const sidebarRef = useRef<HTMLDivElement>(null);
+  const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
+  // Check if the screen is mobile size
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
-        setExpanded(false);
-      }
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
     };
-
-    if (expanded) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
+    
+    // Initial check
+    checkIfMobile();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', checkIfMobile);
+    
+    // Cleanup
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('resize', checkIfMobile);
     };
-  }, [expanded]);
+  }, []);
 
-  const handleTabClick = (tabId: string) => {
-    setActiveTab(tabId);
-    onTabChange(tabId);
-    // On mobile, close the sidebar after clicking a tab
-    if (window.innerWidth <= 768) {
-      setExpanded(false);
-    }
-  };
+  // Check for dark mode
+  useEffect(() => {
+    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setIsDarkMode(darkModeQuery.matches);
 
-  const toggleSidebar = () => {
-    setExpanded(!expanded);
-  };
+    const handleChange = (e: MediaQueryListEvent) => {
+      setIsDarkMode(e.matches);
+    };
+
+    darkModeQuery.addEventListener('change', handleChange);
+    return () => darkModeQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const handleSignOut = async () => {
     const logoutRequest: LogoutRequest = {
       deviceId: tokenService.getDeviceId(),
-      refreshToken: tokenService.getRefreshToken() || ''
+      refreshToken: tokenService.getRefreshToken() || "",
     };
     try {
-      setIsLoading(true);
       await authService.logout(logoutRequest);
-      console.log('Successfully signed out');
-      navigate('/login');
+      navigate("/login");
     } catch (err) {
-      console.error('Sign out error:', err);
-    } finally {
-      setIsLoading(false);
+      console.error("Sign out error:", err);
     }
   };
 
+  const toggleSidebar = () => {
+    if (isMobile) {
+      setMobileOpen(!mobileOpen);
+    } else {
+      setCollapsed(!collapsed);
+    }
+  };
+
+  // Determine sidebar classes based on state
+  const sidebarClasses = `sidebar ${collapsed ? 'collapsed' : ''} ${isMobile ? 'mobile' : ''} ${isMobile && mobileOpen ? 'mobile-open' : ''}`;
+
   return (
     <>
+      {/* Mobile menu button - only visible on mobile */}
       <button className="mobile-menu-button" onClick={toggleSidebar}>
         <AiOutlineMenu />
       </button>
-      <div ref={sidebarRef} className={`sidebar ${expanded ? 'expanded' : 'collapsed'}`}>
-        <div className="sidebar-logo" onClick={toggleSidebar}>
-          <img src={logo} alt="Train Logo" />
+
+      <div className={sidebarClasses}>
+        <div className="sidebar-header">
+          <div className="sidebar-logo">
+            <img src={isDarkMode ? logoWhite : logo} alt="Train Logo" />
+          </div>
+          <button className="sidebar-toggle" onClick={toggleSidebar}>
+            {collapsed ? <AiOutlineArrowRight /> : <AiOutlineArrowLeft />}
+          </button>
         </div>
+
         <div className="sidebar-tabs">
           {tabs.map((tab) => (
-            <div
+            <NavLink
               key={tab.id}
-              className={`sidebar-tab ${activeTab === tab.id ? 'active' : ''}`}
-              onClick={() => handleTabClick(tab.id)}
+              to={tab.id === "" ? "/" : `/${tab.id}`}
+              className={({ isActive }) => `sidebar-tab ${isActive ? "active" : ""}`}
               title={tab.label}
+              onClick={() => isMobile && setMobileOpen(false)}
             >
               <span className="tab-icon">{tab.icon}</span>
-              <span className="tab-label">{tab.label}</span>
-            </div>
+              {!collapsed && <span className="tab-label">{tab.label}</span>}
+            </NavLink>
           ))}
         </div>
+
         <div className="sidebar-signout" onClick={handleSignOut} title="Sign Out">
-          <span className="tab-icon"><AiOutlineLogout /></span>
-          <span className="tab-label">{isLoading ? 'Signing Out...' : 'Sign Out'}</span>
-        </div>
-        <div className="sidebar-toggle" onClick={toggleSidebar}>
-          {expanded ? '«' : '»'}
+          <span className="tab-icon">
+            <AiOutlineLogout />
+          </span>
+          {!collapsed && <span className="tab-label">Sign Out</span>}
         </div>
       </div>
+      
+      {/* Overlay for mobile - closes sidebar when clicking outside */}
+      {isMobile && mobileOpen && (
+        <div className="sidebar-overlay" onClick={() => setMobileOpen(false)}></div>
+      )}
     </>
   );
 };

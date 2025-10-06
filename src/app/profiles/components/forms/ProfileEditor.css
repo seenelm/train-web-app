@@ -2,17 +2,17 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  background-color: #fff;
+  background-color: var(--bg-secondary);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--shadow-color);
 }
 
 .profile-editor h2 {
   margin-top: 0;
   margin-bottom: 24px;
   font-size: 24px;
-  color: #333;
-  border-bottom: 1px solid #eee;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 12px;
 }
 
@@ -20,7 +20,7 @@
   text-align: center;
   padding: 40px;
   font-size: 16px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .profile-editor-error {
@@ -47,7 +47,7 @@
 
 .profile-editor-section h3 {
   font-size: 18px;
-  color: #444;
+  color: var(--text-primary);
   margin-bottom: 16px;
   font-weight: 500;
 }
@@ -61,7 +61,7 @@
   margin-bottom: 6px;
   font-size: 14px;
   font-weight: 500;
-  color: #555;
+  color: var(--text-secondary);
 }
 
 .profile-editor-field input[type="text"],
@@ -69,10 +69,12 @@
 .profile-editor-field textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   font-size: 16px;
   transition: border-color 0.2s;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .profile-editor-field input[type="text"]:focus,
@@ -103,7 +105,7 @@
   border-radius: 50%;
   overflow: hidden;
   margin-bottom: 16px;
-  background-color: #f0f0f0;
+  background-color: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -122,7 +124,7 @@
   align-items: center;
   justify-content: center;
   font-size: 36px;
-  color: #aaa;
+  color: var(--text-secondary);
 }
 
 .profile-editor-tags {
@@ -178,11 +180,11 @@
 }
 
 .profile-editor-custom-section {
-  background-color: #f9f9f9;
+  background-color: var(--bg-primary);
   border-radius: 4px;
   padding: 16px;
   margin-bottom: 16px;
-  border: 1px solid #eee;
+  border: 1px solid var(--border-color);
 }
 
 .profile-editor-remove-section {
@@ -222,15 +224,15 @@
   justify-content: flex-end;
   gap: 16px;
   margin-top: 30px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border-color);
   padding-top: 20px;
 }
 
 .profile-editor-cancel {
   padding: 10px 20px;
-  background-color: #f5f5f5;
-  color: #555;
-  border: 1px solid #ddd;
+  background-color: var(--bg-primary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   font-size: 16px;
   cursor: pointer;
@@ -238,7 +240,7 @@
 }
 
 .profile-editor-cancel:hover {
-  background-color: #e0e0e0;
+  background-color: var(--border-color);
 }
 
 .profile-editor-save {

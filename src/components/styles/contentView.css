@@ -1,20 +1,13 @@
 .content-view {
   flex: 1;
-  padding: 24px;
-  overflow-y: auto;
-  height: calc(100% - 40px);
-  width: 100%;
-  box-sizing: border-box;
-  background-color: var(--bg-secondary);
-  border-radius: 16px;
-  margin: 20px;
-  margin-left: 0;
+  margin-left: 250px;
+  transition: margin-left 0.3s ease;
 }
 
 /* Responsive styles */
 @media (max-width: 768px) {
   .content-view {
-    padding: 16px;
-    margin: 16px;
+    margin: 0;
+    padding-top: 80px;
   }
 }

@@ -1,160 +1,170 @@
 /* Sidebar container */
 .sidebar-container {
   display: flex;
-  height: 100%;
+
 }
 
 /* Mobile menu button */
 .mobile-menu-button {
   display: none;
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 10px;
+  right: 10px;
   z-index: 100;
-  background: #1a1a1a;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 12px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px;
   cursor: pointer;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: background-color var(--transition-speed);
+}
+
+.mobile-menu-button:hover {
+  background-color: var(--bg-primary);
 }
 
 .mobile-menu-button svg {
-  font-size: 24px;
+  font-size: 20px;
 }
 
 /* Sidebar styles */
 .sidebar {
-  background-color: #1a1a1a;
-  color: white;
-  height: calc(100% - 40px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  width: 250px;
+  height: 100vh;
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
-  position: relative;
-  border-radius: 16px;
-  margin: 20px;
-  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  border-right: 1px solid var(--border-color);
 }
 
-/* Expanded and collapsed states */
-.sidebar.expanded {
-  width: 220px;
-}
-
+/* Collapsed sidebar */
 .sidebar.collapsed {
-  width: 70px;
+  width: 60px;
+}
+
+.sidebar.collapsed ~ .content-view {
+  margin-left: 60px;
+}
+
+/* Sidebar header with logo and toggle button */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Sidebar toggle button */
+.sidebar-toggle {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all var(--transition-speed);
+}
+
+.sidebar-toggle:hover {
+  background-color: var(--bg-primary);
+  color: var(--accent-color);
 }
 
 /* Sidebar logo */
 .sidebar-logo {
-  padding: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
-  border-bottom: 1px solid #2a2a2a;
-  cursor: pointer;
 }
 
 .sidebar-logo img {
   max-width: 30px;
   height: auto;
-  transition: transform 0.3s ease;
-}
-
-.sidebar-logo:hover img {
-  transform: scale(1.1);
 }
 
 /* Sidebar tabs */
 .sidebar-tabs {
   display: flex;
   flex-direction: column;
-  padding: 20px 0;
+  padding: 10px 0;
   flex-grow: 1;
 }
 
 .sidebar-tab {
   display: flex;
   align-items: center;
-  padding: 12px;
+  padding: 10px 15px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-speed);
   border-left: 3px solid transparent;
-  margin-bottom: 8px;
-}
-
-.sidebar.expanded .sidebar-tab {
-  padding: 12px 24px 12px 20px;
+  color: var(--text-secondary);
+  text-decoration: none;
 }
 
 .sidebar-tab:hover {
-  background-color: #2a2a2a;
+  background-color: var(--bg-primary);
+  text-decoration: none;
+  color: var(--accent-color);
 }
 
 .sidebar-tab.active {
-  background-color: #2a2a2a;
-  border-left: 3px solid white;
+  background-color: var(--bg-primary);
+  border-left: 3px solid var(--accent-color);
+  color: var(--accent-color);
 }
 
 /* Sign out button */
 .sidebar-signout {
   display: flex;
   align-items: center;
-  padding: 12px;
+  padding: 10px 15px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-speed);
   border-left: 3px solid transparent;
   margin-top: auto;
-  margin-bottom: 8px;
-  color: #ff6b6b;
-}
-
-.sidebar.expanded .sidebar-signout {
-  padding: 12px 24px 12px 20px;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
 }
 
 .sidebar-signout:hover {
-  background-color: rgba(255, 107, 107, 0.1);
+  background-color: var(--bg-primary);
+  color: #dc3545;
 }
 
 .tab-icon {
-  font-size: 20px;
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 24px;
+  min-width: 20px;
 }
 
 .tab-label {
   font-size: 14px;
   font-weight: 500;
-  margin-left: 12px;
+  margin-left: 10px;
   white-space: nowrap;
-  opacity: 0;
-  transition: opacity 0.3s ease;
 }
 
-.sidebar.expanded .tab-label {
-  opacity: 1;
+/* Collapsed sidebar adjustments */
+.sidebar.collapsed .tab-label {
+  display: none;
 }
 
-/* Toggle button */
-.sidebar-toggle {
-  padding: 12px;
-  display: flex;
+.sidebar.collapsed .sidebar-tab,
+.sidebar.collapsed .sidebar-signout {
   justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  border-top: 1px solid #2a2a2a;
-  font-size: 18px;
-  transition: background-color 0.2s ease;
-}
-
-.sidebar-toggle:hover {
-  background-color: #2a2a2a;
+  padding: 10px 0;
 }
 
 .tab-content {
@@ -163,6 +173,18 @@
 
 .tab-panel {
   width: 100%;
+}
+
+/* Overlay for mobile */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 98;
+  display: none;
 }
 
 /* Mobile styles */
@@ -175,27 +197,41 @@
     position: fixed;
     top: 0;
     left: 0;
-    height: 100%;
+    height: 100vh;
+    width: 250px;
     z-index: 99;
-    margin: 0;
-    border-radius: 0;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 2px 0 10px var(--shadow-color);
   }
-
-  .sidebar.expanded {
-    display: flex;
+  
+  .sidebar.mobile-open {
+    transform: translateX(0);
   }
-
+  
+  .sidebar-overlay {
+    display: block;
+  }
+  
+  /* Reset collapsed state on mobile */
   .sidebar.collapsed {
-    display: none;
+    width: 250px;
+    transform: translateX(-100%);
   }
-
-  .sidebar-toggle {
-    display: none;
+  
+  .sidebar.collapsed.mobile-open {
+    transform: translateX(0);
   }
+  
+  /* Remove margin adjustments on mobile */
+  .sidebar.collapsed ~ .content-view {
+    margin-left: 0;
+  }
+}
 
-  .tab-content, .tab-panel {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
+/* Adjust main content when sidebar is collapsed on desktop only */
+@media (min-width: 769px) {
+  .sidebar.collapsed + .content-area {
+    margin-left: 60px;
   }
 }
