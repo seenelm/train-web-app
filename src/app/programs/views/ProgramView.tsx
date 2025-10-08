@@ -1,28 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router';
 import './ProgramView.css';
+import { programService } from '../services/programService';
 
 interface Week {
   id: string;
   weekNumber: number;
 }
 
-// interface Program {
-//   id: string;
-//   title?: string;
-//   description?: string;
-//   weeks?: Week[];
-//   includesNutrition?: boolean;
-//   name?: string;
-//   numWeeks?: number;
-//   hasNutritionProgram?: boolean;
-//   phases?: Array<{
-//     name: string;
-//     startWeek: number;
-//     endWeek: number;
-//   }>;
-//   types?: string[];
-// }
+interface Program {
+  id: string;
+  title?: string;
+  description?: string;
+  weeks?: Week[];
+  includesNutrition?: boolean;
+  name?: string;
+  numWeeks?: number;
+  hasNutritionProgram?: boolean;
+  phases?: Array<{
+    name: string;
+    startWeek: number;
+    endWeek: number;
+  }>;
+  types?: string[];
+}
 
 const ProgramView: React.FC = () => {
   const { programId } = useParams<{ programId: string }>();
@@ -32,32 +33,26 @@ const ProgramView: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
-  interface Program {
-    id: string;
-    title?: string;
-    description?: string;
-    weeks?: Week[];
-    includesNutrition?: boolean;
-    name?: string;
-    numWeeks?: number;
-    hasNutritionProgram?: boolean;
-    phases?: Array<{
-      name: string;
-      startWeek: number;
-      endWeek: number;
-    }>;
-    types?: string[];
-  }
-  
   useEffect(() => {
-    const programFromState = location.state?.program as Program;
-    if (programFromState) {
-      setProgram(programFromState);
-      setLoading(false);
-    } else if (programId) {
-      // fetch program here later
-      setLoading(false);
-    }
+    const fetchProgram = async () => {
+      const programFromState = location.state?.program as Program;
+      if (programFromState) {
+        setProgram(programFromState);
+        setLoading(false);
+      } else if (programId) {
+        // Fetch program from API when not available in state
+        try {
+          const fetchedProgram = await programService.getProgramById(programId);
+          setProgram(fetchedProgram as Program);
+          setLoading(false);
+        } catch (error) {
+          console.error('Error fetching program:', error);
+          setLoading(false);
+        }
+      }
+    };
+    
+    fetchProgram();
   }, [location.state, programId]);
   
   useEffect(() => {
