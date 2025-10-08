@@ -5,9 +5,11 @@ import { authService } from '../../app/access/services/authService'
 // Protected route component - redirects to login if not authenticated
 export const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const isAuthenticated = authService.isAuthenticated();
+  const location = useLocation();
   
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    // Capture the current location to redirect back after login
+    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
   }
   
   return children;

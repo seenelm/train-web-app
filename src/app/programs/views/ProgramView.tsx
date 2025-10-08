@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router';
 import './ProgramView.css';
 import { programService } from '../services/programService';
+import { IoShareOutline } from 'react-icons/io5';
 
 interface Week {
   id: string;
@@ -31,6 +32,7 @@ const ProgramView: React.FC = () => {
   const [program, setProgram] = useState<Program | null>(null);
   const [weekCards, setWeekCards] = useState<Week[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [shareSuccess, setShareSuccess] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -72,6 +74,23 @@ const ProgramView: React.FC = () => {
     navigate(`/programs/${programId}/weeks/${weekId}`);
   };
 
+  // Function to handle share
+  const handleShare = async () => {
+    const programUrl = `${window.location.origin}/programs/${programId}`;
+    
+    try {
+      await navigator.clipboard.writeText(programUrl);
+      setShareSuccess(true);
+      
+      setTimeout(() => {
+        setShareSuccess(false);
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      alert('Failed to copy link to clipboard');
+    }
+  };
+
   if (loading) {
     return <div className="loading-container">Loading program details...</div>;
   }
@@ -85,7 +104,16 @@ const ProgramView: React.FC = () => {
   return (
     <div className="program-view">
       <div className="program-header">
-        <h1>{program.name || program.title}</h1>
+        <div className="program-header-top">
+          <h1>{program.name || program.title}</h1>
+          <button 
+            className={`share-button ${shareSuccess ? 'share-success' : ''}`}
+            onClick={handleShare}
+            aria-label="Share program"
+          >
+            <IoShareOutline /> {shareSuccess ? 'Copied!' : 'Share'}
+          </button>
+        </div>
         <div className="program-meta">
           <span className="program-duration">
             {program.numWeeks || (typeof program.weeks === 'number' ? program.weeks : weekCards.length)} weeks

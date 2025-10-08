@@ -97,11 +97,44 @@
   gap: 8px;
 }
 
+.program-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
 .program-card h3 {
   margin: 0;
   font-size: 1.2rem;
   font-weight: 600;
   color: var(--text-primary);
+  flex: 1;
+}
+
+.share-button {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.share-button:hover {
+  background-color: var(--bg-primary);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  transform: scale(1.05);
+}
+
+.share-button.share-success {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: var(--bg-secondary);
 }
 
 .program-card-description {

@@ -16,6 +16,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ authType }) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const sessionExpired = queryParams.get('expired') === 'true';
+  const redirectUrl = queryParams.get('redirect');
 
   const getTitle = (): string => {
     switch (authType) {
@@ -33,6 +34,11 @@ const AuthPage: React.FC<AuthPageProps> = ({ authType }) => {
   };
 
   const getSubtitle = (): string => {
+    // Check if redirecting from a program URL
+    if (authType === 'login' && redirectUrl?.includes('/programs/')) {
+      return 'Please sign in to view this program';
+    }
+    
     switch (authType) {
       case 'login':
         return 'Please sign in to continue';
@@ -69,7 +75,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ authType }) => {
   const renderForm = () => {
     switch (authType) {
       case 'login':
-        return <LoginForm sessionExpired={sessionExpired} />;
+        return <LoginForm sessionExpired={sessionExpired} redirectUrl={redirectUrl || undefined} />;
       case 'register':
         return <RegistrationForm />;
       case 'forgot-password':
