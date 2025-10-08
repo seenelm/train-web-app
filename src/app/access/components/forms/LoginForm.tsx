@@ -13,9 +13,10 @@ import { UserLoginRequest } from '@seenelm/train-core';
 
 interface LoginFormProps {
   sessionExpired?: boolean;
+  redirectUrl?: string;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false, redirectUrl }) => {
   const navigate = useNavigate();
   const [loginForm, setLoginForm] = useState<UserLoginRequest>({} as UserLoginRequest);
 
@@ -62,7 +63,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ sessionExpired = false }) => {
       }
   
       console.log(`Successfully signed in with ${provider}:`, userData);
-      navigate('/');
+      navigate(redirectUrl || '/');
     } catch (err) {
       console.error(`${provider} sign-in error:`, err);
       if (err instanceof AxiosError) {

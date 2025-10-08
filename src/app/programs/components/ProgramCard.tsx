@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { IoShareOutline } from 'react-icons/io5';
 
 interface Program {
   id: string;
@@ -16,10 +17,28 @@ interface ProgramCardProps {
 
 export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
   const navigate = useNavigate();
+  const [shareSuccess, setShareSuccess] = useState<boolean>(false);
 
   const handleProgramClick = () => {
     console.log('Program being passed to navigation:', program);
     navigate(`/programs/${program.id}`, { state: { program } });
+  };
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
+    const programUrl = `${window.location.origin}/programs/${program.id}`;
+    
+    try {
+      await navigator.clipboard.writeText(programUrl);
+      setShareSuccess(true);
+      
+      setTimeout(() => {
+        setShareSuccess(false);
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      alert('Failed to copy link to clipboard');
+    }
   };
 
   // Determine the program length
@@ -31,7 +50,16 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
     <div className="program-card" onClick={handleProgramClick}>
       <div className="program-image-placeholder"></div>
       <div className="program-card-content">
-        <h3>{program.title}</h3>
+        <div className="program-card-header">
+          <h3>{program.title}</h3>
+          <button 
+            className={`share-button ${shareSuccess ? 'share-success' : ''}`}
+            onClick={handleShare}
+            aria-label="Share program"
+          >
+            {shareSuccess ? '✓ Copied!' : <IoShareOutline />}
+          </button>
+        </div>
         <p className="program-card-description">{program.description}</p>
         <div className="program-card-meta">
           <span className="program-length">{programLength} weeks</span>
