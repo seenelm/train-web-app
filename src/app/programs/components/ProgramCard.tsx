@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { IoShareOutline } from 'react-icons/io5';
+import { IoShareOutline, IoTrashOutline } from 'react-icons/io5';
 
 interface Program {
   id: string;
@@ -41,6 +41,12 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
     }
   };
 
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
+    console.log('Delete program:', program.id);
+    // TODO: Implement delete functionality
+  };
+
   // Determine the program length
   const programLength = program.numWeeks || 
                        (Array.isArray(program.weeks) ? program.weeks.length : 
@@ -52,13 +58,22 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
       <div className="program-card-content">
         <div className="program-card-header">
           <h3>{program.title}</h3>
-          <button 
-            className={`share-button ${shareSuccess ? 'share-success' : ''}`}
-            onClick={handleShare}
-            aria-label="Share program"
-          >
-            {shareSuccess ? '✓ Copied!' : <IoShareOutline />}
-          </button>
+          <div className="program-card-actions">
+            <button 
+              className={`share-button ${shareSuccess ? 'share-success' : ''}`}
+              onClick={handleShare}
+              aria-label="Share program"
+            >
+              {shareSuccess ? '✓ Copied!' : <IoShareOutline />}
+            </button>
+            <button 
+              className="delete-button"
+              onClick={handleDelete}
+              aria-label="Delete program"
+            >
+              <IoTrashOutline />
+            </button>
+          </div>
         </div>
         <p className="program-card-description">{program.description}</p>
         <div className="program-card-meta">
