@@ -18,6 +18,12 @@
   margin-bottom: 10px;
 }
 
+.program-header-actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
 .program-header h1 {
   margin: 0;
   font-size: 2rem;
@@ -57,6 +63,34 @@
   background-color: var(--accent-color);
   border-color: var(--accent-color);
   color: var(--bg-secondary);
+}
+
+.delete-button {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  color: var(--text-secondary);
+  font-weight: 500;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.delete-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.delete-button:hover {
+  background-color: #fee;
+  border-color: #dc3545;
+  color: #dc3545;
+  transform: translateY(-1px);
 }
 
 .program-meta {

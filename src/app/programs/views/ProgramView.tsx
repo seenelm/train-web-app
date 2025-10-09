@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router';
 import './ProgramView.css';
 import { programService } from '../services/programService';
-import { IoShareOutline } from 'react-icons/io5';
+import { IoShareOutline, IoTrashOutline } from 'react-icons/io5';
 
 interface Week {
   id: string;
@@ -91,6 +91,14 @@ const ProgramView: React.FC = () => {
     }
   };
 
+  // Function to handle delete
+  const handleDelete = () => {
+    console.log('Delete program:', programId);
+    // TODO: Implement delete functionality
+    // For now, just navigate back
+    navigate('/programs');
+  };
+
   if (loading) {
     return <div className="loading-container">Loading program details...</div>;
   }
@@ -106,13 +114,22 @@ const ProgramView: React.FC = () => {
       <div className="program-header">
         <div className="program-header-top">
           <h1>{program.name || program.title}</h1>
-          <button 
-            className={`share-button ${shareSuccess ? 'share-success' : ''}`}
-            onClick={handleShare}
-            aria-label="Share program"
-          >
-            <IoShareOutline /> {shareSuccess ? 'Copied!' : 'Share'}
-          </button>
+          <div className="program-header-actions">
+            <button 
+              className={`share-button ${shareSuccess ? 'share-success' : ''}`}
+              onClick={handleShare}
+              aria-label="Share program"
+            >
+              <IoShareOutline /> {shareSuccess ? 'Copied!' : 'Share'}
+            </button>
+            <button 
+              className="delete-button"
+              onClick={handleDelete}
+              aria-label="Delete program"
+            >
+              <IoTrashOutline /> Delete
+            </button>
+          </div>
         </div>
         <div className="program-meta">
           <span className="program-duration">
