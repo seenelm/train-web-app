@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { IoShareOutline, IoTrashOutline } from 'react-icons/io5';
+import { programService } from '../services/programService';
 
 interface Program {
   id: string;
@@ -13,11 +14,13 @@ interface Program {
 
 interface ProgramCardProps {
   program: Program;
+  onDelete?: (programId: string) => void; 
 }
 
-export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
+export const ProgramCard: React.FC<ProgramCardProps> = ({ program, onDelete }) => {
   const navigate = useNavigate();
   const [shareSuccess, setShareSuccess] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const handleProgramClick = () => {
     console.log('Program being passed to navigation:', program);
@@ -41,10 +44,27 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
     }
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click
-    console.log('Delete program:', program.id);
-    // TODO: Implement delete functionality
+    
+    if (!program.id) {
+      console.error('Program ID is required');
+      return;
+    }
+
+    setIsDeleting(true);
+    
+    try {
+      await programService.deleteProgram(program.id);
+      
+      if (onDelete) {
+        onDelete(program.id);
+      }
+    } catch (error) {
+      console.error('Error deleting program:', error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   // Determine the program length
@@ -69,9 +89,10 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
             <button 
               className="delete-button"
               onClick={handleDelete}
+              disabled={isDeleting}
               aria-label="Delete program"
             >
-              <IoTrashOutline />
+              {isDeleting ? '...' : <IoTrashOutline />}
             </button>
           </div>
         </div>

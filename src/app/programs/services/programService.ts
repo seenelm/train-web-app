@@ -11,6 +11,7 @@ import {
   WorkoutLogResponse,
   WeekResponse,
 } from "@seenelm/train-core";
+import { SuccessResponse } from "../../../types/api.types";
 
 /**
  * Service for program management operations
@@ -34,6 +35,10 @@ class ProgramService extends BaseApiService<
    */
   async createProgram(programData: ProgramRequest): Promise<ProgramResponse> {
     return this.create(programData);
+  }
+
+  async deleteProgram(programId: string): Promise<SuccessResponse> {
+    return this.deleteById(programId);
   }
 
   /**
@@ -60,7 +65,7 @@ class ProgramService extends BaseApiService<
     programId: number,
     weekId: number,
     weekRequest: WeekRequest
-  ): Promise<void> {
+  ): Promise<SuccessResponse> {
     return this.put(`/program/${programId}/week/${weekId}`, weekRequest);
   }
 
@@ -88,7 +93,7 @@ class ProgramService extends BaseApiService<
     weekId: string,
     workoutId: string,
     workoutRequest: WorkoutRequest
-  ): Promise<WorkoutResponse> {
+  ): Promise<SuccessResponse> {
     return this.put(
       `/program/${programId}/week/${weekId}/workout/${workoutId}`,
       workoutRequest
@@ -103,7 +108,7 @@ class ProgramService extends BaseApiService<
     programId: string,
     weekId: string,
     workoutId: string
-  ): Promise<void> {
+  ): Promise<SuccessResponse> {
     return this.delete(
       `/program/${programId}/week/${weekId}/workout/${workoutId}`
     );

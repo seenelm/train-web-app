@@ -92,11 +92,19 @@ const ProgramView: React.FC = () => {
   };
 
   // Function to handle delete
-  const handleDelete = () => {
+  const handleDelete = async () => {
     console.log('Delete program:', programId);
-    // TODO: Implement delete functionality
-    // For now, just navigate back
-    navigate('/programs');
+    if (!programId) {
+      console.error('Program ID is required');
+      return;
+    }
+    
+    try {
+      await programService.deleteProgram(programId);
+      navigate('/programs');
+    } catch (error) {
+      console.error('Error deleting program:', error);
+    }
   };
 
   if (loading) {

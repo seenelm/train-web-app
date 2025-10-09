@@ -133,6 +133,12 @@ const Programs: React.FC = () => {
     navigate('/programs/builder');
   };
 
+  const handleDeleteProgram = (programId: string) => {
+    setAllPrograms(prevPrograms => 
+      prevPrograms.filter(program => program.id !== programId)
+    );
+  };
+
   if (state.loading) {
     return <div className="loading-container">Loading programs...</div>;
   }
@@ -153,6 +159,7 @@ const Programs: React.FC = () => {
         programs={allPrograms}
         showAddButton={true}
         onAddProgram={handleAddProgram}
+        onDeleteProgram={handleDeleteProgram}
       />
     </div>
   );
