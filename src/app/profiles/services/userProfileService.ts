@@ -1,12 +1,11 @@
 import api from "../../../services/apiClient";
 import {
-  UserProfile,
   SuccessResponse,
   CustomSection,
   UserFollowersResponse,
   UserGroupsResponse,
 } from "../../../types/api.types";
-import { UserProfileResponse } from "@seenelm/train-core";
+import { UserProfileResponse, UserProfileRequest } from "@seenelm/train-core";
 import { tokenService } from "../../../services/tokenService";
 
 /**
@@ -53,7 +52,7 @@ export const userProfileService = {
    * @returns Promise with success response
    */
   async updateUserProfile(
-    profileData: Partial<UserProfile>
+    profileData: UserProfileRequest
   ): Promise<SuccessResponse> {
     try {
       const response = await api.put<SuccessResponse>(
