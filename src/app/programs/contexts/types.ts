@@ -25,9 +25,11 @@ export interface ProgramState {
   programsError: string | null;
 
   // Weeks level
-  weeks: WeekResponse[];
+  weeks: WeekRequest[]; // Store as requests for easy editing
   currentWeek: WeekResponse | null;
+  currentWeekIndex: number; // Track which week is being edited
   weeksLoading: boolean;
+  weeksSaving: boolean;
   weeksError: string | null;
 
   // Workouts level
@@ -57,15 +59,17 @@ export type ProgramAction =
 
   // Weeks
   | { type: "SET_WEEKS_LOADING"; payload: boolean }
-  | { type: "SET_WEEKS"; payload: WeekResponse[] }
+  | { type: "SET_WEEKS_SAVING"; payload: boolean }
+  | { type: "SET_WEEKS"; payload: WeekRequest[] }
   | { type: "SET_WEEKS_ERROR"; payload: string | null }
   | { type: "SET_CURRENT_WEEK"; payload: WeekResponse | null }
-  | { type: "ADD_WEEK"; payload: WeekResponse }
+  | { type: "SET_CURRENT_WEEK_INDEX"; payload: number }
   | {
-      type: "UPDATE_WEEK";
-      payload: { id: string; updates: Partial<WeekResponse> };
+      type: "UPDATE_WEEK_AT_INDEX";
+      payload: { index: number; weekRequest: WeekRequest };
     }
-  | { type: "REMOVE_WEEK"; payload: string }
+  | { type: "ADD_WEEK"; payload: WeekRequest }
+  | { type: "REMOVE_WEEK"; payload: number }
 
   // Workouts
   | { type: "SET_WORKOUTS"; payload: WorkoutResponse[] }
@@ -96,8 +100,10 @@ export interface ProgramContextType {
   setProgramsError: (error: string | null) => void;
 
   // Week management
-  loadWeeks: (programId: string) => Promise<void>;
+  setWeeks: (weeks: WeekRequest[]) => void;
   setCurrentWeek: (week: WeekResponse | null) => void;
+  setCurrentWeekIndex: (index: number) => void;
+  updateWeekAtIndex: (index: number, weekRequest: WeekRequest) => void;
   createWeek: (
     programId: string,
     weekRequest: WeekRequest
@@ -105,10 +111,16 @@ export interface ProgramContextType {
   updateWeek: (
     programId: string,
     weekId: string,
+    index: number,
     weekRequest: WeekRequest
   ) => Promise<void>;
-  deleteWeek: (programId: string, weekId: string) => Promise<void>;
+  deleteWeek: (
+    programId: string,
+    weekId: string,
+    index: number
+  ) => Promise<void>;
   setWeeksLoading: (loading: boolean) => void;
+  setWeeksSaving: (saving: boolean) => void;
   setWeeksError: (error: string | null) => void;
 
   // Workout management
@@ -228,6 +240,53 @@ export const programUtils = {
 
     if (!request.createdBy) {
       errors.push("Created by user ID is required");
+    }
+
+    return errors;
+  },
+
+  // Transform WeekResponse to WeekRequest
+  weekResponseToRequest: (response: WeekResponse): WeekRequest => {
+    return {
+      name: response.name || "",
+      description: response.description || "",
+      weekNumber: response.weekNumber,
+      startDate: response.startDate ? new Date(response.startDate) : new Date(),
+      endDate: response.endDate ? new Date(response.endDate) : new Date(),
+      image: undefined, // Image will be handled separately
+    };
+  },
+
+  // Transform array of WeekResponse to WeekRequest
+  weekResponseArrayToRequestArray: (
+    responses: WeekResponse[]
+  ): WeekRequest[] => {
+    return responses.map((response) =>
+      programUtils.weekResponseToRequest(response)
+    );
+  },
+
+  // Create default WeekRequest for new weeks
+  createDefaultWeekRequest: (weekNumber: number = 1): WeekRequest => {
+    return {
+      name: `Week ${weekNumber}`,
+      description: "",
+      weekNumber,
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days later
+    };
+  },
+
+  // Validate WeekRequest
+  validateWeekRequest: (request: WeekRequest): string[] => {
+    const errors: string[] = [];
+
+    if (request.weekNumber < 1) {
+      errors.push("Week number must be at least 1");
+    }
+
+    if (request.startDate >= request.endDate) {
+      errors.push("End date must be after start date");
     }
 
     return errors;

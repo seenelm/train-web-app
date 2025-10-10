@@ -3,34 +3,40 @@ import { useParams, useNavigate, useLocation } from 'react-router';
 import './ProgramView.css';
 import { programService } from '../services/programService';
 import { IoShareOutline, IoTrashOutline } from 'react-icons/io5';
-import { useProgramContext } from '../contexts/ProgramContext';
-import { ProgramResponse } from '@seenelm/train-core';
-
-interface Week {
-  id: string;
-  weekNumber: number;
-}
+import { FaEdit } from 'react-icons/fa';
+import { useProgramContext, programUtils } from '../contexts/ProgramContext';
+import { ProgramResponse, WeekRequest, WeekResponse } from '@seenelm/train-core';
+import EditWeekDialog from '../components/EditWeekDialog';
 
 const ProgramView: React.FC = () => {
   const { programId } = useParams<{ programId: string }>();
   const location = useLocation();
-  const [weekCards, setWeekCards] = useState<Week[]>([]);
   const [shareSuccess, setShareSuccess] = useState<boolean>(false);
   const [isDeletingWeek, setIsDeletingWeek] = useState<boolean>(false);
+  const [showEditWeekDialog, setShowEditWeekDialog] = useState(false);
+  const [editingWeekIndex, setEditingWeekIndex] = useState<number>(-1);
+  const [editingWeekId, setEditingWeekId] = useState<string>('');
+  const [weekData, setWeekData] = useState<WeekRequest | null>(null);
+  const [imageUrl, setImageUrl] = useState<string>('');
   const navigate = useNavigate();
+  
   const { 
     state, 
     setProgramsLoading, 
     setProgramsError,
     clearCurrentProgram, 
     clearCurrentWeek,  
-    setCurrentProgram 
+    setCurrentProgram,
+    setWeeks,
+    updateWeek,
+    deleteWeek,
   } = useProgramContext();
 
   useEffect(() => {
     return () => {
       clearCurrentProgram();
       clearCurrentWeek();
+      setWeeks([]); 
       setProgramsLoading(false);
       setProgramsError(null);
     };
@@ -59,14 +65,14 @@ const ProgramView: React.FC = () => {
   }, [location.state, programId]);
   
   useEffect(() => {
-    if (state.currentProgram) {
-      if (Array.isArray(state.currentProgram.weeks)) {
-        console.log('Weeks is an array: ', state.currentProgram.weeks);
-        setWeekCards(state.currentProgram.weeks);
-      } else {
-        setWeekCards([]);
-      }
+    if (state.currentProgram && Array.isArray(state.currentProgram.weeks)) {
+     
+      const weekRequests = programUtils.weekResponseArrayToRequestArray(
+        state.currentProgram.weeks as WeekResponse[]
+      );
+      setWeeks(weekRequests);
     }
+   
   }, [state.currentProgram]);
 
   // Function to handle week card click
@@ -76,21 +82,54 @@ const ProgramView: React.FC = () => {
   };
 
   // Function to handle delete week
-  const handleDeleteWeek = async (weekId: string, event: React.MouseEvent) => {
+  const handleDeleteWeek = async (weekId: string, weekIndex: number, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent triggering the week card click
     setIsDeletingWeek(true);
     try {
-      await programService.deleteWeek(programId!, weekId);
-      
-      // Remove the week from local state
-      setWeekCards(prevWeeks => 
-        prevWeeks.filter(week => week.id !== weekId)
-      );
+      // Use context's deleteWeek which handles both API call and state update
+      await deleteWeek(programId!, weekId, weekIndex);
     } catch (error) {
       console.error('Error deleting week:', error);
     } finally {
       setIsDeletingWeek(false);
     }
+  };
+
+  // Function to handle edit week
+  const handleEditWeek = (weekIndex: number, weekId: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent triggering the week card click
+    const weekRequest = state.weeks[weekIndex];
+    if (weekRequest) {
+      setEditingWeekIndex(weekIndex);
+      setEditingWeekId(weekId);
+      setWeekData({ ...weekRequest }); // Create a copy
+      
+      // Get the original week response to check for imageUrl
+      const weekResponse = state.currentProgram?.weeks?.[weekIndex] as WeekResponse;
+      setImageUrl(weekResponse?.imageUrl || '');
+      
+      setShowEditWeekDialog(true);
+    }
+  };
+
+  const handleSaveWeek = async (updatedWeekData: WeekRequest) => {
+    if (!programId || !editingWeekId || editingWeekIndex === -1) return;
+
+    try {
+      // TODO: Handle image upload separately if needed
+      await updateWeek(programId, editingWeekId, editingWeekIndex, updatedWeekData);
+      handleCloseEditDialog();
+    } catch (error) {
+      console.error('Error updating week:', error);
+    }
+  };
+
+  const handleCloseEditDialog = () => {
+    setShowEditWeekDialog(false);
+    setImageUrl('');
+    setEditingWeekIndex(-1);
+    setEditingWeekId('');
+    setWeekData(null);
   };
 
   // Function to handle share
@@ -140,7 +179,7 @@ const ProgramView: React.FC = () => {
     return <div className="error-container">Program not found</div>;
   }
 
-  console.log('DEBUG - Week cards for rendering:', weekCards);
+  console.log('DEBUG - Week cards for rendering:', state.weeks);
 
   return (
     <div className="program-view">
@@ -169,7 +208,7 @@ const ProgramView: React.FC = () => {
         </div>
         <div className="program-meta">
           <span className="program-duration">
-            {state.currentProgram.numWeeks || (typeof state.currentProgram.weeks === 'number' ? state.currentProgram.weeks : weekCards.length)} weeks
+            {state.currentProgram.numWeeks || state.weeks.length} weeks
           </span>
           {(state.currentProgram.hasNutritionProgram) && (
             <span className="program-nutrition">Includes nutrition plan</span>
@@ -183,11 +222,19 @@ const ProgramView: React.FC = () => {
         <p className="program-description">{state.currentProgram.description}</p>
       </div>
       
-      {weekCards.length > 0 ? (
+      {state.weeks.length > 0 && state.currentProgram.weeks ? (
         <div className="program-weeks">
           <h2>Program Schedule</h2>
           <div className="weeks-grid">
-            {weekCards
+            {state.weeks
+              .map((weekReq, index) => {
+                const weekResp = state.currentProgram?.weeks?.[index] as WeekResponse | undefined;
+                return {
+                  ...weekReq,
+                  id: weekResp?.id || `week-${index}`,
+                  index
+                };
+              })
               .sort((a, b) => a.weekNumber - b.weekNumber)
               .map(week => (
                 <div 
@@ -201,8 +248,15 @@ const ProgramView: React.FC = () => {
                       <h3>Week {week.weekNumber}</h3>
                       <div className="week-card-actions">
                         <button 
+                          className="edit-button"
+                          onClick={(e) => handleEditWeek(week.index, week.id, e)}
+                          aria-label="Edit week"
+                        >
+                          <FaEdit />
+                        </button>
+                        <button 
                           className="delete-button"
-                          onClick={(e) => handleDeleteWeek(week.id, e)}
+                          onClick={(e) => handleDeleteWeek(week.id, week.index, e)}
                           aria-label="Delete week"
                         >
                           {isDeletingWeek ? '...' : <IoTrashOutline />}
@@ -210,7 +264,7 @@ const ProgramView: React.FC = () => {
                       </div>
                     </div>
                     <div className="week-description">
-                      Build strength and endurance
+                      {week.description || 'Build strength and endurance'}
                     </div>
                   </div>
                 </div>
@@ -220,13 +274,17 @@ const ProgramView: React.FC = () => {
       ) : (
         <div className="no-weeks">
           <p>No detailed schedule available for this program yet.</p>
-          <p>Debug info: {JSON.stringify({ 
-            weeks: state.currentProgram.weeks, 
-            numWeeks: state.currentProgram.numWeeks,
-            weekCardsLength: weekCards.length
-          })}</p>
         </div>
       )}
+
+      <EditWeekDialog
+        isOpen={showEditWeekDialog}
+        weekData={weekData}
+        imageUrl={imageUrl}
+        isSaving={state.weeksSaving}
+        onClose={handleCloseEditDialog}
+        onSave={handleSaveWeek}
+      />
     </div>
   );
 };

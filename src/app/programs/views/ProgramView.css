@@ -274,3 +274,30 @@
 .error-container button:hover {
   opacity: 0.9;
 }
+
+/* Edit button for week cards */
+.week-card-actions .edit-button {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.week-card-actions .edit-button:hover {
+  background-color: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+  transform: translateY(-1px);
+}
+
+.week-card-actions .edit-button:active {
+  transform: translateY(0);
+}

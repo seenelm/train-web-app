@@ -62,8 +62,8 @@ class ProgramService extends BaseApiService<
    * PUT /program/:programId/week/:weekId
    */
   async updateWeek(
-    programId: number,
-    weekId: number,
+    programId: string,
+    weekId: string,
     weekRequest: WeekRequest
   ): Promise<SuccessResponse> {
     return this.put(`/program/${programId}/week/${weekId}`, weekRequest);

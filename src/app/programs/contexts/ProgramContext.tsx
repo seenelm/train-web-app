@@ -32,7 +32,9 @@ const initialState: ProgramState = {
   // Weeks
   weeks: [],
   currentWeek: null,
+  currentWeekIndex: -1,
   weeksLoading: false,
+  weeksSaving: false,
   weeksError: null,
   
   // Workouts
@@ -97,31 +99,30 @@ function programReducer(state: ProgramState, action: ProgramAction): ProgramStat
     // Weeks
     case 'SET_WEEKS_LOADING':
       return { ...state, weeksLoading: action.payload };
+    case 'SET_WEEKS_SAVING':
+      return { ...state, weeksSaving: action.payload };
     case 'SET_WEEKS':
       return { ...state, weeks: action.payload, weeksLoading: false, weeksError: null };
     case 'SET_WEEKS_ERROR':
       return { ...state, weeksError: action.payload, weeksLoading: false };
     case 'SET_CURRENT_WEEK':
       return { ...state, currentWeek: action.payload };
-    case 'ADD_WEEK':
-      return { ...state, weeks: [...state.weeks, action.payload] };
-    case 'UPDATE_WEEK':
+    case 'SET_CURRENT_WEEK_INDEX':
+      return { ...state, currentWeekIndex: action.payload };
+    case 'UPDATE_WEEK_AT_INDEX':
       return {
         ...state,
-        weeks: state.weeks.map(week =>
-          week.id === action.payload.id
-            ? { ...week, ...action.payload.updates }
-            : week
-        ),
-        currentWeek: state.currentWeek?.id === action.payload.id
-          ? { ...state.currentWeek, ...action.payload.updates }
-          : state.currentWeek
+        weeks: state.weeks.map((week, idx) =>
+          idx === action.payload.index ? action.payload.weekRequest : week
+        )
       };
+    case 'ADD_WEEK':
+      return { ...state, weeks: [...state.weeks, action.payload] };
     case 'REMOVE_WEEK':
       return {
         ...state,
-        weeks: state.weeks.filter(week => week.id !== action.payload),
-        currentWeek: state.currentWeek?.id === action.payload ? null : state.currentWeek
+        weeks: state.weeks.filter((_, idx) => idx !== action.payload),
+        currentWeekIndex: state.currentWeekIndex === action.payload ? -1 : state.currentWeekIndex
       };
     
     // Workouts
@@ -227,23 +228,28 @@ export const ProgramProvider: React.FC<ProgramProviderProps> = ({ children }) =>
     dispatch({ type: 'SET_WEEKS_LOADING', payload: loading });
   };
 
+  const setWeeksSaving = (saving: boolean) => {
+    dispatch({ type: 'SET_WEEKS_SAVING', payload: saving });
+  };
+
   const setWeeksError = (error: string | null) => {
     dispatch({ type: 'SET_WEEKS_ERROR', payload: error });
   };
 
-  const loadWeeks = async (_programId: string): Promise<void> => {
-    try {
-      dispatch({ type: 'SET_WEEKS_LOADING', payload: true });
-      // Note: This would need to be implemented in the service
-      // const weeks = await programService.getProgramWeeks(programId);
-      // dispatch({ type: 'SET_WEEKS', payload: weeks });
-    } catch (error) {
-      setWeeksError(error instanceof Error ? error.message : 'Failed to load weeks');
-    }
+  const setWeeks = (weeks: WeekRequest[]): void => {
+    dispatch({ type: 'SET_WEEKS', payload: weeks });
   };
 
   const setCurrentWeek = (week: WeekResponse | null): void => {
     dispatch({ type: 'SET_CURRENT_WEEK', payload: week });
+  };
+
+  const setCurrentWeekIndex = (index: number): void => {
+    dispatch({ type: 'SET_CURRENT_WEEK_INDEX', payload: index });
+  };
+
+  const updateWeekAtIndex = (index: number, weekRequest: WeekRequest): void => {
+    dispatch({ type: 'UPDATE_WEEK_AT_INDEX', payload: { index, weekRequest } });
   };
 
   const createWeek = async (_programId: string, _weekRequest: WeekRequest): Promise<WeekResponse> => {
@@ -262,26 +268,27 @@ export const ProgramProvider: React.FC<ProgramProviderProps> = ({ children }) =>
     }
   };
 
-  const updateWeek = async (programId: string, weekId: string, weekRequest: WeekRequest): Promise<void> => {
+  const updateWeek = async (programId: string, weekId: string, index: number, weekRequest: WeekRequest): Promise<void> => {
     try {
-      dispatch({ type: 'SET_WEEKS_LOADING', payload: true });
-      await programService.updateWeek(parseInt(programId), parseInt(weekId), weekRequest);
-      dispatch({ type: 'UPDATE_WEEK', payload: { id: weekId, updates: weekRequest } });
+      dispatch({ type: 'SET_WEEKS_SAVING', payload: true });
+      await programService.updateWeek(programId, weekId, weekRequest);
+      dispatch({ type: 'UPDATE_WEEK_AT_INDEX', payload: { index, weekRequest } });
     } catch (error) {
       setWeeksError(error instanceof Error ? error.message : 'Failed to update week');
+      throw error;
     } finally {
-      dispatch({ type: 'SET_WEEKS_LOADING', payload: false });
+      dispatch({ type: 'SET_WEEKS_SAVING', payload: false });
     }
   };
 
-  const deleteWeek = async (_programId: string, weekId: string): Promise<void> => {
+  const deleteWeek = async (programId: string, weekId: string, index: number): Promise<void> => {
     try {
       dispatch({ type: 'SET_WEEKS_LOADING', payload: true });
-      // Note: This would need to be implemented in the service
-      // await programService.deleteWeek(programId, weekId);
-      dispatch({ type: 'REMOVE_WEEK', payload: weekId });
+      await programService.deleteWeek(programId, weekId);
+      dispatch({ type: 'REMOVE_WEEK', payload: index });
     } catch (error) {
       setWeeksError(error instanceof Error ? error.message : 'Failed to delete week');
+      throw error;
     } finally {
       dispatch({ type: 'SET_WEEKS_LOADING', payload: false });
     }
@@ -451,9 +458,12 @@ export const ProgramProvider: React.FC<ProgramProviderProps> = ({ children }) =>
     
     // Week management
     setWeeksLoading,
+    setWeeksSaving,
     setWeeksError,
-    loadWeeks,
+    setWeeks,
     setCurrentWeek,
+    setCurrentWeekIndex,
+    updateWeekAtIndex,
     createWeek,
     updateWeek,
     deleteWeek,
