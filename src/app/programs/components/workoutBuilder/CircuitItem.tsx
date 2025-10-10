@@ -10,23 +10,21 @@ interface Props {
   block: Block;
   editMode: boolean;
   workout: WorkoutRequest;
-  setHasUnsavedChanges: (v: boolean) => void;
 }
 
 const CircuitItem: React.FC<Props> = ({
   block,
   editMode,
   workout,
-  setHasUnsavedChanges,
 }) => {
-  const { updateWorkoutRequest } = useProgramContext();
+  const { updateWorkoutRequest, setWorkoutHasUnsavedChanges } = useProgramContext();
 
   const updateBlock = (updated: Block) => {
     updateWorkoutRequest({
       ...workout,
       blocks: workout.blocks?.map((c) => (c.order === updated.order ? updated : c)),
     });
-    setHasUnsavedChanges(true);
+    setWorkoutHasUnsavedChanges(true);
   };
 
   const removeBlock = () => {
@@ -34,7 +32,7 @@ const CircuitItem: React.FC<Props> = ({
       ...workout,
       blocks: workout.blocks?.filter((c) => c.order !== block.order),
     });
-    setHasUnsavedChanges(true);
+    setWorkoutHasUnsavedChanges(true);
   };
 
   const handleDragEnd = (event: any) => {

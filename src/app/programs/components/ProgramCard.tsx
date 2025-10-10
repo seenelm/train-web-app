@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { IoShareOutline, IoTrashOutline } from 'react-icons/io5';
 import { programService } from '../services/programService';
+import { ProgramResponse } from '@seenelm/train-core';
 
 interface Program {
   id: string;
@@ -13,7 +14,7 @@ interface Program {
 }
 
 interface ProgramCardProps {
-  program: Program;
+  program: ProgramResponse;
   onDelete?: (programId: string) => void; 
 }
 
@@ -77,7 +78,7 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program, onDelete }) =
       <div className="program-image-placeholder"></div>
       <div className="program-card-content">
         <div className="program-card-header">
-          <h3>{program.title}</h3>
+          <h3>{program.name}</h3>
           <div className="program-card-actions">
             <button 
               className={`share-button ${shareSuccess ? 'share-success' : ''}`}
@@ -99,7 +100,7 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program, onDelete }) =
         <p className="program-card-description">{program.description}</p>
         <div className="program-card-meta">
           <span className="program-length">{programLength} weeks</span>
-          {program.includesNutrition && (
+          {program.hasNutritionProgram && (
             <span className="program-nutrition">Nutrition included</span>
           )}
         </div>

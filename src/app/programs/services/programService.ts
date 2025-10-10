@@ -70,6 +70,17 @@ class ProgramService extends BaseApiService<
   }
 
   /**
+   * Delete a week
+   * DELETE /program/:programId/week/:weekId
+   */
+  async deleteWeek(
+    programId: string,
+    weekId: string
+  ): Promise<SuccessResponse> {
+    return this.delete(`/program/${programId}/week/${weekId}`);
+  }
+
+  /**
    * Create a new workout
    * POST /program/:programId/week/:weekId/workout
    */

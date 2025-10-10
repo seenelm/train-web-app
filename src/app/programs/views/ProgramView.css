@@ -196,6 +196,38 @@
   color: var(--text-secondary);
 }
 
+.week-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.week-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.delete-button {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.delete-button:hover {
+  background-color: #fee;
+  border-color: #dc3545;
+  color: #dc3545;
+  transform: scale(1.05);
+}
+
 @media (max-width: 1024px) {
   .weeks-grid {
     grid-template-columns: repeat(2, 1fr);

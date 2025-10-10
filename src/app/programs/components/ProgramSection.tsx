@@ -1,18 +1,19 @@
 import React from 'react';
 import { ProgramCard } from './ProgramCard';
+import { ProgramResponse } from '@seenelm/train-core';
 
 // Renamed to ProgramSectionItem to avoid conflicts
-interface ProgramSectionItem {
-  id: string;
-  title: string;
-  description: string;
-  numWeeks: number; // Changed from weeks: number to match Programs.tsx
-  includesNutrition: boolean;
-}
+// interface ProgramSectionItem {
+//   id: string;
+//   title: string;
+//   description: string;
+//   numWeeks: number; // Changed from weeks: number to match Programs.tsx
+//   includesNutrition: boolean;
+// }
 
 interface ProgramSectionProps {
   title: string;
-  programs: ProgramSectionItem[]; 
+  programs: ProgramResponse[]; 
   showAddButton?: boolean;
   onAddProgram?: () => void;
   onDeleteProgram?: (programId: string) => void; 

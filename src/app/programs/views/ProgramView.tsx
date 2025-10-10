@@ -3,53 +3,54 @@ import { useParams, useNavigate, useLocation } from 'react-router';
 import './ProgramView.css';
 import { programService } from '../services/programService';
 import { IoShareOutline, IoTrashOutline } from 'react-icons/io5';
+import { useProgramContext } from '../contexts/ProgramContext';
+import { ProgramResponse } from '@seenelm/train-core';
 
 interface Week {
   id: string;
   weekNumber: number;
 }
 
-interface Program {
-  id: string;
-  title?: string;
-  description?: string;
-  weeks?: Week[];
-  includesNutrition?: boolean;
-  name?: string;
-  numWeeks?: number;
-  hasNutritionProgram?: boolean;
-  phases?: Array<{
-    name: string;
-    startWeek: number;
-    endWeek: number;
-  }>;
-  types?: string[];
-}
-
 const ProgramView: React.FC = () => {
   const { programId } = useParams<{ programId: string }>();
   const location = useLocation();
-  const [program, setProgram] = useState<Program | null>(null);
   const [weekCards, setWeekCards] = useState<Week[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [shareSuccess, setShareSuccess] = useState<boolean>(false);
+  const [isDeletingWeek, setIsDeletingWeek] = useState<boolean>(false);
   const navigate = useNavigate();
+  const { 
+    state, 
+    setProgramsLoading, 
+    setProgramsError,
+    clearCurrentProgram, 
+    clearCurrentWeek,  
+    setCurrentProgram 
+  } = useProgramContext();
+
+  useEffect(() => {
+    return () => {
+      clearCurrentProgram();
+      clearCurrentWeek();
+      setProgramsLoading(false);
+      setProgramsError(null);
+    };
+  }, []); 
 
   useEffect(() => {
     const fetchProgram = async () => {
-      const programFromState = location.state?.program as Program;
+      const programFromState = location.state?.program as ProgramResponse;
       if (programFromState) {
-        setProgram(programFromState);
-        setLoading(false);
+        setCurrentProgram(programFromState);
+        setProgramsLoading(false);
       } else if (programId) {
         // Fetch program from API when not available in state
         try {
           const fetchedProgram = await programService.getProgramById(programId);
-          setProgram(fetchedProgram as Program);
-          setLoading(false);
+          setCurrentProgram(fetchedProgram);
+          setProgramsLoading(false);
         } catch (error) {
           console.error('Error fetching program:', error);
-          setLoading(false);
+          setProgramsLoading(false);
         }
       }
     };
@@ -58,20 +59,38 @@ const ProgramView: React.FC = () => {
   }, [location.state, programId]);
   
   useEffect(() => {
-    if (program) {
-      if (Array.isArray(program.weeks)) {
-        console.log('Weeks is an array: ', program.weeks);
-        setWeekCards(program.weeks);
+    if (state.currentProgram) {
+      if (Array.isArray(state.currentProgram.weeks)) {
+        console.log('Weeks is an array: ', state.currentProgram.weeks);
+        setWeekCards(state.currentProgram.weeks);
       } else {
         setWeekCards([]);
       }
     }
-  }, [program]);
+  }, [state.currentProgram]);
 
   // Function to handle week card click
   const handleWeekClick = (weekId: string) => {
     console.log('DEBUG - Week clicked with ID:', weekId);
     navigate(`/programs/${programId}/weeks/${weekId}`);
+  };
+
+  // Function to handle delete week
+  const handleDeleteWeek = async (weekId: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent triggering the week card click
+    setIsDeletingWeek(true);
+    try {
+      await programService.deleteWeek(programId!, weekId);
+      
+      // Remove the week from local state
+      setWeekCards(prevWeeks => 
+        prevWeeks.filter(week => week.id !== weekId)
+      );
+    } catch (error) {
+      console.error('Error deleting week:', error);
+    } finally {
+      setIsDeletingWeek(false);
+    }
   };
 
   // Function to handle share
@@ -91,6 +110,12 @@ const ProgramView: React.FC = () => {
     }
   };
 
+  // Function to handle back to programs
+  const handleBackToPrograms = () => {
+    clearCurrentProgram();
+    navigate('/programs');
+  };
+
   // Function to handle delete
   const handleDelete = async () => {
     console.log('Delete program:', programId);
@@ -107,11 +132,11 @@ const ProgramView: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (state.programsLoading) {
     return <div className="loading-container">Loading program details...</div>;
   }
 
-  if (!program) {
+  if (!state.currentProgram) {
     return <div className="error-container">Program not found</div>;
   }
 
@@ -119,9 +144,12 @@ const ProgramView: React.FC = () => {
 
   return (
     <div className="program-view">
+      <button className="back-button" onClick={handleBackToPrograms}>
+        &larr; Back to Programs
+      </button>
       <div className="program-header">
         <div className="program-header-top">
-          <h1>{program.name || program.title}</h1>
+          <h1>{state.currentProgram.name || state.currentProgram.name}</h1>
           <div className="program-header-actions">
             <button 
               className={`share-button ${shareSuccess ? 'share-success' : ''}`}
@@ -141,18 +169,18 @@ const ProgramView: React.FC = () => {
         </div>
         <div className="program-meta">
           <span className="program-duration">
-            {program.numWeeks || (typeof program.weeks === 'number' ? program.weeks : weekCards.length)} weeks
+            {state.currentProgram.numWeeks || (typeof state.currentProgram.weeks === 'number' ? state.currentProgram.weeks : weekCards.length)} weeks
           </span>
-          {(program.includesNutrition || program.hasNutritionProgram) && (
+          {(state.currentProgram.hasNutritionProgram) && (
             <span className="program-nutrition">Includes nutrition plan</span>
           )}
-          {program.types && program.types.length > 0 && (
+          {state.currentProgram.types && state.currentProgram.types.length > 0 && (
             <span className="program-types">
-              Types: {program.types.join(', ')}
+              Types: {state.currentProgram.types.join(', ')}
             </span>
           )}
         </div>
-        <p className="program-description">{program.description}</p>
+        <p className="program-description">{state.currentProgram.description}</p>
       </div>
       
       {weekCards.length > 0 ? (
@@ -169,7 +197,18 @@ const ProgramView: React.FC = () => {
                 >
                   <div className="week-image-placeholder"></div>
                   <div className="week-content">
-                    <h3>Week {week.weekNumber}</h3>
+                    <div className="week-card-header">
+                      <h3>Week {week.weekNumber}</h3>
+                      <div className="week-card-actions">
+                        <button 
+                          className="delete-button"
+                          onClick={(e) => handleDeleteWeek(week.id, e)}
+                          aria-label="Delete week"
+                        >
+                          {isDeletingWeek ? '...' : <IoTrashOutline />}
+                        </button>
+                      </div>
+                    </div>
                     <div className="week-description">
                       Build strength and endurance
                     </div>
@@ -182,8 +221,8 @@ const ProgramView: React.FC = () => {
         <div className="no-weeks">
           <p>No detailed schedule available for this program yet.</p>
           <p>Debug info: {JSON.stringify({ 
-            weeks: program.weeks, 
-            numWeeks: program.numWeeks,
+            weeks: state.currentProgram.weeks, 
+            numWeeks: state.currentProgram.numWeeks,
             weekCardsLength: weekCards.length
           })}</p>
         </div>

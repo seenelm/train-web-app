@@ -4,6 +4,7 @@ import './WeekView.css';
 import { programService } from '../services/programService';
 import { useProgramContext, programUtils } from '../contexts/ProgramContext';
 import { tokenService } from '../../../services/tokenService';
+import { IoTrashOutline } from 'react-icons/io5';
 
 // Types for our workout events
 interface WorkoutEvent {
@@ -25,7 +26,12 @@ const WeekView: React.FC = () => {
   const { programId, weekId } = useParams<{ programId: string; weekId: string }>();
   const navigate = useNavigate();
 
-  const { setWorkoutRequest } = useProgramContext();
+  const { 
+    setWorkoutRequest, 
+    clearCurrentWeek,
+    setWeeksLoading,
+    setWeeksError
+  } = useProgramContext();
   
   // Days of the week
   const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -53,7 +59,21 @@ const WeekView: React.FC = () => {
   const [showCreationPopup, setShowCreationPopup] = useState(false);
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('10:00');
+
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   
+  useEffect(() => {
+    return () => {
+      clearCurrentWeek();
+      setWeeksLoading(false);
+      setWeeksError(null);
+      // Clear local state
+      setWorkouts([]);
+      setSelectedBlocks([]);
+      setShowCreationPopup(false);
+    };
+  }, []); 
+
   // Fetch workouts when component mounts
   useEffect(() => {
     const fetchWorkouts = async () => {
@@ -250,6 +270,24 @@ const WeekView: React.FC = () => {
     navigate(`/programs/${programId}/weeks/${weekId}/workouts/${workoutId}`);
   };
 
+  // Handle delete workout
+  const handleDeleteWorkout = async (workoutId: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent triggering the workout click
+    setIsDeleting(true);
+    try {
+      await programService.deleteWorkout(programId!, weekId!, workoutId);
+      
+      // Remove the workout from local state
+      setWorkouts(prevWorkouts => 
+        prevWorkouts.filter(workout => workout.id !== workoutId)
+      );
+    } catch (error) {
+      console.error('Error deleting workout:', error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   // Handle log workout click
   // const handleLogWorkout = (workoutId: string, event: React.MouseEvent) => {
   //   event.stopPropagation(); // Prevent triggering the parent onClick
@@ -258,6 +296,7 @@ const WeekView: React.FC = () => {
 
   // Function to go back to program view
   const handleBackClick = () => {
+    clearCurrentWeek();
     navigate(`/programs/${programId}`);
   };
 
@@ -318,6 +357,7 @@ const WeekView: React.FC = () => {
     
     if (type === 'workout') {
       const user = JSON.parse(tokenService.getUser() || '{}');
+      
       // Calculate duration in minutes
       const [startHour, startMin] = startTime.split(':').map(Number);
       const [endHour, endMin] = endTime.split(':').map(Number);
@@ -329,8 +369,6 @@ const WeekView: React.FC = () => {
       // Get the selected day (use the first selected block's day)
       const selectedDay = selectedBlocks[0]?.day;
       if (!selectedDay) return;
-
-      
 
       const defaultRequest = programUtils.createDefaultWorkoutRequest(user.userId, durationMinutes);
       defaultRequest.startDate = createDateWithDayAndTime(selectedDay, startTime);
@@ -487,6 +525,16 @@ const WeekView: React.FC = () => {
                       <div className="workout-time">{workout.startTime}</div>
                       <div className="workout-title">{workout.title}</div>
                       <div className="workout-duration">{workout.duration} hour{workout.duration !== 1 ? 's' : ''}</div>
+                      <div className="workout-actions">
+                        <button
+                          className="delete-button"
+                          onClick={(e) => handleDeleteWorkout(workout.id, e)}
+                          disabled={isDeleting}
+                          aria-label="Delete workout"
+                        >
+                          {isDeleting ? '...' : <IoTrashOutline />}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

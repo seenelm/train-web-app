@@ -39,14 +39,6 @@ export interface ProgramState {
   workoutEditMode: boolean;
   workoutIsOwner: boolean;
   workoutError: string | null;
-
-  // UI state
-  loading: boolean;
-  saving: boolean;
-  error: string | null;
-  editMode: boolean;
-  hasUnsavedChanges: boolean;
-  isOwner: boolean;
 }
 
 // Action types for the reducer
@@ -84,16 +76,7 @@ export type ProgramAction =
   | { type: "SET_WORKOUT_EDIT_MODE"; payload: boolean }
   | { type: "SET_WORKOUT_IS_OWNER"; payload: boolean }
   | { type: "SET_WORKOUT_HAS_UNSAVED_CHANGES"; payload: boolean }
-  | { type: "SET_WORKOUT_ERROR"; payload: string | null }
-
-  // UI state
-  | { type: "SET_LOADING"; payload: boolean }
-  | { type: "SET_SAVING"; payload: boolean }
-  | { type: "SET_ERROR"; payload: string | null }
-  | { type: "SET_EDIT_MODE"; payload: boolean }
-  | { type: "SET_HAS_UNSAVED_CHANGES"; payload: boolean }
-  | { type: "SET_IS_OWNER"; payload: boolean }
-  | { type: "RESET_STATE" };
+  | { type: "SET_WORKOUT_ERROR"; payload: string | null };
 
 // Context type
 export interface ProgramContextType {
@@ -101,14 +84,16 @@ export interface ProgramContextType {
   dispatch: React.Dispatch<ProgramAction>;
 
   // Program management
-  loadPrograms: () => Promise<void>;
+  setPrograms: (programs: ProgramResponse[]) => void;
   setCurrentProgram: (program: ProgramResponse | null) => void;
   createProgram: (programRequest: ProgramRequest) => Promise<ProgramResponse>;
   updateProgram: (
     programId: string,
     updates: Partial<ProgramRequest>
   ) => Promise<void>;
-  deleteProgram: (programId: string) => Promise<void>;
+  deleteProgram: (programId: string) => void;
+  setProgramsLoading: (loading: boolean) => void;
+  setProgramsError: (error: string | null) => void;
 
   // Week management
   loadWeeks: (programId: string) => Promise<void>;
@@ -123,6 +108,8 @@ export interface ProgramContextType {
     weekRequest: WeekRequest
   ) => Promise<void>;
   deleteWeek: (programId: string, weekId: string) => Promise<void>;
+  setWeeksLoading: (loading: boolean) => void;
+  setWeeksError: (error: string | null) => void;
 
   // Workout management
   setWorkouts: (workouts: WorkoutResponse[]) => void;
@@ -134,7 +121,6 @@ export interface ProgramContextType {
   setWorkoutIsOwner: (isOwner: boolean) => void;
   setWorkoutHasUnsavedChanges: (hasChanges: boolean) => void;
   setWorkoutError: (error: string | null) => void;
-  //   resetState: () => void;
 
   // Exercise-specific methods
   updateExerciseInBlock: (
@@ -155,16 +141,7 @@ export interface ProgramContextType {
     toIndex: number
   ) => void;
 
-  // UI State
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-  setEditMode: (editMode: boolean) => void;
-  setHasUnsavedChanges: (hasChanges: boolean) => void;
-  setIsOwner: (isOwner: boolean) => void;
-  setSaving: (saving: boolean) => void;
-
   // Utility methods
-  resetState: () => void;
   clearCurrentProgram: () => void;
   clearCurrentWeek: () => void;
   clearCurrentWorkout: () => void;

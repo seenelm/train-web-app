@@ -7,7 +7,7 @@ interface Props {
 }
 
 const WorkoutDetailsSection: React.FC<Props> = ({ editMode }) => {
-  const { state,updateWorkoutRequest } = useProgramContext();
+  const { state, updateWorkoutRequest } = useProgramContext();
   const workout = state.workoutRequest;
 
   return (

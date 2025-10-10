@@ -11,7 +11,6 @@ import {
   ProfileAccess,
 } from '@seenelm/train-core';
 import { programService } from '../services/programService';
-import { tokenService } from '../../../services/tokenService';
 import { 
   ProgramState, 
   ProgramAction, 
@@ -57,13 +56,6 @@ const initialState: ProgramState = {
   workoutIsOwner: false,
   workoutError: null,
   
-  // UI state
-  loading: false,
-  error: null,
-  editMode: false,
-  hasUnsavedChanges: false,
-  isOwner: false,
-  saving: false,
 };
 
 // ============================================================================
@@ -154,23 +146,6 @@ function programReducer(state: ProgramState, action: ProgramAction): ProgramStat
     case 'SET_WORKOUT_ERROR':
       return { ...state, workoutError: action.payload };
   
-    
-    // UI state
-    case 'SET_LOADING':
-      return { ...state, loading: action.payload };
-    case 'SET_ERROR':
-      return { ...state, error: action.payload };
-    case 'SET_EDIT_MODE':
-      return { ...state, editMode: action.payload };
-    case 'SET_HAS_UNSAVED_CHANGES':
-      return { ...state, hasUnsavedChanges: action.payload };
-    case 'SET_IS_OWNER':
-      return { ...state, isOwner: action.payload };
-    case 'SET_SAVING':
-      return { ...state, saving: action.payload };
-    case 'RESET_STATE':
-      return initialState;
-    
     default:
       return state;
   }
@@ -193,58 +168,20 @@ interface ProgramProviderProps {
 export const ProgramProvider: React.FC<ProgramProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(programReducer, initialState);
 
-  const setLoading = (loading: boolean) => {
-    dispatch({ type: 'SET_LOADING', payload: loading });
-  };
-  const setError = (error: string | null) => {
-    dispatch({ type: 'SET_ERROR', payload: error });
-  };
-  const setEditMode = (editMode: boolean) => {
-    dispatch({ type: 'SET_EDIT_MODE', payload: editMode });
-  };
-  const setHasUnsavedChanges = (hasChanges: boolean) => {
-    dispatch({ type: 'SET_HAS_UNSAVED_CHANGES', payload: hasChanges });
-  };
-  const setIsOwner = (isOwner: boolean) => {
-    dispatch({ type: 'SET_IS_OWNER', payload: isOwner });
-  };
-  const setSaving = (saving: boolean) => {
-    dispatch({ type: 'SET_SAVING', payload: saving });
-  };
-
-  // ============================================================================
-  // UTILITY FUNCTIONS
-  // ============================================================================
-
-  const getCurrentUserId = (): string => {
-    const userString = tokenService.getUser();
-    if (!userString) {
-      throw new Error("User not logged in");
-    }
-    const userData = JSON.parse(userString);
-    return userData.userId;
-  };
-
-  const handleError = (error: any, context: string) => {
-    console.error(`Error in ${context}:`, error);
-    const errorMessage = error?.message || `Failed to ${context}`;
-    dispatch({ type: 'SET_ERROR', payload: errorMessage });
-    throw error;
-  };
-
   // ============================================================================
   // PROGRAM MANAGEMENT
   // ============================================================================
+  
+  const setProgramsLoading = (loading: boolean) => {
+    dispatch({ type: 'SET_PROGRAMS_LOADING', payload: loading });
+  };
 
-  const loadPrograms = async (): Promise<void> => {
-    try {
-      dispatch({ type: 'SET_PROGRAMS_LOADING', payload: true });
-      const userId = getCurrentUserId();
-      const programs = await programService.fetchUserPrograms(userId);
-      dispatch({ type: 'SET_PROGRAMS', payload: programs });
-    } catch (error) {
-      handleError(error, 'load programs');
-    }
+  const setProgramsError = (error: string | null) => {
+    dispatch({ type: 'SET_PROGRAMS_ERROR', payload: error });
+  };
+
+  const setPrograms = (programs: ProgramResponse[]): void => {
+    dispatch({ type: 'SET_PROGRAMS', payload: programs });
   };
 
   const setCurrentProgram = (program: ProgramResponse | null): void => {
@@ -253,47 +190,46 @@ export const ProgramProvider: React.FC<ProgramProviderProps> = ({ children }) =>
 
   const createProgram = async (programRequest: ProgramRequest): Promise<ProgramResponse> => {
     try {
-      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_PROGRAMS_LOADING', payload: true });
       const program = await programService.createProgram(programRequest);
       dispatch({ type: 'ADD_PROGRAM', payload: program });
       return program;
     } catch (error) {
-      handleError(error, 'create program');
+      setProgramsError(error instanceof Error ? error.message : 'Failed to create program');
       throw error;
     } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'SET_PROGRAMS_LOADING', payload: false });
     }
   };
 
   const updateProgram = async (programId: string, updates: Partial<ProgramRequest>): Promise<void> => {
     try {
-      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_PROGRAMS_LOADING', payload: true });
       // Note: This would need to be implemented in the service
       // await programService.updateProgram(programId, updates);
       dispatch({ type: 'UPDATE_PROGRAM', payload: { id: programId, updates } });
     } catch (error) {
-      handleError(error, 'update program');
+      setProgramsError(error instanceof Error ? error.message : 'Failed to update program');
     } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'SET_PROGRAMS_LOADING', payload: false });
     }
   };
 
-  const deleteProgram = async (programId: string): Promise<void> => {
-    try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      // Note: This would need to be implemented in the service
-      // await programService.deleteProgram(programId);
-      dispatch({ type: 'REMOVE_PROGRAM', payload: programId });
-    } catch (error) {
-      handleError(error, 'delete program');
-    } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
-    }
+  const deleteProgram = (programId: string): void => {
+    dispatch({ type: 'REMOVE_PROGRAM', payload: programId });
   };
 
   // ============================================================================
   // WEEK MANAGEMENT
   // ============================================================================
+
+  const setWeeksLoading = (loading: boolean) => {
+    dispatch({ type: 'SET_WEEKS_LOADING', payload: loading });
+  };
+
+  const setWeeksError = (error: string | null) => {
+    dispatch({ type: 'SET_WEEKS_ERROR', payload: error });
+  };
 
   const loadWeeks = async (_programId: string): Promise<void> => {
     try {
@@ -302,7 +238,7 @@ export const ProgramProvider: React.FC<ProgramProviderProps> = ({ children }) =>
       // const weeks = await programService.getProgramWeeks(programId);
       // dispatch({ type: 'SET_WEEKS', payload: weeks });
     } catch (error) {
-      handleError(error, 'load weeks');
+      setWeeksError(error instanceof Error ? error.message : 'Failed to load weeks');
     }
   };
 
@@ -312,42 +248,42 @@ export const ProgramProvider: React.FC<ProgramProviderProps> = ({ children }) =>
 
   const createWeek = async (_programId: string, _weekRequest: WeekRequest): Promise<WeekResponse> => {
     try {
-      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_WEEKS_LOADING', payload: true });
       // Note: This would need to be implemented in the service
       // const week = await programService.createWeek(programId, weekRequest);
       // dispatch({ type: 'ADD_WEEK', payload: week });
       // return week;
       throw new Error('Create week not implemented');
     } catch (error) {
-      handleError(error, 'create week');
+      setWeeksError(error instanceof Error ? error.message : 'Failed to create week');
       throw error;
     } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'SET_WEEKS_LOADING', payload: false });
     }
   };
 
   const updateWeek = async (programId: string, weekId: string, weekRequest: WeekRequest): Promise<void> => {
     try {
-      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_WEEKS_LOADING', payload: true });
       await programService.updateWeek(parseInt(programId), parseInt(weekId), weekRequest);
       dispatch({ type: 'UPDATE_WEEK', payload: { id: weekId, updates: weekRequest } });
     } catch (error) {
-      handleError(error, 'update week');
+      setWeeksError(error instanceof Error ? error.message : 'Failed to update week');
     } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'SET_WEEKS_LOADING', payload: false });
     }
   };
 
   const deleteWeek = async (_programId: string, weekId: string): Promise<void> => {
     try {
-      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'SET_WEEKS_LOADING', payload: true });
       // Note: This would need to be implemented in the service
       // await programService.deleteWeek(programId, weekId);
       dispatch({ type: 'REMOVE_WEEK', payload: weekId });
     } catch (error) {
-      handleError(error, 'delete week');
+      setWeeksError(error instanceof Error ? error.message : 'Failed to delete week');
     } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'SET_WEEKS_LOADING', payload: false });
     }
   };
 
@@ -483,10 +419,6 @@ export const ProgramProvider: React.FC<ProgramProviderProps> = ({ children }) =>
   // UTILITY METHODS
   // ============================================================================
 
-  const resetState = () => {
-    dispatch({ type: 'RESET_STATE' });
-  };
-
   const clearCurrentProgram = () => {
     dispatch({ type: 'SET_CURRENT_PROGRAM', payload: null });
   };
@@ -506,23 +438,20 @@ export const ProgramProvider: React.FC<ProgramProviderProps> = ({ children }) =>
   const contextValue: ProgramContextType = {
     state,
     dispatch,
-    
-    // UI State
-    setLoading,
-    setError,
-    setEditMode,
-    setHasUnsavedChanges,
-    setIsOwner,
-    setSaving,
+
     
     // Program management
-    loadPrograms,
+    setProgramsLoading,
+    setProgramsError,
+    setPrograms,
     setCurrentProgram,
     createProgram,
     updateProgram,
     deleteProgram,
     
     // Week management
+    setWeeksLoading,
+    setWeeksError,
     loadWeeks,
     setCurrentWeek,
     createWeek,
@@ -548,7 +477,6 @@ export const ProgramProvider: React.FC<ProgramProviderProps> = ({ children }) =>
     reorderExercisesInBlock,
     
     // Utility methods
-    resetState,
     clearCurrentProgram,
     clearCurrentWeek,
     clearCurrentWorkout,

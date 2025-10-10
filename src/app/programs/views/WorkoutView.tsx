@@ -20,21 +20,34 @@ const WorkoutView: React.FC = () => {
   const {
     state,
     setWorkoutRequest,
-    setLoading,
-    setSaving,
-    setEditMode,
-    setIsOwner,
-    setHasUnsavedChanges,
-    setError,
+    setWorkoutLoading,
+    setWorkoutError,
+    setWorkoutSaving,
+    setWorkoutEditMode,
+    setWorkoutIsOwner,
+    setWorkoutHasUnsavedChanges,
+    clearCurrentWorkout,
   } = useProgramContext();
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
+
+  useEffect(() => {
+    return () => {
+      clearCurrentWorkout();
+      setWorkoutLoading(false);
+      setWorkoutSaving(false);
+      setWorkoutEditMode(false);
+      setWorkoutIsOwner(false);
+      setWorkoutHasUnsavedChanges(false);
+      setWorkoutError(null);
+    };
+  }, []); 
 
   // Fetch workout data
   useEffect(() => {
     const fetchWorkout = async () => {
       console.log('Fetching workout...');
-      setLoading(true);
+      setWorkoutLoading(true);
       try {
         const user = JSON.parse(tokenService.getUser() || '{}');
         // Handle 'new' workout - don't fetch from API
@@ -43,17 +56,21 @@ const WorkoutView: React.FC = () => {
             console.log('No workout request');
             return;
           }
-          // const searchParams = new URLSearchParams(window.location.search);
-          // const durationParam = searchParams.get('duration');
-          // const duration = durationParam ? parseInt(durationParam, 10) : 60;
 
-          // const defaultRequest = workoutUtils.createDefaultRequest(user.userId, duration);
-          // console.log('Default request:', defaultRequest);
-          // setWorkoutRequest(defaultRequest);
+          console.log('Workout request:', state.workoutRequest);
 
-          setIsOwner(true);
-          setEditMode(true);
-          setLoading(false);
+          // Ensure createdBy is set to the current user's ID
+          // if (!state.workoutRequest.createdBy || state.workoutRequest.createdBy === '') {
+          //   console.log('Setting createdBy to user ID:', user.userId);
+          //   setWorkoutRequest({
+          //     ...state.workoutRequest,
+          //     createdBy: user.userId
+          //   });
+          // }
+
+          setWorkoutIsOwner(true);
+          setWorkoutEditMode(true);
+          setWorkoutLoading(false);
           return;
         }
 
@@ -69,23 +86,23 @@ const WorkoutView: React.FC = () => {
         setWorkoutRequest(workoutRequest);
         
         const userIsOwner = !response.createdBy || response.createdBy === user.userId;
-        setIsOwner(userIsOwner);
+        setWorkoutIsOwner(userIsOwner);
         
         // Auto-enable edit mode for new workouts with no circuits
         if (userIsOwner && (!workoutRequest.blocks || workoutRequest.blocks.length === 0)) {
-          setEditMode(true);
+          setWorkoutEditMode(true);
         }
        
       } catch (error) {
         console.error('Error fetching workout:', error);
-        setError(error instanceof Error ? error.message : 'Failed to fetch workout');
+        setWorkoutError(error instanceof Error ? error.message : 'Failed to fetch workout');
         const user = JSON.parse(tokenService.getUser() || '{}');
         const defaultRequest = programUtils.createDefaultWorkoutRequest(user.userId);
         setWorkoutRequest(defaultRequest);
-        setIsOwner(true);
-        setEditMode(true);
+        setWorkoutIsOwner(true);
+        setWorkoutEditMode(true);
       } finally {
-        setLoading(false);
+        setWorkoutLoading(false);
       }
     };
     fetchWorkout();
@@ -97,8 +114,8 @@ const WorkoutView: React.FC = () => {
       console.log('No workout request, returning early');
       return;
     }
-    setSaving(true);
-    setError(null);
+    setWorkoutSaving(true);
+    setWorkoutError(null);
 
     console.log('Saving workout Request: ', state.workoutRequest);
   
@@ -111,13 +128,14 @@ const WorkoutView: React.FC = () => {
 
   const handleCreateWorkout = async (request: WorkoutRequest) => {
     try {
+      console.log('Creating workout:', request);
       const response = await programService.createWorkout(programId!, weekId!, request);
       setWorkoutRequest(response);
     } catch (error) {
       console.error('Error creating workout:', error);
-      setError(error instanceof Error ? error.message : 'Failed to create workout');
+      setWorkoutError(error instanceof Error ? error.message : 'Failed to create workout');
     } finally {
-      setSaving(false);
+      setWorkoutSaving(false);
     }
   };
 
@@ -126,9 +144,9 @@ const WorkoutView: React.FC = () => {
       await programService.updateWorkout(programId!, weekId!, workoutId!, request);
     } catch (error) {
       console.error('Error updating workout:', error);
-      setError(error instanceof Error ? error.message : 'Failed to update workout');
+      setWorkoutError(error instanceof Error ? error.message : 'Failed to update workout');
     } finally {
-      setSaving(false);
+      setWorkoutSaving(false);
     }
   };
   
@@ -151,7 +169,7 @@ const WorkoutView: React.FC = () => {
     
     setWorkoutRequest({ ...state.workoutRequest, blocks: reorderedWithOrder });
     // setWorkout({ ...workout, circuits: reorderedWithOrder });
-    setHasUnsavedChanges(true);
+    setWorkoutHasUnsavedChanges(true);
   };
 
   const addCircuit = () => {
@@ -169,26 +187,31 @@ const WorkoutView: React.FC = () => {
       order: state.workoutRequest.blocks?.length + 1
     };
     setWorkoutRequest({ ...state.workoutRequest, blocks: [...state.workoutRequest.blocks, newCircuit] });
-    setHasUnsavedChanges(true);
+    setWorkoutHasUnsavedChanges(true);
   };
 
-  if (state.loading) return <p>Loading workout...</p>;
+  const handleBackToWeek = () => {
+    clearCurrentWorkout();
+    navigate(`/programs/${programId}/weeks/${weekId}`);
+  };
+
+  if (state.workoutLoading) return <p>Loading workout...</p>;
 
   return (
     <div className="workout-view">
       <WorkoutHeader
-        onBack={() => navigate(`/programs/${programId}/weeks/${weekId}`)}
-        editMode={state.editMode}
-        isOwner={state.isOwner}
-        saving={state.saving}
-        hasUnsavedChanges={state.hasUnsavedChanges}
+        onBack={handleBackToWeek}
+        editMode={state.workoutEditMode}
+        isOwner={state.workoutIsOwner}
+        saving={state.workoutSaving}
+        hasUnsavedChanges={state.workoutHasUnsavedChanges}
         onSave={saveWorkout}
-        onToggleEdit={() => setEditMode(!state.editMode)}
+        onToggleEdit={() => setWorkoutEditMode(!state.workoutEditMode)}
       />
 
       <WorkoutDetailsSection
-        editMode={state.editMode}
-        setHasUnsavedChanges={setHasUnsavedChanges}
+        editMode={state.workoutEditMode}
+        setHasUnsavedChanges={setWorkoutHasUnsavedChanges}
       />
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -199,17 +222,16 @@ const WorkoutView: React.FC = () => {
                 <CircuitItem
                   key={circuit.order}
                   block={circuit}
-                  editMode={state.editMode && state.isOwner}
+                  editMode={state.workoutEditMode && state.workoutIsOwner}
                   workout={state.workoutRequest!}
-                  setHasUnsavedChanges={setHasUnsavedChanges}
                 />
               ))}
             </SortableContext>
           ) : (
-            !state.editMode && <EmptyState onStart={() => setEditMode(true)} isOwner={state.isOwner} />
+            !state.workoutEditMode && <EmptyState onStart={() => setWorkoutEditMode(true)} isOwner={state.workoutIsOwner} />
           )}
           
-          {state.editMode && state.isOwner && (
+          {state.workoutEditMode && state.workoutIsOwner && (
             <button className="add-circuit-btn" onClick={addCircuit}>
               + Add Circuit
             </button>
