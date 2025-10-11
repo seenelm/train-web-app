@@ -37,6 +37,13 @@ class ProgramService extends BaseApiService<
     return this.create(programData);
   }
 
+  async updateProgram(
+    programId: string,
+    programRequest: ProgramRequest
+  ): Promise<SuccessResponse> {
+    return this.put(`/program/${programId}`, programRequest);
+  }
+
   async deleteProgram(programId: string): Promise<SuccessResponse> {
     return this.deleteById(programId);
   }
@@ -151,6 +158,41 @@ class ProgramService extends BaseApiService<
     return this.post<WorkoutLogResponse>(
       `/program/${programId}/week/${weekId}/workout/log`,
       workoutLogRequest
+    );
+  }
+
+  async updateWorkoutLog(
+    programId: string,
+    weekId: string,
+    workoutId: string,
+    workoutLogId: string,
+    workoutLogRequest: WorkoutLogRequest
+  ): Promise<SuccessResponse> {
+    return this.put(
+      `/program/${programId}/week/${weekId}/workout/${workoutId}/log/${workoutLogId}`,
+      workoutLogRequest
+    );
+  }
+
+  async deleteWorkoutLog(
+    programId: string,
+    weekId: string,
+    workoutId: string,
+    workoutLogId: string
+  ): Promise<SuccessResponse> {
+    return this.delete(
+      `/program/${programId}/week/${weekId}/workout/${workoutId}/log/${workoutLogId}`
+    );
+  }
+
+  async getWorkoutLog(
+    programId: string,
+    weekId: string,
+    workoutId: string,
+    workoutLogId: string
+  ): Promise<WorkoutLogResponse> {
+    return this.get(
+      `/program/${programId}/week/${weekId}/workout/${workoutId}/log/${workoutLogId}`
     );
   }
 
