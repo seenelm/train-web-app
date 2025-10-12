@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router';
 import './ProgramView.css';
 import { programService } from '../services/programService';
-import { IoShareOutline, IoTrashOutline } from 'react-icons/io5';
+import { IoShareOutline, IoTrashOutline, IoEllipsisVertical } from 'react-icons/io5';
 import { FaEdit } from 'react-icons/fa';
 import { useProgramContext, programUtils } from '../contexts/ProgramContext';
 import { ProgramResponse, WeekRequest, WeekResponse } from '@seenelm/train-core';
@@ -13,6 +13,7 @@ const ProgramView: React.FC = () => {
   const location = useLocation();
   const [shareSuccess, setShareSuccess] = useState<boolean>(false);
   const [isDeletingWeek, setIsDeletingWeek] = useState<boolean>(false);
+  const [openMenuWeekId, setOpenMenuWeekId] = useState<string | null>(null);
   const [showEditWeekDialog, setShowEditWeekDialog] = useState(false);
   const [editingWeekIndex, setEditingWeekIndex] = useState<number>(-1);
   const [editingWeekId, setEditingWeekId] = useState<string>('');
@@ -198,7 +199,7 @@ const ProgramView: React.FC = () => {
               <IoShareOutline /> {shareSuccess ? 'Copied!' : 'Share'}
             </button>
             <button 
-              className="delete-button"
+              className="program-delete-button"
               onClick={handleDelete}
               aria-label="Delete program"
             >
@@ -245,22 +246,35 @@ const ProgramView: React.FC = () => {
                   <div className="week-image-placeholder"></div>
                   <div className="week-content">
                     <div className="week-card-header">
-                      <h3>Week {week.weekNumber}</h3>
+                      <h3>{week.name || `Week ${week.weekNumber}`}</h3>
                       <div className="week-card-actions">
                         <button 
-                          className="edit-button"
-                          onClick={(e) => handleEditWeek(week.index, week.id, e)}
-                          aria-label="Edit week"
+                          className="menu-button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuWeekId(openMenuWeekId === week.id ? null : week.id);
+                          }}
+                          aria-label="Open menu"
                         >
-                          <FaEdit />
+                          <IoEllipsisVertical />
                         </button>
-                        <button 
-                          className="delete-button"
-                          onClick={(e) => handleDeleteWeek(week.id, week.index, e)}
-                          aria-label="Delete week"
-                        >
-                          {isDeletingWeek ? '...' : <IoTrashOutline />}
-                        </button>
+                        {openMenuWeekId === week.id && (
+                          <div className="week-menu-dropdown">
+                            <button
+                              className="menu-item"
+                              onClick={(e) => handleEditWeek(week.index, week.id, e)}
+                            >
+                              <FaEdit /> Edit
+                            </button>
+                            <button
+                              className="menu-item delete"
+                              onClick={(e) => handleDeleteWeek(week.id, week.index, e)}
+                              disabled={isDeletingWeek}
+                            >
+                              <IoTrashOutline /> {isDeletingWeek ? 'Deleting...' : 'Delete'}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="week-description">

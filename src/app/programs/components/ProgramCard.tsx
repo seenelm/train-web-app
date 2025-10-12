@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { IoShareOutline, IoTrashOutline } from 'react-icons/io5';
+import { IoShareOutline, IoTrashOutline, IoEllipsisVertical } from 'react-icons/io5';
+import { FaEdit } from 'react-icons/fa';
 import { programService } from '../services/programService';
 import { ProgramResponse } from '@seenelm/train-core';
 
-interface Program {
-  id: string;
-  title: string;
-  description: string;
-  weeks?: any; // Can be array or number
-  numWeeks?: number;
-  includesNutrition: boolean;
-}
+// interface Program {
+//   id: string;
+//   title: string;
+//   description: string;
+//   weeks?: any; // Can be array or number
+//   numWeeks?: number;
+//   includesNutrition: boolean;
+// }
 
 interface ProgramCardProps {
   program: ProgramResponse;
@@ -22,10 +23,35 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program, onDelete }) =
   const navigate = useNavigate();
   const [shareSuccess, setShareSuccess] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   const handleProgramClick = () => {
     console.log('Program being passed to navigation:', program);
     navigate(`/programs/${program.id}`, { state: { program } });
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('Edit program:', program.id);
+    navigate(`/programs/builder/${program.id}`);
   };
 
   const handleShare = async (e: React.MouseEvent) => {
@@ -79,22 +105,40 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program, onDelete }) =
       <div className="program-card-content">
         <div className="program-card-header">
           <h3>{program.name}</h3>
-          <div className="program-card-actions">
+          <div className="program-card-actions" ref={menuRef}>
             <button 
-              className={`share-button ${shareSuccess ? 'share-success' : ''}`}
-              onClick={handleShare}
-              aria-label="Share program"
+              className="menu-button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMenuOpen(!isMenuOpen);
+              }}
+              aria-label="Open menu"
             >
-              {shareSuccess ? '✓ Copied!' : <IoShareOutline />}
+              <IoEllipsisVertical />
             </button>
-            <button 
-              className="delete-button"
-              onClick={handleDelete}
-              disabled={isDeleting}
-              aria-label="Delete program"
-            >
-              {isDeleting ? '...' : <IoTrashOutline />}
-            </button>
+            {isMenuOpen && (
+              <div className="program-menu-dropdown">
+                <button
+                  className="menu-item"
+                  onClick={handleEdit}
+                >
+                  <FaEdit /> Edit
+                </button>
+                <button
+                  className="menu-item"
+                  onClick={handleShare}
+                >
+                  <IoShareOutline /> {shareSuccess ? 'Copied!' : 'Share'}
+                </button>
+                <button
+                  className="menu-item delete"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
+                  <IoTrashOutline /> {isDeleting ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <p className="program-card-description">{program.description}</p>

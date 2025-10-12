@@ -21,7 +21,7 @@ const EditWeekDialog: React.FC<EditWeekDialogProps> = ({
   onSave,
 }) => {
   const [weekData, setWeekData] = useState<WeekRequest | null>(initialWeekData);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  // const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -34,7 +34,7 @@ const EditWeekDialog: React.FC<EditWeekDialogProps> = ({
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
+      // setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -44,7 +44,7 @@ const EditWeekDialog: React.FC<EditWeekDialogProps> = ({
   };
 
   const handleRemoveImage = () => {
-    setImageFile(null);
+    // setImageFile(null);
     setImagePreview('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -59,7 +59,7 @@ const EditWeekDialog: React.FC<EditWeekDialogProps> = ({
   };
 
   const handleClose = () => {
-    setImageFile(null);
+    // setImageFile(null);
     setImagePreview('');
     onClose();
   };
@@ -194,4 +194,3 @@ const EditWeekDialog: React.FC<EditWeekDialogProps> = ({
 };
 
 export default EditWeekDialog;
-

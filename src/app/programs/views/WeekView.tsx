@@ -5,6 +5,7 @@ import { programService } from '../services/programService';
 import { useProgramContext, programUtils } from '../contexts/ProgramContext';
 import { tokenService } from '../../../services/tokenService';
 import { IoTrashOutline } from 'react-icons/io5';
+import { WeekResponse } from '@seenelm/train-core';
 
 // Types for our workout events
 interface WorkoutEvent {
@@ -44,6 +45,9 @@ const WeekView: React.FC = () => {
 
   // State for workouts
   const [workouts, setWorkouts] = useState<WorkoutEvent[]>([]);
+  
+  // State for week data
+  const [weekData, setWeekData] = useState<WeekResponse | null>(null);
   
   // State for selected blocks
   const [selectedBlocks, setSelectedBlocks] = useState<SelectedBlock[]>([]);
@@ -150,6 +154,24 @@ const WeekView: React.FC = () => {
     };
     
     fetchWorkouts();
+  }, [programId, weekId]);
+
+  // Fetch week details
+  useEffect(() => {
+    const fetchWeekDetails = async () => {
+      if (programId && weekId) {
+        try {
+          const weekDetails = await programService.getWeek(Number(programId), Number(weekId));
+          // Handle if response is an array
+          const weekData = Array.isArray(weekDetails) ? weekDetails[0] : weekDetails;
+          setWeekData(weekData);
+        } catch (error) {
+          console.error('Error fetching week details:', error);
+        }
+      }
+    };
+    
+    fetchWeekDetails();
   }, [programId, weekId]);
 
   // Function to get the row span for a workout based on its duration
@@ -423,7 +445,7 @@ const WeekView: React.FC = () => {
         <button className="back-button" onClick={handleBackClick}>
           &larr; Back to Program
         </button>
-        <h1>Week Schedule</h1>
+        <h1>{weekData?.name || 'Week Schedule'}</h1>
         <div className="view-toggle">
           <button 
             className={viewMode === 'week' ? 'active' : ''} 
