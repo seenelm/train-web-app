@@ -1,27 +1,30 @@
 import React from 'react';
 import { ProgramCard } from './ProgramCard';
+import { ProgramResponse } from '@seenelm/train-core';
 
 // Renamed to ProgramSectionItem to avoid conflicts
-interface ProgramSectionItem {
-  id: string;
-  title: string;
-  description: string;
-  numWeeks: number; // Changed from weeks: number to match Programs.tsx
-  includesNutrition: boolean;
-}
+// interface ProgramSectionItem {
+//   id: string;
+//   title: string;
+//   description: string;
+//   numWeeks: number; // Changed from weeks: number to match Programs.tsx
+//   includesNutrition: boolean;
+// }
 
 interface ProgramSectionProps {
   title: string;
-  programs: ProgramSectionItem[]; // Updated to use the renamed interface
+  programs: ProgramResponse[]; 
   showAddButton?: boolean;
   onAddProgram?: () => void;
+  onDeleteProgram?: (programId: string) => void; 
 }
 
 export const ProgramSection: React.FC<ProgramSectionProps> = ({ 
   title, 
   programs, 
   showAddButton = false, 
-  onAddProgram 
+  onAddProgram,
+  onDeleteProgram 
 }) => {
   return (
     <div className="program-section">
@@ -30,7 +33,11 @@ export const ProgramSection: React.FC<ProgramSectionProps> = ({
       </div>
       <div className="programs-container">
         {programs.map(program => (
-          <ProgramCard key={program.id} program={program} />
+          <ProgramCard 
+            key={program.id} 
+            program={program} 
+            onDelete={onDeleteProgram}
+          />
         ))}
         {showAddButton && (
           <div className="add-program-card" onClick={onAddProgram}>

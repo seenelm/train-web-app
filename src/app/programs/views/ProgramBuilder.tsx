@@ -1,17 +1,18 @@
 import React, { useState } from "react";
-import Button from "../../../components/ui/Button";
 import "./ProgramBuilder.css";
 
 // Step components
 import ProgramNameStep from "../components/programBuilder/ProgramNameStep";
 import ProgramFrequencyStep from "../components/programBuilder/ProgramFrequencyStep";
 import NutritionStep from "../components/programBuilder/NutritionStep";
-import PhasesStep from "../components/programBuilder/PhasesStep";
 import VisibilityStep from "../components/programBuilder/VisibilityStep";
 import { useNavigate } from "react-router"; // if using React Router v6
 import { programService } from "../services/programService";
 import { ProgramRequest, ProfileAccess } from "@seenelm/train-core";
 import { tokenService } from '../../../services/tokenService';
+
+import { IoClose } from 'react-icons/io5';
+import logo from '../../../assets/logo.svg';
 
 interface ProgramPhase {
   id: string;
@@ -49,7 +50,6 @@ const ProgramBuilder: React.FC = () => {
     { title: "Let's Get Started", component: ProgramNameStep },
     { title: "What is your Program Frequency?", component: ProgramFrequencyStep },
     { title: "Does your program include nutrition?", component: NutritionStep },
-    { title: "Will your program have phases?", component: PhasesStep },
     { title: "Want to share your program or keep it private?", component: VisibilityStep },
   ];
 
@@ -122,7 +122,28 @@ const ProgramBuilder: React.FC = () => {
 
   return (
     <div className="program-builder">
+      <button 
+        className="builder-close-button"
+        onClick={() => navigate('/programs')}
+        aria-label="Close builder"
+      >
+        <IoClose />
+      </button>
       <div className="program-builder-container">
+      
+      {/* Left Sidebar - Always visible */}
+      <div className="builder-sidebar-full">
+        <div className="builder-logo-container">
+          <img src={logo} alt="Train Logo" className="builder-logo" />
+        </div>
+        <h3 className="builder-logo-subtitle">Program Builder</h3>
+        <p className="builder-quote">
+          "The only bad workout is the one that didn't happen."
+        </p>
+      </div>
+
+      {/* Right Content Area */}
+      <div className="program-builder-content-area">
         {/* Progress bar */}
         <div className="program-builder-progress">
           <div className="progress-bar-container">
@@ -154,15 +175,18 @@ const ProgramBuilder: React.FC = () => {
 
         <div className="program-builder-actions">
           {currentStep > 0 && (
-            <Button variant="outline" onClick={handleBack} disabled={isSubmitting}>
+            <button 
+              className="back-btn"
+              onClick={handleBack} 
+              disabled={isSubmitting}
+            >
               Back
-            </Button>
+            </button>
           )}
-          <Button 
-            variant="primary" 
+          <button 
+            className={currentStep === 0 ? "continue-btn" : "next-btn"}
             onClick={handleNext} 
             disabled={isSubmitting}
-            className={currentStep === 0 ? "continue-btn" : ""}
           >
             {isSubmitting 
               ? "Submitting..." 
@@ -172,8 +196,9 @@ const ProgramBuilder: React.FC = () => {
                   ? "Continue"
                   : "Next"
             }
-          </Button>
+          </button>
         </div>
+      </div>
       </div>
     </div>
   );

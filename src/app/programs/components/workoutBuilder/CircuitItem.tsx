@@ -3,6 +3,7 @@ import React from 'react';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import ExerciseItem from './ExerciseItem';
+import TimePicker from './TimePicker';
 import { Block, WorkoutRequest, MeasurementType } from '@seenelm/train-core';
 import { useProgramContext } from '../../contexts/ProgramContext';
 
@@ -10,23 +11,21 @@ interface Props {
   block: Block;
   editMode: boolean;
   workout: WorkoutRequest;
-  setHasUnsavedChanges: (v: boolean) => void;
 }
 
 const CircuitItem: React.FC<Props> = ({
   block,
   editMode,
   workout,
-  setHasUnsavedChanges,
 }) => {
-  const { updateWorkoutRequest } = useProgramContext();
+  const { updateWorkoutRequest, setWorkoutHasUnsavedChanges } = useProgramContext();
 
   const updateBlock = (updated: Block) => {
     updateWorkoutRequest({
       ...workout,
       blocks: workout.blocks?.map((c) => (c.order === updated.order ? updated : c)),
     });
-    setHasUnsavedChanges(true);
+    setWorkoutHasUnsavedChanges(true);
   };
 
   const removeBlock = () => {
@@ -34,17 +33,28 @@ const CircuitItem: React.FC<Props> = ({
       ...workout,
       blocks: workout.blocks?.filter((c) => c.order !== block.order),
     });
-    setHasUnsavedChanges(true);
+    setWorkoutHasUnsavedChanges(true);
   };
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = block.exercises.findIndex((e) => e.order === active.order);
-    const newIndex = block.exercises.findIndex((e) => e.order === over.order);
+    const oldIndex = block.exercises.findIndex((e) => e.order === active.id);
+    const newIndex = block.exercises.findIndex((e) => e.order === over.id);
+    
+    if (oldIndex === -1 || newIndex === -1) return;
+    
     const reordered = arrayMove(block.exercises, oldIndex, newIndex);
-    updateBlock({ ...block, exercises: reordered });
+    
+    // Update order property for all exercises after reordering
+    const reorderedWithUpdatedOrder = reordered.map((exercise, index) => ({
+      ...exercise,
+      order: index
+    }));
+    
+    updateBlock({ ...block, exercises: reorderedWithUpdatedOrder });
+    setWorkoutHasUnsavedChanges(true);
   };
 
   return (
@@ -52,41 +62,42 @@ const CircuitItem: React.FC<Props> = ({
       <div className="circuit-header">
         {editMode ? (
           <>
-            <div className="circuit-sets">
-              <label>Sets:</label>
+            <div className="circuit-header-left">
+              <div className="circuit-sets">
+                <label>Sets:</label>
+                <input
+                  type="number"
+                  value={block.targetSets}
+                  onChange={(e) => updateBlock({ ...block, targetSets: parseInt(e.target.value) || 1 })}
+                  min="1"
+                  className="sets-input"
+                />
+              </div>
               <input
-                type="number"
-                value={block.targetSets}
-                onChange={(e) => updateBlock({ ...block, targetSets: parseInt(e.target.value) || 1 })}
-                min="1"
-                className="sets-input"
+                type="text"
+                value={block.name}
+                onChange={(e) => updateBlock({ ...block, name: e.target.value })}
+                className="circuit-name-input"
+                placeholder="Circuit name"
               />
             </div>
-            <div className="circuit-rest">
-              <label>Rest:</label>
-              <input
-                type="number"
-                value={(block as any).rest || 0}
-                onChange={(e) => updateBlock({ ...block, rest: parseInt(e.target.value) || 0 } as any)}
-                min="0"
-                className="rest-input"
-                placeholder="Seconds"
-              />
+            <div className="circuit-header-right">
+              <div className="circuit-rest">
+                <label>Rest:</label>
+                <TimePicker
+                  value={(block as any).rest || 0}
+                  onChange={(seconds) => updateBlock({ ...block, rest: seconds } as any)}
+                  placeholder="Rest"
+                />
+              </div>
+              <button
+                className="remove-circuit-btn"
+                onClick={removeBlock}
+                title="Remove circuit"
+              >
+                ✕
+              </button>
             </div>
-            <input
-              type="text"
-              value={block.name}
-              onChange={(e) => updateBlock({ ...block, name: e.target.value })}
-              className="circuit-name-input"
-              placeholder="Circuit name"
-            />
-            <button
-              className="remove-circuit-btn"
-              onClick={removeBlock}
-              title="Remove circuit"
-            >
-              ✕
-            </button>
           </>
         ) : (
           <>
@@ -126,7 +137,7 @@ const CircuitItem: React.FC<Props> = ({
               exercises: [
                 ...block.exercises,
                 {
-                  name: 'New Exercise',
+                  name: '',
                   rest: 0,
                   targetReps: 10,
                   targetDurationSec: 0,

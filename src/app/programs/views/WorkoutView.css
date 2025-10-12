@@ -191,7 +191,7 @@
 .circuit-block {
   background-color: var(--bg-secondary);
   border-radius: 3px;
-  overflow: hidden;
+  overflow: visible;
   transition: transform 0.2s, box-shadow 0.2s;
   border: 1px solid var(--border-color);
 }
@@ -203,6 +203,21 @@
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   gap: 12px;
+  justify-content: space-between;
+}
+
+.circuit-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.circuit-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
 }
 
 .circuit-title-area {
@@ -329,6 +344,7 @@
 
 .exercises-list {
   padding: 10px;
+  overflow: visible;
 }
 
 .exercise-item {
@@ -342,6 +358,7 @@
   margin-bottom: 8px;
   border-radius: 2px;
   position: relative;
+  overflow: visible;
   gap: 12px;
 }
 
@@ -726,108 +743,12 @@
   font-style: italic;
 }
 
-.exercise-notes-container {
-  order: 10;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  max-width: 400px;
-}
-
-.exercise-notes-input {
-  flex: 1;
-  padding: 7px 10px;
-  margin-top: 13px;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  background-color: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-family: inherit;
-  transition: all var(--transition-speed);
-}
-
-.exercise-notes-input:focus {
-  outline: none;
-  border-color: var(--workout-accent-primary);
-  color: var(--text-primary);
-}
-
-.exercise-notes-input::placeholder {
-  color: var(--text-secondary);
-  font-style: italic;
-}
-
-.exercise-notes-display {
-  flex-basis: 100%;
-  width: 100%;
-  margin-top: 4px;
-  padding: 6px 10px;
-  background-color: transparent;
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-}
-
-.notes-text {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  font-style: italic;
-  line-height: 1.3;
-}
-
-.notes-toggle-btn {
-  background-color: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  cursor: pointer;
-  font-size: 1.1rem;
-  padding: 6px 10px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--transition-speed);
-  opacity: 0.5;
-
-}
-
-.notes-toggle-btn:hover {
-  background-color: rgba(108, 117, 125, 0.1);
-  opacity: 1;
-}
-
-.notes-toggle-btn.has-notes {
-  opacity: 1;
-  color: var(--workout-accent-primary);
-  border-color: var(--workout-accent-primary);
-}
-
-.remove-exercise-btn {
-  background-color: transparent;
-  color: var(--text-secondary);
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  padding: 4px 8px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  margin-left: 8px;
-  margin-top: 18px;
-}
-
-.remove-exercise-btn:hover {
-  color: var(--workout-accent-danger);
-  background-color: rgba(217, 83, 79, 0.1);
-}
-
 .exercise-input-group {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  position: relative;
+  overflow: visible;
   margin: 0;
 }
 
@@ -900,6 +821,54 @@
   color: var(--text-secondary);
 }
 
+.circuit-rest-unit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.circuit-rest-unit label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.circuit-rest-unit select {
+  padding: 6px 8px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color var(--transition-speed);
+}
+
+.circuit-rest-unit select:focus {
+  outline: none;
+  border-color: var(--workout-accent-primary);
+  box-shadow: 0 0 0 2px var(--workout-highlight);
+}
+
+.rest-input {
+  width: 60px;
+  padding: 6px 8px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+  transition: border-color var(--transition-speed);
+}
+
+.rest-input:focus {
+  outline: none;
+  border-color: var(--workout-accent-primary);
+  box-shadow: 0 0 0 2px var(--workout-highlight);
+}
+
 .rest-label {
   font-size: 0.9rem;
   font-weight: 600;
@@ -907,6 +876,186 @@
   padding: 6px 12px;
   background-color: var(--bg-primary);
   border-radius: 4px;
+}
+
+.circuit-rest {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 100px;
+}
+
+.circuit-rest label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Time Picker Component */
+.time-picker {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color var(--transition-speed);
+}
+
+.time-picker:focus-within {
+  border-color: var(--workout-accent-primary);
+  box-shadow: 0 0 0 2px var(--workout-highlight);
+}
+
+.time-picker-input {
+  width: 60px;
+  padding: 6px 8px;
+  background-color: transparent;
+  color: var(--text-primary);
+  border: none;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.time-picker-input:focus {
+  outline: none;
+}
+
+.time-picker-unit {
+  padding: 6px 8px;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
+  border-left: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  cursor: pointer;
+  appearance: none;
+  padding-right: 4px;
+}
+
+.time-picker-unit:focus {
+  outline: none;
+}
+
+/* Remove spinner from number input in time picker */
+.time-picker-input::-webkit-inner-spin-button,
+.time-picker-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.time-picker-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Weight Picker Component */
+.weight-picker {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color var(--transition-speed);
+}
+
+.weight-picker:focus-within {
+  border-color: var(--workout-accent-primary);
+  box-shadow: 0 0 0 2px var(--workout-highlight);
+}
+
+.weight-picker-input {
+  width: 70px;
+  padding: 6px 8px;
+  background-color: transparent;
+  color: var(--text-primary);
+  border: none;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.weight-picker-input:focus {
+  outline: none;
+}
+
+.weight-picker-unit {
+  padding: 6px 8px;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
+  border-left: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  cursor: pointer;
+  appearance: none;
+  padding-right: 4px;
+}
+
+.weight-picker-unit:focus {
+  outline: none;
+}
+
+/* Remove spinner from number input in weight picker */
+.weight-picker-input::-webkit-inner-spin-button,
+.weight-picker-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.weight-picker-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Exercise Autocomplete Suggestions */
+.exercise-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 4px;
+}
+
+.exercise-suggestion-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color var(--transition-speed);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.exercise-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.exercise-suggestion-item:hover {
+  background-color: var(--workout-hover);
+}
+
+.suggestion-name {
+  font-weight: 500;
+  color: var(--text-primary);
+  text-transform: capitalize;
+}
+
+.suggestion-target {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.suggestion-loading {
+  padding: 10px 12px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
 }
 
 /* Mobile responsive styles */

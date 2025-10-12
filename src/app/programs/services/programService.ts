@@ -11,6 +11,7 @@ import {
   WorkoutLogResponse,
   WeekResponse,
 } from "@seenelm/train-core";
+import { SuccessResponse } from "../../../types/api.types";
 
 /**
  * Service for program management operations
@@ -36,6 +37,17 @@ class ProgramService extends BaseApiService<
     return this.create(programData);
   }
 
+  async updateProgram(
+    programId: string,
+    programRequest: ProgramRequest
+  ): Promise<SuccessResponse> {
+    return this.put(`/program/${programId}`, programRequest);
+  }
+
+  async deleteProgram(programId: string): Promise<SuccessResponse> {
+    return this.deleteById(programId);
+  }
+
   /**
    * Get All User Programs
    * GET /program/user
@@ -57,11 +69,22 @@ class ProgramService extends BaseApiService<
    * PUT /program/:programId/week/:weekId
    */
   async updateWeek(
-    programId: number,
-    weekId: number,
+    programId: string,
+    weekId: string,
     weekRequest: WeekRequest
-  ): Promise<void> {
+  ): Promise<SuccessResponse> {
     return this.put(`/program/${programId}/week/${weekId}`, weekRequest);
+  }
+
+  /**
+   * Delete a week
+   * DELETE /program/:programId/week/:weekId
+   */
+  async deleteWeek(
+    programId: string,
+    weekId: string
+  ): Promise<SuccessResponse> {
+    return this.delete(`/program/${programId}/week/${weekId}`);
   }
 
   /**
@@ -88,7 +111,7 @@ class ProgramService extends BaseApiService<
     weekId: string,
     workoutId: string,
     workoutRequest: WorkoutRequest
-  ): Promise<WorkoutResponse> {
+  ): Promise<SuccessResponse> {
     return this.put(
       `/program/${programId}/week/${weekId}/workout/${workoutId}`,
       workoutRequest
@@ -103,7 +126,7 @@ class ProgramService extends BaseApiService<
     programId: string,
     weekId: string,
     workoutId: string
-  ): Promise<void> {
+  ): Promise<SuccessResponse> {
     return this.delete(
       `/program/${programId}/week/${weekId}/workout/${workoutId}`
     );
@@ -135,6 +158,41 @@ class ProgramService extends BaseApiService<
     return this.post<WorkoutLogResponse>(
       `/program/${programId}/week/${weekId}/workout/log`,
       workoutLogRequest
+    );
+  }
+
+  async updateWorkoutLog(
+    programId: string,
+    weekId: string,
+    workoutId: string,
+    workoutLogId: string,
+    workoutLogRequest: WorkoutLogRequest
+  ): Promise<SuccessResponse> {
+    return this.put(
+      `/program/${programId}/week/${weekId}/workout/${workoutId}/log/${workoutLogId}`,
+      workoutLogRequest
+    );
+  }
+
+  async deleteWorkoutLog(
+    programId: string,
+    weekId: string,
+    workoutId: string,
+    workoutLogId: string
+  ): Promise<SuccessResponse> {
+    return this.delete(
+      `/program/${programId}/week/${weekId}/workout/${workoutId}/log/${workoutLogId}`
+    );
+  }
+
+  async getWorkoutLog(
+    programId: string,
+    weekId: string,
+    workoutId: string,
+    workoutLogId: string
+  ): Promise<WorkoutLogResponse> {
+    return this.get(
+      `/program/${programId}/week/${weekId}/workout/${workoutId}/log/${workoutLogId}`
     );
   }
 

@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { AiOutlineProfile } from 'react-icons/ai';
 import { Exercise, MeasurementType } from '@seenelm/train-core';
 import { useProgramContext } from '../../contexts/ProgramContext';
 import { Unit } from '@seenelm/train-core';
+import TimePicker from './TimePicker';
+import WeightPicker from './WeightPicker';
 
 interface Props {
   exercise: Exercise;
@@ -16,7 +18,11 @@ interface Props {
 const ExerciseItem: React.FC<Props> = ({ exercise, editMode, blockIndex, exerciseIndex }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: exercise.order });
   const style = { transform: CSS.Transform.toString(transform), transition };
-  const [showNotes, setShowNotes] = React.useState(false);
+  const [showNotes, setShowNotes] = useState(false);
+  const [exerciseSuggestions, setExerciseSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
   const { updateExerciseInBlockPartial, removeExerciseFromBlock } = useProgramContext();
 
   const measurementType = exercise.measurementType || MeasurementType.REPS;
@@ -27,6 +33,76 @@ const ExerciseItem: React.FC<Props> = ({ exercise, editMode, blockIndex, exercis
     updateExerciseInBlockPartial(blockIdx, exerciseIdx, updatedExercise );
     
   };
+
+  const searchExercises = async (query: string) => {
+    if (!query || query.length < 2) {
+      setExerciseSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const apiKey = import.meta.env.VITE_RAPIDAPI_KEY;
+    
+    // Skip API call if no key is configured
+    if (!apiKey) {
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    try {
+      const response = await fetch(`https://exercisedb.p.rapidapi.com/exercises/name/${query}?limit=10`, {
+        headers: {
+          'X-RapidAPI-Key': apiKey,
+          'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setExerciseSuggestions(data);
+        setShowSuggestions(true);
+      } else {
+        // Silently fail for 401, 429, etc.
+        console.warn(`Exercise API returned ${response.status}`);
+        setExerciseSuggestions([]);
+        setShowSuggestions(false);
+      }
+    } catch (error) {
+      console.error('Error fetching exercises:', error);
+      // Don't show suggestions on error
+      setExerciseSuggestions([]);
+      setShowSuggestions(false);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  const handleNameChange = (value: string) => {
+    updateExercise(blockIndex, exerciseIndex, { name: value });
+    
+    // Debounce API call
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+    
+    debounceTimer.current = setTimeout(() => {
+      searchExercises(value);
+    }, 300);
+  };
+
+  const selectExercise = (exerciseName: string) => {
+    updateExercise(blockIndex, exerciseIndex, { name: exerciseName });
+    setShowSuggestions(false);
+    setExerciseSuggestions([]);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, []);
 
   return (
     <div ref={setNodeRef} style={style} className={`exercise-item ${isRest ? 'rest-item' : ''}`} {...attributes}>
@@ -41,15 +117,31 @@ const ExerciseItem: React.FC<Props> = ({ exercise, editMode, blockIndex, exercis
       {editMode && <span className="drag-handle" {...listeners}>☰</span>}
 
       {editMode ? (
-        <div className="exercise-input-group">
+        <div className="exercise-input-group" style={{ position: 'relative' }}>
           <label className="exercise-input-label">Name</label>
           <input
             type="text"
             value={exercise.name}
-            onChange={(e) => updateExercise(blockIndex, exerciseIndex, { name: e.target.value })}
+            onChange={(e) => handleNameChange(e.target.value)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
             className="exercise-name-input"
             placeholder={isRest ? "Rest" : "Exercise name"}
           />
+          {showSuggestions && exerciseSuggestions.length > 0 && (
+            <div className="exercise-suggestions">
+              {isLoadingSuggestions && <div className="suggestion-loading">Loading...</div>}
+              {exerciseSuggestions.map((ex, idx) => (
+                <div
+                  key={idx}
+                  className="exercise-suggestion-item"
+                  onClick={() => selectExercise(ex.name)}
+                >
+                  <span className="suggestion-name">{ex.name}</span>
+                  <span className="suggestion-target">{ex.target}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <div className="exercise-name-with-notes">
@@ -87,27 +179,34 @@ const ExerciseItem: React.FC<Props> = ({ exercise, editMode, blockIndex, exercis
                 <label className="exercise-input-label">
                   {measurementType === MeasurementType.DISTANCE ? 'Distance' : 'Weight'}
                 </label>
-                <input
-                  type="number"
-                  value={exercise.targetWeight}
-                  min={0}
-                  onChange={(e) => updateExercise(blockIndex, exerciseIndex, { targetWeight: parseInt(e.target.value) || 0 })}
-                  className="weight-input"
+                <WeightPicker
+                  value={exercise.targetWeight || 0}
+                  onChange={(weight) => updateExercise(blockIndex, exerciseIndex, { targetWeight: weight })}
                   placeholder={measurementType === MeasurementType.DISTANCE ? 'Distance' : 'Weight'}
+                  showBodyweight={measurementType !== MeasurementType.DISTANCE}
                 />
               </div>
               <div className="exercise-input-group">
                 <label className="exercise-input-label">
                   {measurementType === MeasurementType.TIME ? 'Duration' : 'Reps'}
                 </label>
-                <input
-                  type="number"
-                  value={exercise.targetReps}
-                  min={1}
-                  onChange={(e) => updateExercise(blockIndex, exerciseIndex, { targetReps: parseInt(e.target.value) || 1 })}
-                  className="reps-input"
-                  placeholder={measurementType === MeasurementType.TIME ? 'Seconds' : 'Reps'}
-                />
+                {measurementType === MeasurementType.TIME ? (
+                  <TimePicker
+                    value={exercise.targetReps || 0}
+                    onChange={(seconds) => updateExercise(blockIndex, exerciseIndex, { targetReps: seconds })}
+                    placeholder="Duration"
+                    defaultUnit="min"
+                  />
+                ) : (
+                  <input
+                    type="number"
+                    value={exercise.targetReps || ''}
+                    min={1}
+                    onChange={(e) => updateExercise(blockIndex, exerciseIndex, { targetReps: parseInt(e.target.value) || 0 })}
+                    className="reps-input"
+                    placeholder="Reps"
+                  />
+                )}
               </div>
             </>
           ) : (
@@ -145,8 +244,8 @@ const ExerciseItem: React.FC<Props> = ({ exercise, editMode, blockIndex, exercis
           <label className="exercise-input-label">Duration</label>
           <input
             type="number"
-            value={exercise.targetDurationSec || 60}
-            onChange={(e) => updateExercise(blockIndex, exerciseIndex, { targetDurationSec: parseInt(e.target.value) || 60 })}
+            value={exercise.targetDurationSec || ''}
+            onChange={(e) => updateExercise(blockIndex, exerciseIndex, { targetDurationSec: parseInt(e.target.value) || 0 })}
             className="reps-input"
             placeholder="Seconds"
           />
@@ -157,16 +256,12 @@ const ExerciseItem: React.FC<Props> = ({ exercise, editMode, blockIndex, exercis
         <>
           <div className="exercise-input-group">
             <label className="exercise-input-label">Rest</label>
-            <input
-              type="number"
+            <TimePicker
               value={exercise.rest || 0}
-              onChange={(e) => updateExercise(blockIndex, exerciseIndex, { rest: parseInt(e.target.value) || 0 })}
-              className="rest-input"
-              placeholder="Seconds"
-              min={0}
+              onChange={(seconds) => updateExercise(blockIndex, exerciseIndex, { rest: seconds })}
+              placeholder="Rest"
             />
           </div>
-          
           {!isRest && (
             <div className="exercise-input-group">
               <label className="exercise-input-label">Notes</label>
@@ -179,7 +274,6 @@ const ExerciseItem: React.FC<Props> = ({ exercise, editMode, blockIndex, exercis
               </button>
             </div>
           )}
-          
           {!showNotes && (
             <button
               className="remove-exercise-btn"
@@ -188,7 +282,6 @@ const ExerciseItem: React.FC<Props> = ({ exercise, editMode, blockIndex, exercis
               ✕
             </button>
           )}
-          
           {!isRest && showNotes && (
             <div className="exercise-input-group">
               <div className="exercise-notes-container">

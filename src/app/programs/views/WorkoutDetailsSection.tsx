@@ -1,5 +1,6 @@
 import React from 'react';
 import { useProgramContext } from '../contexts/ProgramContext';
+import TimePicker from '../components/workoutBuilder/TimePicker';
 
 interface Props {
   editMode: boolean;
@@ -7,7 +8,7 @@ interface Props {
 }
 
 const WorkoutDetailsSection: React.FC<Props> = ({ editMode }) => {
-  const { state,updateWorkoutRequest } = useProgramContext();
+  const { state, updateWorkoutRequest } = useProgramContext();
   const workout = state.workoutRequest;
 
   return (
@@ -19,14 +20,13 @@ const WorkoutDetailsSection: React.FC<Props> = ({ editMode }) => {
         <div className="duration-section">
           <h3>Duration</h3>
           {editMode ? (
-            <input
-              type="number"
-              value={workout.duration}
-              onChange={(e) =>
-                updateWorkoutRequest({ ...workout, duration: parseInt(e.target.value) || 0 })
+            <TimePicker
+              value={(workout.duration || 0) * 60}
+              onChange={(seconds) =>
+                updateWorkoutRequest({ ...workout, duration: Math.round(seconds / 60) })
               }
-              className="duration-input"
-              min={1}
+              placeholder="Duration"
+              defaultUnit="min"
             />
           ) : (
             <span>{workout.duration} minutes</span>
