@@ -79,9 +79,55 @@
   margin-bottom: 30px;
 }
 
-.workout-details h1 {
-  font-size: 28px;
-  margin-bottom: 10px;
+.workout-name-input {
+  width: 100%;
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-family: inherit;
+  transition: border-color var(--transition-speed);
+}
+
+.workout-name-input:focus {
+  outline: none;
+  border-color: var(--workout-accent-primary);
+  box-shadow: 0 0 0 3px var(--workout-highlight);
+}
+
+.workout-name-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.workout-description-input {
+  width: 100%;
+  font-size: 1rem;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color var(--transition-speed);
+}
+
+.workout-description-input:focus {
+  outline: none;
+  border-color: var(--workout-accent-primary);
+  box-shadow: 0 0 0 3px var(--workout-highlight);
+}
+
+.workout-description-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
 }
 
 .workout-description {
@@ -425,9 +471,32 @@
 .exercise-name {
   flex: 2;
   min-width: 250px;
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
   font-weight: 500;
   font-size: 1rem;
+}
+
+.exercise-name-with-notes {
+  flex: 2;
+  min-width: 250px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-primary);
+}
+
+.exercise-name-with-notes .exercise-name {
+  color: var(--text-primary) !important;
+}
+
+.notes-separator {
+  color: var(--text-secondary);
+}
+
+.notes-text {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-style: italic;
 }
 
 .exercise-values-group {
@@ -446,7 +515,7 @@
 }
 
 .exercise-value {
-  color: white;
+  color: var(--text-primary);
   font-size: 1.4rem;
   font-weight: 700;
   line-height: 1;

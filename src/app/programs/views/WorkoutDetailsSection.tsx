@@ -7,14 +7,50 @@ interface Props {
   setHasUnsavedChanges: (hasUnsavedChanges: boolean) => void;
 }
 
-const WorkoutDetailsSection: React.FC<Props> = ({ editMode }) => {
+const WorkoutDetailsSection: React.FC<Props> = ({ editMode, setHasUnsavedChanges }) => {
   const { state, updateWorkoutRequest } = useProgramContext();
   const workout = state.workoutRequest;
 
+  const handleNameChange = (name: string) => {
+    updateWorkoutRequest({ ...workout, name });
+    setHasUnsavedChanges(true);
+  };
+
+  const handleDescriptionChange = (description: string) => {
+    updateWorkoutRequest({ ...workout, description });
+    setHasUnsavedChanges(true);
+  };
+
+  const handleDurationChange = (seconds: number) => {
+    updateWorkoutRequest({ ...workout, duration: Math.round(seconds / 60) });
+    setHasUnsavedChanges(true);
+  };
+
   return (
     <div className="workout-details">
-      <h1>{workout.name}</h1>
-      <p className="workout-description">{workout.description}</p>
+      {editMode ? (
+        <input
+          type="text"
+          value={workout.name || ''}
+          onChange={(e) => handleNameChange(e.target.value)}
+          className="workout-name-input"
+          placeholder="Workout name"
+        />
+      ) : (
+        <h1>{workout.name}</h1>
+      )}
+      
+      {editMode ? (
+        <textarea
+          value={workout.description || ''}
+          onChange={(e) => handleDescriptionChange(e.target.value)}
+          className="workout-description-input"
+          placeholder="Workout description"
+          rows={3}
+        />
+      ) : (
+        <p className="workout-description">{workout.description}</p>
+      )}
 
       <div className="workout-meta">
         <div className="duration-section">
@@ -22,9 +58,7 @@ const WorkoutDetailsSection: React.FC<Props> = ({ editMode }) => {
           {editMode ? (
             <TimePicker
               value={(workout.duration || 0) * 60}
-              onChange={(seconds) =>
-                updateWorkoutRequest({ ...workout, duration: Math.round(seconds / 60) })
-              }
+              onChange={handleDurationChange}
               placeholder="Duration"
               defaultUnit="min"
             />
