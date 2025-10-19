@@ -5,6 +5,7 @@ import AuthPage from "../../app/access/views/AuthPage";
 import PrivacyPolicy from "../../pages/PrivacyPolicy";
 import TermsOfService from "../../pages/TermsOfService";
 import Dashboard from "../../pages/Dashboard";
+import { FaroRoutes } from "@grafana/faro-react";
 
 interface NavigationProps {
   // You can add props here if needed in the future
@@ -33,7 +34,7 @@ const Navigation: React.FC<NavigationProps> = () => {
   }
 
   return (
-    <Routes>
+    <FaroRoutes>
     {/* Protected section of the app */}
     <Route
       path="/*"
@@ -81,7 +82,7 @@ const Navigation: React.FC<NavigationProps> = () => {
     {/* Public pages */}
     <Route path="/privacy" element={<PrivacyPolicy />} />
     <Route path="/terms-of-service" element={<TermsOfService />} />
-  </Routes>
+  </FaroRoutes>
 
   );
 };

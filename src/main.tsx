@@ -3,6 +3,8 @@ import { BrowserRouter } from "react-router";
 import './styles/global.css'
 import App from './App.tsx'
 
+import './instrumentation.ts';
+
 const root = document.getElementById("root");
 
 // async function enableMocking() {

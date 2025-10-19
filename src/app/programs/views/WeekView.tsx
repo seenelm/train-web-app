@@ -161,7 +161,7 @@ const WeekView: React.FC = () => {
     const fetchWeekDetails = async () => {
       if (programId && weekId) {
         try {
-          const weekDetails = await programService.getWeek(Number(programId), Number(weekId));
+          const weekDetails = await programService.getWeek(programId, weekId);
           // Handle if response is an array
           const weekData = Array.isArray(weekDetails) ? weekDetails[0] : weekDetails;
           setWeekData(weekData);
