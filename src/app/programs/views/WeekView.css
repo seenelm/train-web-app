@@ -141,138 +141,268 @@
 /* Calendar styles */
 .calendar-container {
   overflow-x: auto;
-  margin-top: 20px;
-}
-
-.calendar {
-  width: 100%;
-  border-collapse: collapse;
   background-color: var(--bg-secondary);
+  border-radius: var(--card-border-radius);
   border: 1px solid var(--border-color);
-  table-layout: fixed;
 }
 
-.calendar th {
-  background-color: var(--bg-primary);
+.calendar-grid {
+  display: flex;
+  min-width: 800px;
+}
+
+.time-column-grid {
+  width: 80px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border-color);
+}
+
+.time-header {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
   color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color);
+  background-color: var(--bg-primary);
+}
+
+.time-slot-grid {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.days-grid {
+  flex: 1;
+  position: relative;
+}
+
+.day-headers {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.day-header {
   padding: 12px;
   text-align: center;
   font-weight: 600;
-  border: 1px solid var(--border-color);
-  width: calc((100% - 60px) / 7);
+  color: var(--text-primary);
+  border-right: 1px solid var(--border-color);
 }
 
-.calendar td {
-  border: 1px solid var(--border-color);
-  padding: 8px;
-  text-align: center;
-  vertical-align: top;
-  min-height: 60px;
-  position: relative;
-  width: calc((100% - 60px) / 7);
+.day-header:last-child {
+  border-right: none;
 }
 
-.time-column {
-  width: 60px !important;
-  min-width: 60px;
-  max-width: 60px;
-  font-weight: 500;
-  color: var(--text-secondary);
+.calendar-cells {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  overflow: visible;
 }
 
-.time-column th, .time-column td {
-  width: 60px !important;
-  min-width: 60px;
-  max-width: 60px;
+.day-column {
+  border-right: 1px solid var(--border-color);
+  overflow: visible;
 }
 
-.time-slot {
-  background-color: var(--bg-primary);
-  color: var(--text-secondary);
-  font-size: 0.85rem;
+.day-column:last-child {
+  border-right: none;
 }
 
-.empty-cell {
-  background-color: var(--bg-secondary);
-  cursor: default;
+.calendar-cell {
+  height: 60px;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
   transition: background-color var(--transition-speed);
-  user-select: none;
 }
 
-.empty-cell:hover {
+.calendar-cell:hover {
   background-color: var(--bg-primary);
 }
 
-.empty-cell.selected {
+.calendar-cell.selected {
   background-color: rgba(74, 144, 226, 0.3);
 }
 
-.workout-cell {
-  background-color: #4a90e2;
+.workouts-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.workout-overlay {
+  position: absolute;
+  border-radius: 10px;
+  cursor: pointer;
+  pointer-events: all;
+  transition: all var(--transition-speed);
   color: white;
   font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-speed);
-  padding: 12px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  overflow: visible;
 }
 
-.workout-cell:hover {
-  opacity: 0.9;
-
+.workout-overlay:hover {
+  opacity: 0.95;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
-.workout-cell.completed {
-  background-color: #4caf50;
-  color: white;
-  opacity: 0.85;
-  border: 2px solid #2e7d32;
-}
-
-.workout-cell-content {
+.workout-overlay-content {
+  position: relative;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
+  gap: 4px;
+  padding: 10px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
 }
 
-.workout-cell-title {
+.workout-overlay-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.workout-overlay-image {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.workout-overlay-info {
   flex: 1;
+  min-width: 0;
+}
+
+.workout-overlay-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.workout-overlay-time {
+  font-size: 0.7rem;
+  opacity: 0.85;
+  font-weight: 500;
+}
+
+.workout-menu-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
   cursor: pointer;
-}
-
-.workout-cell-log-btn {
-  padding: 4px 12px;
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-speed);
   opacity: 0;
+  transition: all var(--transition-speed);
+  font-size: 16px;
 }
 
-.workout-cell:hover .workout-cell-log-btn {
+.workout-overlay:hover .workout-menu-btn {
   opacity: 1;
 }
 
-.workout-cell-log-btn:hover {
+.workout-menu-btn:hover {
   background-color: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.6);
-  transform: scale(1.05);
 }
 
-.workout-cell.completed .workout-cell-log-btn {
+.color-menu {
+  position: absolute;
+  top: 30px;
+  right: 4px;
   background-color: var(--bg-secondary);
-  color: var(--accent-color);
-  border-color: var(--accent-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  min-width: 180px;
+}
+
+.color-menu-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.color-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.color-option {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+  border-color: var(--text-primary);
+}
+
+.color-option.selected {
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 2px var(--bg-secondary), 0 0 0 4px var(--text-primary);
+}
+
+.delete-workout-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: transparent;
+  color: #e53935;
+  border: 1px solid #e53935;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all var(--transition-speed);
+}
+
+.delete-workout-btn:hover:not(:disabled) {
+  background-color: #e53935;
+  color: white;
+}
+
+.delete-workout-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Modal styles */
@@ -393,14 +523,23 @@
 
 .agenda-workout-card {
   background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 16px;
   cursor: pointer;
   transition: all var(--transition-speed);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  border: 1px solid var(--border-color);
+  position: relative;
+}
+
+.workout-color-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 20px;
+  right: 50px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 2px solid var(--bg-secondary);
 }
 
 .workout-image-placeholder {
@@ -467,7 +606,31 @@
 .workout-actions {
   display: flex;
   gap: 8px;
-  flex-shrink: 0;
+  align-items: center;
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
+.workout-menu-btn-agenda {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  font-size: 16px;
+}
+
+.workout-menu-btn-agenda:hover {
+  background-color: var(--bg-primary);
+  border-color: var(--text-primary);
 }
 
 .delete-button {

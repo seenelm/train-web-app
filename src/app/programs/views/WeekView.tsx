@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import './WeekView.css';
 import { programService } from '../services/programService';
 import { useProgramContext, programUtils } from '../contexts/ProgramContext';
 import { tokenService } from '../../../services/tokenService';
-import { IoTrashOutline } from 'react-icons/io5';
+import { IoTrashOutline, IoEllipsisVertical } from 'react-icons/io5';
 import { WeekResponse } from '@seenelm/train-core';
 
 // Types for our workout events
@@ -15,6 +15,7 @@ interface WorkoutEvent {
   startTime: string; // '7AM', '10AM', etc.
   duration: number; // duration in hours
   completed: boolean;
+  color?: string; // Add color property
 }
 
 // Type for selected time block
@@ -53,7 +54,7 @@ const WeekView: React.FC = () => {
   const [selectedBlocks, setSelectedBlocks] = useState<SelectedBlock[]>([]);
   
   // State for selection mode
-  const [isSelectionMode] = useState<boolean>(false);
+  // const [isSelectionMode] = useState<boolean>(false);
   
   // State for drag selection
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -66,6 +67,22 @@ const WeekView: React.FC = () => {
 
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   
+  // State for workout colors
+  const [workoutColors, setWorkoutColors] = useState<Record<string, string>>({});
+  const [showColorMenu, setShowColorMenu] = useState<string | null>(null);
+  const colorMenuRef = useRef<HTMLDivElement>(null);
+
+  const availableColors = [
+    '#4a90e2', // Blue (default)
+    '#e53935', // Red
+    '#4caf50', // Green
+    '#ff9800', // Orange
+    '#9c27b0', // Purple
+    '#00bcd4', // Cyan
+    '#ff5722', // Deep Orange
+    '#795548', // Brown
+  ];
+
   useEffect(() => {
     return () => {
       clearCurrentWeek();
@@ -141,7 +158,8 @@ const WeekView: React.FC = () => {
               day: dayOfWeek,
               startTime: timeOfDay,
               duration: duration,
-              completed: false
+              completed: false,
+              color: workoutColors[workout.id || ''] || '#4a90e2'
             };
           });
           
@@ -174,10 +192,10 @@ const WeekView: React.FC = () => {
     fetchWeekDetails();
   }, [programId, weekId]);
 
-  // Function to get the row span for a workout based on its duration
-  const getWorkoutRowSpan = (duration: number) => {
-    return Math.ceil(duration);
-  };
+  // // Function to get the row span for a workout based on its duration
+  // const getWorkoutRowSpan = (duration: number) => {
+  //   return Math.ceil(duration);
+  // };
 
   // Function to check if a workout exists at a specific day and time
   const getWorkoutAtDayAndTime = (day: string, time: string) => {
@@ -193,26 +211,26 @@ const WeekView: React.FC = () => {
   };
 
   // Function to check if a cell should be rendered or is part of a rowspan
-  const shouldRenderCell = (day: string, time: string) => {
-    const workoutsForDay = workouts.filter(w => w.day === day);
+  // const shouldRenderCell = (day: string, time: string) => {
+  //   const workoutsForDay = workouts.filter(w => w.day === day);
     
-    for (const workout of workoutsForDay) {
-      if (workout.startTime === time) {
-        return true; // This is the start of a workout
-      }
+  //   for (const workout of workoutsForDay) {
+  //     if (workout.startTime === time) {
+  //       return true; // This is the start of a workout
+  //     }
       
-      // Check if this time slot is covered by a workout that started earlier
-      const timeIndex = timeSlots.indexOf(time);
-      const workoutStartIndex = timeSlots.indexOf(workout.startTime);
-      const workoutEndIndex = workoutStartIndex + getWorkoutRowSpan(workout.duration);
+  //     // Check if this time slot is covered by a workout that started earlier
+  //     const timeIndex = timeSlots.indexOf(time);
+  //     const workoutStartIndex = timeSlots.indexOf(workout.startTime);
+  //     const workoutEndIndex = workoutStartIndex + getWorkoutRowSpan(workout.duration);
       
-      if (timeIndex > workoutStartIndex && timeIndex < workoutEndIndex) {
-        return false; // This cell is part of a rowspan
-      }
-    }
+  //     if (timeIndex > workoutStartIndex && timeIndex < workoutEndIndex) {
+  //       return false; // This cell is part of a rowspan
+  //     }
+  //   }
     
-    return true; // No workout here, render an empty cell
-  };
+  //   return true; // No workout here, render an empty cell
+  // };
 
   // Check if a block is selected
   const isBlockSelected = (day: string, time: string) => {
@@ -439,6 +457,33 @@ const WeekView: React.FC = () => {
   // Toggle between week view and agenda view
   const [viewMode, setViewMode] = useState<'week' | 'agenda'>('week');
 
+  // Handle color change
+  const handleColorChange = (workoutId: string, color: string) => {
+    setWorkoutColors(prev => ({ ...prev, [workoutId]: color }));
+    setWorkouts(prevWorkouts =>
+      prevWorkouts.map(w => w.id === workoutId ? { ...w, color } : w)
+    );
+    setShowColorMenu(null);
+  };
+
+  // Toggle color menu
+  const toggleColorMenu = (workoutId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setShowColorMenu(showColorMenu === workoutId ? null : workoutId);
+  };
+
+  // Close color menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (colorMenuRef.current && !colorMenuRef.current.contains(event.target as Node)) {
+        setShowColorMenu(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <div className="week-view">
       <div className="week-view-header">
@@ -464,60 +509,106 @@ const WeekView: React.FC = () => {
       
       {viewMode === 'week' ? (
         <div className="calendar-container">
-          <table className="calendar">
-            <thead>
-              <tr>
-                <th className="time-column"></th>
-                {days.map(day => (
-                  <th key={day}>{day}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
+          <div className="calendar-grid">
+            <div className="time-column-grid">
+              <div className="time-header">Time</div>
               {timeSlots.map(time => (
-                <tr key={time}>
-                  <td className="time-slot">{time}</td>
-                  {days.map(day => {
-                    const workout = getWorkoutAtDayAndTime(day, time);
-                    
-                    if (!shouldRenderCell(day, time)) {
-                      return null; // This cell is covered by a rowspan
-                    }
-                    
-                    if (workout) {
-                      return (
-                        <td 
-                          key={`${day}-${time}`}
-                          className={`workout-cell ${workout.completed ? 'completed' : ''}`}
-                          rowSpan={getWorkoutRowSpan(workout.duration)}
-                        >
-                          <div className="workout-cell-content">
-                            <div 
-                              className="workout-cell-title"
-                              onClick={() => handleWorkoutClick(workout.id)}
-                            >
-                              {workout.title}
-                            </div>
-
-                          </div>
-                        </td>
-                      );
-                    }
-                    
-                    return (
-                      <td 
-                        key={`${day}-${time}`} 
-                        className={`empty-cell ${isSelectionMode ? 'selectable' : ''} ${isBlockSelected(day, time) ? 'selected' : ''}`}
+                <div key={time} className="time-slot-grid">{time}</div>
+              ))}
+            </div>
+            <div className="days-grid">
+              <div className="day-headers">
+                {days.map(day => (
+                  <div key={day} className="day-header">{day}</div>
+                ))}
+              </div>
+              <div className="calendar-cells">
+                {days.map(day => (
+                  <div key={day} className="day-column">
+                    {timeSlots.map(time => (
+                      <div
+                        key={`${day}-${time}`}
+                        className={`calendar-cell ${isBlockSelected(day, time) ? 'selected' : ''}`}
                         onClick={() => handleCellClick(day, time)}
                         onMouseDown={() => handleMouseDown(day, time)}
                         onMouseEnter={() => handleMouseEnter(day, time)}
-                      ></td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <div className="workouts-overlay">
+                {workouts.map(workout => {
+                  const dayIndex = days.indexOf(workout.day);
+                  const timeIndex = timeSlots.indexOf(workout.startTime);
+                  const cellHeight = 60; // Height of each hour cell
+                  const headerHeight = 48; // Height of day headers
+                  
+                  return (
+                    <div
+                      key={workout.id}
+                      className="workout-overlay"
+                      style={{
+                        backgroundColor: workout.color,
+                        left: `${(dayIndex * 100) / 7}%`,
+                        top: `${headerHeight + (timeIndex * cellHeight)}px`,
+                        width: `calc(${100 / 7}% - 16px)`,
+                        height: `calc(${workout.duration * cellHeight}px - 8px)`,
+                        margin: '4px 8px',
+                      }}
+                      onClick={() => handleWorkoutClick(workout.id)}
+                    >
+                      <div className="workout-overlay-content">
+                        <div className="workout-overlay-header">
+                          <div className="workout-overlay-image" />
+                          <div className="workout-overlay-info">
+                            <div className="workout-overlay-title">{workout.title}</div>
+                            <div className="workout-overlay-time">{workout.startTime}</div>
+                          </div>
+                        </div>
+                        
+                        <button
+                          className="workout-menu-btn"
+                          onClick={(e) => toggleColorMenu(workout.id, e)}
+                          aria-label="Workout options"
+                        >
+                          <IoEllipsisVertical />
+                        </button>
+                        
+                        {showColorMenu === workout.id && (
+                          <div className="color-menu" ref={colorMenuRef}>
+                            <div className="color-menu-title">Choose Color</div>
+                            <div className="color-options">
+                              {availableColors.map(color => (
+                                <button
+                                  key={color}
+                                  className={`color-option ${workout.color === color ? 'selected' : ''}`}
+                                  style={{ backgroundColor: color }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleColorChange(workout.id, color);
+                                  }}
+                                  aria-label={`Select color ${color}`}
+                                />
+                              ))}
+                            </div>
+                            <button
+                              className="delete-workout-btn"
+                              onClick={(e) => handleDeleteWorkout(workout.id, e)}
+                              disabled={isDeleting}
+                            >
+                              <IoTrashOutline />
+                              {isDeleting ? 'Deleting...' : 'Delete Workout'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="agenda-view">
@@ -543,20 +634,47 @@ const WeekView: React.FC = () => {
                       className={`agenda-workout-card ${workout.completed ? 'completed' : ''}`}
                       onClick={() => handleWorkoutClick(workout.id)}
                     >
+                      <div className="workout-color-dot" style={{ backgroundColor: workout.color }} />
+                      <div className="workout-actions">
+                        <button
+                          className="workout-menu-btn-agenda"
+                          onClick={(e) => toggleColorMenu(workout.id, e)}
+                          aria-label="Workout options"
+                        >
+                          <IoEllipsisVertical />
+                        </button>
+                        {showColorMenu === workout.id && (
+                          <div className="color-menu" ref={colorMenuRef}>
+                            <div className="color-menu-title">Choose Color</div>
+                            <div className="color-options">
+                              {availableColors.map(color => (
+                                <button
+                                  key={color}
+                                  className={`color-option ${workout.color === color ? 'selected' : ''}`}
+                                  style={{ backgroundColor: color }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleColorChange(workout.id, color);
+                                  }}
+                                  aria-label={`Select color ${color}`}
+                                />
+                              ))}
+                            </div>
+                            <button
+                              className="delete-workout-btn"
+                              onClick={(e) => handleDeleteWorkout(workout.id, e)}
+                              disabled={isDeleting}
+                            >
+                              <IoTrashOutline />
+                              {isDeleting ? 'Deleting...' : 'Delete Workout'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
                       <div className="workout-image-placeholder"></div>
                       <div className="workout-time">{workout.startTime}</div>
                       <div className="workout-title">{workout.title}</div>
                       <div className="workout-duration">{workout.duration} hour{workout.duration !== 1 ? 's' : ''}</div>
-                      <div className="workout-actions">
-                        <button
-                          className="delete-button"
-                          onClick={(e) => handleDeleteWorkout(workout.id, e)}
-                          disabled={isDeleting}
-                          aria-label="Delete workout"
-                        >
-                          {isDeleting ? '...' : <IoTrashOutline />}
-                        </button>
-                      </div>
                     </div>
                   ))}
                 </div>
