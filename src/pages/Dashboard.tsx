@@ -22,7 +22,6 @@ import {
   AiOutlineSearch,
   AiOutlineSchedule
 } from "react-icons/ai";
-import { FaroRoutes } from "@grafana/faro-react";
 
 const Dashboard: React.FC = () => {
   const tabs = [
@@ -39,7 +38,7 @@ const Dashboard: React.FC = () => {
       <Sidebar tabs={tabs} />
       <ContentView>
         <ProgramProvider>
-          <FaroRoutes>
+          <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/groups" element={<Groups />} />
@@ -50,7 +49,7 @@ const Dashboard: React.FC = () => {
             <Route path="/programs/:programId" element={<ProgramView />} />
             <Route path="/programs/:programId/weeks/:weekId" element={<WeekView />} />
             <Route path="/programs/:programId/weeks/:weekId/workouts/:workoutId" element={<WorkoutView />} />
-          </FaroRoutes>
+          </Routes>
         </ProgramProvider>
       </ContentView>
     </div>
