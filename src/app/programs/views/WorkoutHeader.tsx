@@ -147,7 +147,7 @@ const WorkoutHeader: React.FC<WorkoutHeaderProps> = ({
             <h2 className="dialog-title">How Was Your Experience?</h2>
             <p className="dialog-subtitle">We'd love to hear your feedback!</p>
 
-            <div className="dialog-content">
+            <div className="dialog-content1">
               {/* Difficulty Rating */}
               <div className="form-field">
                 <label htmlFor="difficulty-rating">

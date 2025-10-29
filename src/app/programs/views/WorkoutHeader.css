@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -25,20 +25,22 @@
 
 /* Dialog Container */
 .after-demo-dialog {
-  background: var(--color-background, #ffffff);
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-width: 550px;
+  background: var(--bg-secondary);
+  border-radius: var(--card-border-radius);
+  box-shadow: 0 8px 32px var(--shadow-color);
+  max-width: 500px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
   animation: slideUp 0.3s ease-out;
+  border: 1px solid var(--border-color);
+  margin: 0 auto;
 }
 
 @media (prefers-color-scheme: dark) {
   .after-demo-dialog {
-    background: var(--color-background, #1e1e1e);
+    background: var(--bg-secondary);
   }
 }
 
@@ -60,35 +62,35 @@
   right: 16px;
   background: transparent;
   border: none;
-  font-size: 28px;
-  color: var(--color-text-secondary, #666);
+  font-size: 24px;
+  color: var(--text-secondary);
   cursor: pointer;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: all 0.2s ease;
+  transition: all var(--transition-speed);
 }
 
 .close-dialog-btn:hover {
-  background-color: var(--color-surface-hover, #f0f0f0);
-  color: var(--color-text-primary, #000);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 @media (prefers-color-scheme: dark) {
   .close-dialog-btn:hover {
-    background-color: var(--color-surface-hover, #2a2a2a);
-    color: var(--color-text-primary, #fff);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
   }
 }
 
 /* Dialog Title */
 .dialog-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--color-text-primary, #1a1a1a);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
   margin: 0;
   padding: 32px 32px 8px;
   text-align: center;
@@ -96,21 +98,23 @@
 
 @media (prefers-color-scheme: dark) {
   .dialog-title {
-    color: var(--color-text-primary, #ffffff);
+    color: var(--text-primary);
   }
 }
 
 .dialog-subtitle {
-  font-size: 16px;
-  color: var(--color-text-secondary, #666);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
   margin: 0;
   padding: 0 32px 24px;
   text-align: center;
 }
 
 /* Dialog Content */
-.dialog-content {
-  padding: 0 32px 32px;
+.dialog-content1 {
+  padding: 10px 32px 32px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Form Field */
@@ -120,16 +124,16 @@
 
 .form-field label {
   display: block;
-  font-size: 15px;
+  font-size: 0.9rem;
   font-weight: 500;
-  color: var(--color-text-primary, #1a1a1a);
+  color: var(--text-primary);
   margin-bottom: 12px;
   line-height: 1.5;
 }
 
 @media (prefers-color-scheme: dark) {
   .form-field label {
-    color: var(--color-text-primary, #ffffff);
+    color: var(--text-primary);
   }
 }
 
@@ -137,6 +141,7 @@
 .difficulty-slider-container {
   position: relative;
   padding: 8px 0;
+  width: 100%;
 }
 
 .difficulty-labels {
@@ -144,34 +149,25 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
-  font-size: 14px;
+  font-size: 0.85rem;
 }
 
 .difficulty-label-left,
 .difficulty-label-right {
-  color: var(--color-text-secondary, #666);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .difficulty-value {
-  font-size: 32px;
+  font-size: 2rem;
   font-weight: 700;
-  color: var(--color-primary, #646cff);
+  color: var(--accent-color);
   min-width: 50px;
   text-align: center;
 }
 
 /* Slider Track Fill */
-.slider-track-fill {
-  position: absolute;
-  bottom: 10px;
-  left: 0;
-  height: 6px;
-  background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%);
-  border-radius: 3px;
-  pointer-events: none;
-  transition: width 0.2s ease;
-}
+
 
 /* Difficulty Slider */
 .difficulty-slider {
@@ -180,15 +176,16 @@
   width: 100%;
   height: 6px;
   border-radius: 3px;
-  background: var(--color-border, #e0e0e0);
+  background: var(--border-color);
   outline: none;
   position: relative;
   cursor: pointer;
+  z-index: 1;
 }
 
 @media (prefers-color-scheme: dark) {
   .difficulty-slider {
-    background: var(--color-border, #3a3a3a);
+    background: var(--border-color);
   }
 }
 
@@ -196,90 +193,96 @@
 .difficulty-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: var(--color-primary, #646cff);
+  background: var(--accent-color);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all var(--transition-speed);
 }
 
 .difficulty-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-  box-shadow: 0 3px 12px rgba(100, 108, 255, 0.4);
+  transform: scale(1.15);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
 }
 
 /* Slider Thumb - Firefox */
 .difficulty-slider::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: var(--color-primary, #646cff);
+  background: var(--accent-color);
   cursor: pointer;
   border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all var(--transition-speed);
 }
 
 .difficulty-slider::-moz-range-thumb:hover {
-  transform: scale(1.2);
-  box-shadow: 0 3px 12px rgba(100, 108, 255, 0.4);
+  transform: scale(1.15);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
 }
 
 /* Feedback Textarea */
 .feedback-textarea {
   width: 100%;
-  padding: 14px 16px;
-  border: 2px solid var(--color-border, #e0e0e0);
-  border-radius: 10px;
-  font-size: 15px;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--input-border-radius);
+  font-size: 0.95rem;
   font-family: inherit;
-  color: var(--color-text-primary, #1a1a1a);
-  background: var(--color-background, #ffffff);
+  color: var(--text-primary);
+  background: var(--bg-primary);
   resize: vertical;
   min-height: 120px;
-  transition: all 0.2s ease;
+  transition: all var(--transition-speed);
   box-sizing: border-box;
 }
 
 @media (prefers-color-scheme: dark) {
   .feedback-textarea {
-    background: var(--color-surface, #2a2a2a);
-    border-color: var(--color-border, #3a3a3a);
-    color: var(--color-text-primary, #ffffff);
+    background: var(--bg-primary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
   }
 }
 
 .feedback-textarea:focus {
   outline: none;
-  border-color: var(--color-primary, #646cff);
-  box-shadow: 0 0 0 3px rgba(100, 108, 255, 0.1);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  .feedback-textarea:focus {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+  }
 }
 
 .feedback-textarea::placeholder {
-  color: var(--color-text-secondary, #999);
+  color: var(--text-secondary);
 }
 
 /* Submit Button */
 .submit-feedback-btn {
   width: 100%;
   padding: 14px 24px;
-  background: var(--color-primary, #646cff);
-  color: white;
+  background: var(--accent-color);
+  color: var(--bg-secondary);
   border: none;
-  border-radius: 10px;
-  font-size: 16px;
+  border-radius: var(--button-border-radius);
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-speed);
   margin-top: 24px;
 }
 
 .submit-feedback-btn:hover:not(:disabled) {
-  background: var(--color-primary-hover, #535bf2);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.3);
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .submit-feedback-btn:active:not(:disabled) {
@@ -300,12 +303,12 @@
   }
 
   .dialog-title {
-    font-size: 24px;
+    font-size: 1.3rem;
     padding: 24px 20px 8px;
   }
 
   .dialog-subtitle {
-    font-size: 14px;
+    font-size: 0.85rem;
     padding: 0 20px 20px;
   }
 
@@ -314,21 +317,20 @@
   }
 
   .difficulty-value {
-    font-size: 28px;
+    font-size: 1.75rem;
   }
 
   .form-field label {
-    font-size: 14px;
+    font-size: 0.85rem;
   }
 
   .feedback-textarea {
-    font-size: 14px;
+    font-size: 0.9rem;
     min-height: 100px;
   }
 
   .submit-feedback-btn {
-    font-size: 15px;
+    font-size: 0.95rem;
     padding: 12px 20px;
   }
 }
-
