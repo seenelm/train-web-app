@@ -234,7 +234,7 @@ class ProgramService extends BaseApiService<
    * Get all details of a week
    * GET /program/:programId/week/:weekId
    */
-  async getWeek(programId: number, weekId: number): Promise<WeekResponse> {
+  async getWeek(programId: string, weekId: string): Promise<WeekResponse> {
     return this.get(`/program/${programId}/week/${weekId}`);
   }
 }
