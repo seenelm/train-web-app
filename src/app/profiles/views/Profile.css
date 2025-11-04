@@ -377,6 +377,13 @@
   min-height: 100px;
 }
 
+.form-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: -4px;
+}
+
 .dialog-actions {
   display: flex;
   gap: 12px;

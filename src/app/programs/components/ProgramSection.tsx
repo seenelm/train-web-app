@@ -16,7 +16,8 @@ interface ProgramSectionProps {
   programs: ProgramResponse[]; 
   showAddButton?: boolean;
   onAddProgram?: () => void;
-  onDeleteProgram?: (programId: string) => void; 
+  onDeleteProgram?: (programId: string) => void;
+  onEditProgram?: (programId: string) => void;
 }
 
 export const ProgramSection: React.FC<ProgramSectionProps> = ({ 
@@ -24,7 +25,8 @@ export const ProgramSection: React.FC<ProgramSectionProps> = ({
   programs, 
   showAddButton = false, 
   onAddProgram,
-  onDeleteProgram 
+  onDeleteProgram,
+  onEditProgram
 }) => {
   return (
     <div className="program-section">
@@ -37,6 +39,7 @@ export const ProgramSection: React.FC<ProgramSectionProps> = ({
             key={program.id} 
             program={program} 
             onDelete={onDeleteProgram}
+            onEdit={onEditProgram}
           />
         ))}
         {showAddButton && (
