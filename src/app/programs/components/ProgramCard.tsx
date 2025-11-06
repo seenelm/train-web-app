@@ -16,10 +16,11 @@ import { ProgramResponse } from '@seenelm/train-core';
 
 interface ProgramCardProps {
   program: ProgramResponse;
-  onDelete?: (programId: string) => void; 
+  onDelete?: (programId: string) => void;
+  onEdit?: (programId: string) => void;
 }
 
-export const ProgramCard: React.FC<ProgramCardProps> = ({ program, onDelete }) => {
+export const ProgramCard: React.FC<ProgramCardProps> = ({ program, onDelete, onEdit }) => {
   const navigate = useNavigate();
   const [shareSuccess, setShareSuccess] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -50,8 +51,15 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program, onDelete }) =
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('Edit program:', program.id);
-    navigate(`/programs/builder/${program.id}`);
+    setIsMenuOpen(false);
+    
+    if (onEdit) {
+      onEdit(program.id);
+    } else {
+      // Fallback to navigation if no onEdit callback provided
+      console.log('Edit program:', program.id);
+      navigate(`/programs/builder/${program.id}`);
+    }
   };
 
   const handleShare = async (e: React.MouseEvent) => {

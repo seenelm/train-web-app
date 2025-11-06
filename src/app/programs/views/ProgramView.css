@@ -151,12 +151,19 @@
   cursor: pointer;
   transition: all var(--transition-speed);
   overflow: visible;
+  position: relative;
+  z-index: 1;
 }
 
 .week-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px var(--shadow-color);
   border-color: var(--accent-color);
+  z-index: 2;
+}
+
+.week-card.menu-open {
+  z-index: 100;
 }
 
 .week-image-placeholder {

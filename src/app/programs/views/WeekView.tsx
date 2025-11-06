@@ -6,6 +6,7 @@ import { useProgramContext, programUtils } from '../contexts/ProgramContext';
 import { tokenService } from '../../../services/tokenService';
 import { IoTrashOutline, IoEllipsisVertical } from 'react-icons/io5';
 import { WeekResponse } from '@seenelm/train-core';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 // Types for our workout events
 interface WorkoutEvent {
@@ -65,6 +66,10 @@ const WeekView: React.FC = () => {
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('10:00');
 
+  // Confirm dialog states for workout deletion
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingWorkoutId, setDeletingWorkoutId] = useState<string>('');
+  const [deletingWorkoutName, setDeletingWorkoutName] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   
   // State for workout colors
@@ -310,22 +315,47 @@ const WeekView: React.FC = () => {
     navigate(`/programs/${programId}/weeks/${weekId}/workouts/${workoutId}`);
   };
 
-  // Handle delete workout
-  const handleDeleteWorkout = async (workoutId: string, event: React.MouseEvent) => {
+  // Handle delete workout - open confirmation dialog
+  const handleDeleteWorkout = (workoutId: string, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent triggering the workout click
-    setIsDeleting(true);
+    const workout = workouts.find(w => w.id === workoutId);
+    if (workout) {
+      setDeletingWorkoutId(workoutId);
+      setDeletingWorkoutName(workout.title);
+      setShowDeleteConfirm(true);
+    }
+  };
+
+  // Confirm delete workout
+  const confirmDeleteWorkout = async () => {
+    if (!deletingWorkoutId) return;
+
     try {
-      await programService.deleteWorkout(programId!, weekId!, workoutId);
+      setIsDeleting(true);
+      await programService.deleteWorkout(programId!, weekId!, deletingWorkoutId);
       
       // Remove the workout from local state
       setWorkouts(prevWorkouts => 
-        prevWorkouts.filter(workout => workout.id !== workoutId)
+        prevWorkouts.filter(workout => workout.id !== deletingWorkoutId)
       );
+
+      // Close dialog
+      setShowDeleteConfirm(false);
+      setDeletingWorkoutId('');
+      setDeletingWorkoutName('');
     } catch (error) {
       console.error('Error deleting workout:', error);
+      setWeeksError('Failed to delete workout. Please try again.');
     } finally {
       setIsDeleting(false);
     }
+  };
+
+  // Cancel delete workout
+  const cancelDeleteWorkout = () => {
+    setShowDeleteConfirm(false);
+    setDeletingWorkoutId('');
+    setDeletingWorkoutName('');
   };
 
   // Handle log workout click
@@ -455,7 +485,10 @@ const WeekView: React.FC = () => {
   };
 
   // Toggle between week view and agenda view
-  const [viewMode, setViewMode] = useState<'week' | 'agenda'>('week');
+  const [viewMode, setViewMode] = useState<'week' | 'agenda'>(() => {
+    // Default to agenda view on mobile devices
+    return window.innerWidth <= 768 ? 'agenda' : 'week';
+  });
 
   // Handle color change
   const handleColorChange = (workoutId: string, color: string) => {
@@ -719,6 +752,18 @@ const WeekView: React.FC = () => {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Delete Workout?"
+        message={`Are you sure you want to delete "${deletingWorkoutName}"? This action cannot be undone and will remove all exercises and data associated with this workout.`}
+        confirmText="Delete Workout"
+        cancelText="Cancel"
+        isDestructive={true}
+        isLoading={isDeleting}
+        onConfirm={confirmDeleteWorkout}
+        onCancel={cancelDeleteWorkout}
+      />
     </div>
   );
 };

@@ -48,19 +48,21 @@ const TextInput: React.FC<TextInputProps> = ({
   return (
     <div className={`form-group ${getInputTypeClass()}`}>
       <label htmlFor={id}>{label}{required && <span className="required">*</span>}</label>
-      <input
-        data-testid={testId}
-        id={id}
-        name={name || id}
-        type={type}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        required={required}
-        disabled={disabled}
-        autoComplete={autoComplete}
-        className={error ? 'error' : ''}
-      />
+      <div className="input-wrapper">
+        <input
+          data-testid={testId}
+          id={id}
+          name={name || id}
+          type={type}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          autoComplete={autoComplete}
+          className={error ? 'error' : ''}
+        />
+      </div>
       {error && <div className="input-error">{error}</div>}
     </div>
   );

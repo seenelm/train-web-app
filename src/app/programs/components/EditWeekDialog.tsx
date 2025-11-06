@@ -25,9 +25,25 @@ const EditWeekDialog: React.FC<EditWeekDialogProps> = ({
   const [imagePreview, setImagePreview] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Update local state when props change
+  // Update local state when props change and auto-populate end date
   useEffect(() => {
-    setWeekData(initialWeekData);
+    if (initialWeekData) {
+      // If there's a start date, automatically set end date to 7 days later
+      if (initialWeekData.startDate) {
+        const startDate = initialWeekData.startDate instanceof Date 
+          ? initialWeekData.startDate 
+          : new Date(initialWeekData.startDate);
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 6);
+        
+        setWeekData({
+          ...initialWeekData,
+          endDate: endDate
+        });
+      } else {
+        setWeekData(initialWeekData);
+      }
+    }
     setImagePreview(imageUrl || '');
   }, [initialWeekData, imageUrl]);
 
@@ -121,7 +137,17 @@ const EditWeekDialog: React.FC<EditWeekDialogProps> = ({
                   id="start-date"
                   type="date"
                   value={weekData.startDate instanceof Date ? weekData.startDate.toISOString().split('T')[0] : ''}
-                  onChange={(e) => setWeekData({ ...weekData, startDate: new Date(e.target.value) })}
+                  onChange={(e) => {
+                    const newStartDate = new Date(e.target.value);
+                    // Auto-populate end date to 6 days after start date (7 days total, inclusive)
+                    const newEndDate = new Date(newStartDate);
+                    newEndDate.setDate(newEndDate.getDate() + 6);
+                    setWeekData({ 
+                      ...weekData, 
+                      startDate: newStartDate,
+                      endDate: newEndDate
+                    });
+                  }}
                   required
                 />
               </div>
