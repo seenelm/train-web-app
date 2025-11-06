@@ -104,7 +104,7 @@ const CircuitItem: React.FC<Props> = ({
             <div className="circuit-sets">
               <span className="sets-label">{block.targetSets} sets</span>
             </div>
-            {block.rest && block.rest > 0 && (
+            {block.rest != null && block.rest > 0 && (
               <div className="circuit-rest">
                 <span className="rest-label">{block.rest}s rest</span>
               </div>

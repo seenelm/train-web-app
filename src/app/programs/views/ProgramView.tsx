@@ -7,18 +7,30 @@ import { FaEdit } from 'react-icons/fa';
 import { useProgramContext, programUtils } from '../contexts/ProgramContext';
 import { ProgramResponse, WeekRequest, WeekResponse } from '@seenelm/train-core';
 import EditWeekDialog from '../components/EditWeekDialog';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 const ProgramView: React.FC = () => {
   const { programId } = useParams<{ programId: string }>();
   const location = useLocation();
   const [shareSuccess, setShareSuccess] = useState<boolean>(false);
-  const [isDeletingWeek, setIsDeletingWeek] = useState<boolean>(false);
   const [openMenuWeekId, setOpenMenuWeekId] = useState<string | null>(null);
   const [showEditWeekDialog, setShowEditWeekDialog] = useState(false);
   const [editingWeekIndex, setEditingWeekIndex] = useState<number>(-1);
   const [editingWeekId, setEditingWeekId] = useState<string>('');
   const [weekData, setWeekData] = useState<WeekRequest | null>(null);
   const [imageUrl, setImageUrl] = useState<string>('');
+  
+  // Confirm dialog states for program deletion
+  const [showDeleteProgramConfirm, setShowDeleteProgramConfirm] = useState(false);
+  const [isDeletingProgram, setIsDeletingProgram] = useState(false);
+  
+  // Confirm dialog states for week deletion
+  const [showDeleteWeekConfirm, setShowDeleteWeekConfirm] = useState(false);
+  const [deletingWeekId, setDeletingWeekId] = useState<string>('');
+  const [deletingWeekIndex, setDeletingWeekIndex] = useState<number>(-1);
+  const [deletingWeekName, setDeletingWeekName] = useState<string>('');
+  const [isDeletingWeek, setIsDeletingWeek] = useState(false);
+  
   const navigate = useNavigate();
   
   const { 
@@ -41,7 +53,26 @@ const ProgramView: React.FC = () => {
       setProgramsLoading(false);
       setProgramsError(null);
     };
-  }, []); 
+  }, []);
+
+  // Close dropdown menu when clicking anywhere outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      // Check if click is outside the menu and menu button
+      if (!target.closest('.week-card-actions')) {
+        setOpenMenuWeekId(null);
+      }
+    };
+
+    if (openMenuWeekId) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [openMenuWeekId]); 
 
   useEffect(() => {
     const fetchProgram = async () => {
@@ -82,18 +113,43 @@ const ProgramView: React.FC = () => {
     navigate(`/programs/${programId}/weeks/${weekId}`);
   };
 
-  // Function to handle delete week
-  const handleDeleteWeek = async (weekId: string, weekIndex: number, event: React.MouseEvent) => {
+  const handleDeleteWeek = (weekId: string, weekIndex: number, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent triggering the week card click
-    setIsDeletingWeek(true);
+    const week = state.weeks[weekIndex];
+    if (week) {
+      setDeletingWeekId(weekId);
+      setDeletingWeekIndex(weekIndex);
+      setDeletingWeekName(week.name || `Week ${week.weekNumber}`);
+      setShowDeleteWeekConfirm(true);
+    }
+  };
+
+  const confirmDeleteWeek = async () => {
+    if (!deletingWeekId || deletingWeekIndex === -1) return;
+
     try {
+      setIsDeletingWeek(true);
       // Use context's deleteWeek which handles both API call and state update
-      await deleteWeek(programId!, weekId, weekIndex);
+      await deleteWeek(programId!, deletingWeekId, deletingWeekIndex);
+      
+      // Close dialog
+      setShowDeleteWeekConfirm(false);
+      setDeletingWeekId('');
+      setDeletingWeekIndex(-1);
+      setDeletingWeekName('');
     } catch (error) {
       console.error('Error deleting week:', error);
+      setProgramsError('Failed to delete week. Please try again.');
     } finally {
       setIsDeletingWeek(false);
     }
+  };
+
+  const cancelDeleteWeek = () => {
+    setShowDeleteWeekConfirm(false);
+    setDeletingWeekId('');
+    setDeletingWeekIndex(-1);
+    setDeletingWeekName('');
   };
 
   // Function to handle edit week
@@ -156,20 +212,35 @@ const ProgramView: React.FC = () => {
     navigate('/programs');
   };
 
-  // Function to handle delete
-  const handleDelete = async () => {
-    console.log('Delete program:', programId);
-    if (!programId) {
+  // Function to handle delete program
+  const handleDelete = () => {
+    if (!programId || !state.currentProgram) {
       console.error('Program ID is required');
       return;
     }
-    
+    setShowDeleteProgramConfirm(true);
+  };
+
+  const confirmDeleteProgram = async () => {
+    if (!programId) return;
+
     try {
+      setIsDeletingProgram(true);
       await programService.deleteProgram(programId);
+      
+      // Navigate back to programs list
       navigate('/programs');
     } catch (error) {
       console.error('Error deleting program:', error);
+      setProgramsError('Failed to delete program. Please try again.');
+    } finally {
+      setIsDeletingProgram(false);
+      setShowDeleteProgramConfirm(false);
     }
+  };
+
+  const cancelDeleteProgram = () => {
+    setShowDeleteProgramConfirm(false);
   };
 
   if (state.programsLoading) {
@@ -240,7 +311,7 @@ const ProgramView: React.FC = () => {
               .map(week => (
                 <div 
                   key={week.id} 
-                  className="week-card" 
+                  className={`week-card ${openMenuWeekId === week.id ? 'menu-open' : ''}`}
                   onClick={() => handleWeekClick(week.id)}
                 >
                   <div className="week-image-placeholder"></div>
@@ -298,6 +369,30 @@ const ProgramView: React.FC = () => {
         isSaving={state.weeksSaving}
         onClose={handleCloseEditDialog}
         onSave={handleSaveWeek}
+      />
+
+      <ConfirmDialog
+        isOpen={showDeleteProgramConfirm}
+        title="Delete Program?"
+        message={`Are you sure you want to delete "${state.currentProgram?.name}"? This action cannot be undone and will remove all weeks, workouts, and data associated with this program.`}
+        confirmText="Delete Program"
+        cancelText="Cancel"
+        isDestructive={true}
+        isLoading={isDeletingProgram}
+        onConfirm={confirmDeleteProgram}
+        onCancel={cancelDeleteProgram}
+      />
+
+      <ConfirmDialog
+        isOpen={showDeleteWeekConfirm}
+        title="Delete Week?"
+        message={`Are you sure you want to delete "${deletingWeekName}"? This action cannot be undone and will remove all workouts, meals, and notes associated with this week.`}
+        confirmText="Delete Week"
+        cancelText="Cancel"
+        isDestructive={true}
+        isLoading={isDeletingWeek}
+        onConfirm={confirmDeleteWeek}
+        onCancel={cancelDeleteWeek}
       />
     </div>
   );

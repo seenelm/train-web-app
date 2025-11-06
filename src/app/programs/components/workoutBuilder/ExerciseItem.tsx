@@ -219,7 +219,7 @@ const ExerciseItem: React.FC<Props> = ({ exercise, editMode, blockIndex, exercis
                 <span className="exercise-value">{exercise.targetReps}</span>
                 <span className="exercise-unit">{measurementType === MeasurementType.TIME ? 'sec' : 'reps'}</span>
               </div>
-              {exercise.rest && exercise.rest > 0 && (
+              {exercise.rest != null && exercise.rest > 0 && (
                 <div className="exercise-value-display">
                   <span className="exercise-value">{exercise.rest}</span>
                   <span className="exercise-unit">sec rest</span>

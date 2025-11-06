@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import logo from '../../../../assets/logo.svg';
+import logoWhite from '../../../../assets/logo-white.svg';
 import './AuthCard.css';
 
 interface AuthCardProps {
@@ -15,10 +16,25 @@ const AuthCard: React.FC<AuthCardProps> = ({
   children,
   footer,
 }) => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Check for dark mode
+  useEffect(() => {
+    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setIsDarkMode(darkModeQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setIsDarkMode(e.matches);
+    };
+
+    darkModeQuery.addEventListener('change', handleChange);
+    return () => darkModeQuery.removeEventListener('change', handleChange);
+  }, []);
+
   return (
     <div className="auth-container">
       <div className="auth-logo-container">
-        <img src={logo} alt="Logo" className="auth-logo" />
+        <img src={isDarkMode ? logoWhite : logo} alt="Logo" className="auth-logo" />
       </div>
       
       <div className="auth-header">

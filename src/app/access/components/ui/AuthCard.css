@@ -122,10 +122,6 @@
 
 /* Mobile-specific styles */
 @media (prefers-color-scheme: dark) {
-  .auth-logo {
-    content: url('../../../../../assets/logo-white.svg');
-  }
-  
   .auth-container {
     padding: 1.5rem 1.5rem 5rem 1.5rem;
   }

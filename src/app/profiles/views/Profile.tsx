@@ -13,6 +13,65 @@ const Profile: React.FC = () => {
   const [rolesInput, setRolesInput] = useState<string>(''); 
   const [email, setEmail] = useState<string>('');
 
+  // Helper function to format phone number
+  const formatPhoneNumber = (value: string): string => {
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, '');
+    
+    // Handle different lengths
+    if (digits.length === 0) return '';
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    if (digits.length <= 10) return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    
+    // For numbers longer than 10 digits, include country code
+    return `+${digits.slice(0, digits.length - 10)} (${digits.slice(-10, -7)}) ${digits.slice(-7, -4)}-${digits.slice(-4)}`;
+  };
+
+  // Helper function to format location (City, State, Country)
+  const formatLocation = (value: string): string => {
+    if (!value) return '';
+    
+    // Split by comma and trim each part
+    const parts = value.split(',').map(part => part.trim()).filter(part => part);
+    
+    if (parts.length === 0) return '';
+    if (parts.length === 1) return parts[0]; // Just city
+    if (parts.length === 2) {
+      // City, State or City, Country
+      const state = parts[1].toUpperCase();
+      return `${parts[0]}, ${state}`;
+    }
+    
+    // City, State, Country - normalize state and country codes to uppercase
+    const city = parts[0];
+    const state = parts[1].toUpperCase();
+    const country = parts[2].toUpperCase();
+    return `${city}, ${state}, ${country}`;
+  };
+
+  // Validate location format on blur (optional but recommended)
+  const validateLocationFormat = (value: string): string => {
+    const formatted = formatLocation(value);
+    const parts = formatted.split(',').map(p => p.trim());
+    
+    // If user provided state/country codes, ensure they're uppercase
+    if (parts.length >= 2) {
+      const stateCode = parts[1];
+      // Common US states (2-letter codes)
+      const usStates = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'];
+      
+      if (usStates.includes(stateCode)) {
+        // If valid US state and no country, add US
+        if (parts.length === 2) {
+          return `${parts[0]}, ${stateCode}, US`;
+        }
+      }
+    }
+    
+    return formatted;
+  };
+
   // Helper function to map UserProfileResponse to UserProfileRequest
   const mapResponseToRequest = (response: UserProfileResponse): UserProfileRequest => {
     return {
@@ -190,8 +249,16 @@ const Profile: React.FC = () => {
                   type="text"
                   value={profileRequest.location || ''}
                   onChange={(e) => setProfileRequest({ ...profileRequest, location: e.target.value })}
-                  placeholder="City, State"
+                  onBlur={(e) => {
+                    // Format and validate on blur
+                    const validated = validateLocationFormat(e.target.value);
+                    setProfileRequest({ ...profileRequest, location: validated });
+                  }}
+                  placeholder="City, State, Country (e.g., New York, NY, US)"
                 />
+                <small className="form-hint">
+                  Format: City, State Code, Country Code
+                </small>
               </div>
 
               <div className="form-group">
@@ -265,8 +332,12 @@ const Profile: React.FC = () => {
                   id="phoneNumber"
                   type="tel"
                   value={profileRequest.phoneNumber || ''}
-                  onChange={(e) => setProfileRequest({ ...profileRequest, phoneNumber: e.target.value })}
-                  placeholder="+1 234-567-8900"
+                  onChange={(e) => {
+                    const formatted = formatPhoneNumber(e.target.value);
+                    setProfileRequest({ ...profileRequest, phoneNumber: formatted });
+                  }}
+                  placeholder="(123) 456-7890"
+                  maxLength={20}
                 />
               </div>
 
