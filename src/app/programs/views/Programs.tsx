@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import "./Programs.css"
 import { programService } from '../services/programService';
 import { tokenService } from '../../../services/tokenService';
-import { ProgramResponse, ProgramRequest, ProfileAccess } from '@seenelm/train-core';
+import { ProgramResponse, ProgramRequest } from '@seenelm/train-core';
 import { useProgramContext } from '../contexts/ProgramContext';
 import EditProgramDialog from '../components/EditProgramDialog';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -39,48 +39,6 @@ const Programs: React.FC = () => {
       setProgramsError(null);
     };
   }, []); 
-  
-  // Favorite programs (static for now)
-  const favoritePrograms: ProgramResponse[] = [
-    {
-      id: '1',
-      name: 'Strength Training Basics',
-      description: 'A 6-week program focused on building foundational strength.',
-      numWeeks: 6,
-      weeks: [
-        { id: '1', weekNumber: 1 },
-        { id: '2', weekNumber: 2 },
-        { id: '3', weekNumber: 3 },
-        { id: '4', weekNumber: 4 },
-        { id: '5', weekNumber: 5 },
-        { id: '6', weekNumber: 6 },
-      ],
-      hasNutritionProgram: false,
-      accessType: ProfileAccess.Public,
-      admins: [],
-      createdBy: '',
-    },
-    {
-      id: '2',
-      name: 'Lean & Clean',
-      description: '8 weeks of workouts paired with nutrition guidance.',
-      numWeeks: 8,
-      weeks: [
-        { id: '1', weekNumber: 1 },
-        { id: '2', weekNumber: 2 },
-        { id: '3', weekNumber: 3 },
-        { id: '4', weekNumber: 4 },
-        { id: '5', weekNumber: 5 },
-        { id: '6', weekNumber: 6 },
-        { id: '7', weekNumber: 7 },
-        { id: '8', weekNumber: 8 },
-      ],
-      hasNutritionProgram: true,
-      accessType: ProfileAccess.Public,
-      admins: [],
-      createdBy: '',
-    }
-  ];
   
   useEffect(() => {
     const fetchPrograms = async () => {
@@ -222,11 +180,6 @@ const Programs: React.FC = () => {
 
   return (
     <div className="programs-page">
-      <ProgramSection 
-        title="Favorite Programs" 
-        programs={favoritePrograms} 
-      />
-      
       <ProgramSection 
         title="All Programs" 
         programs={state.programs}

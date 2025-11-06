@@ -144,6 +144,7 @@
   background-color: var(--bg-secondary);
   border-radius: var(--card-border-radius);
   border: 1px solid var(--border-color);
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 .calendar-grid {
@@ -665,23 +666,30 @@
 }
 
 @media (max-width: 768px) {
-  .workout-item {
-    flex-direction: column;
-    align-items: flex-start;
+  .week-view {
+    padding: 10px;
+    overflow-x: hidden; /* Prevent double scrollbars */
   }
-  
-  .workout-actions {
-    width: 100%;
-    justify-content: stretch;
-  }
-  
-  .view-workout-btn,
-  .log-workout-btn {
-    flex: 1;
-  }
-}
 
-@media (max-width: 768px) {
+  .time-header {
+    height: 46px;
+  }
+  .calendar-container {
+    width: 95vw;
+
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  .calendar-container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  .calendar-grid {
+    min-width: 900px; /* Ensure it's wide enough to scroll */
+  }
+
   .week-view-header {
     flex-direction: column;
     align-items: flex-start;

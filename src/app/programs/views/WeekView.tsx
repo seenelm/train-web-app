@@ -485,7 +485,10 @@ const WeekView: React.FC = () => {
   };
 
   // Toggle between week view and agenda view
-  const [viewMode, setViewMode] = useState<'week' | 'agenda'>('week');
+  const [viewMode, setViewMode] = useState<'week' | 'agenda'>(() => {
+    // Default to agenda view on mobile devices
+    return window.innerWidth <= 768 ? 'agenda' : 'week';
+  });
 
   // Handle color change
   const handleColorChange = (workoutId: string, color: string) => {
