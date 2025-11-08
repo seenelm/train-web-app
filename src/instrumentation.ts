@@ -13,6 +13,7 @@ import {
 } from "@grafana/faro-react";
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 
+console.log("Instrumentation file executing...");
 const faroUrl = import.meta.env.VITE_FARO_URL;
 console.log("Faro URL: ", faroUrl);
 
