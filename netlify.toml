@@ -4,6 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
 
 # This command runs before the build to set up authentication and install dependencies
 [build.lifecycle]
