@@ -9,11 +9,12 @@ import {
   createReactRouterV6Options,
   getWebInstrumentations,
   initializeFaro,
-  ReactIntegration
+  ReactIntegration,
 } from "@grafana/faro-react";
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 
 const faroUrl = import.meta.env.VITE_FARO_URL;
+console.log("Faro URL: ", faroUrl);
 
 initializeFaro({
   url: faroUrl,
