@@ -1,11 +1,12 @@
+import './instrumentation';
+
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import './styles/global.css'
 import App from './App.tsx'
 
-import './instrumentation.ts';
-
 const root = document.getElementById("root");
+console.log("FARO URL: ", import.meta.env.VITE_FARO_URL);
 
 // async function enableMocking() {
 //   // Skip mocking if not in development or if explicitly disabled via env variable
