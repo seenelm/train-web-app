@@ -9,8 +9,7 @@ import {
   createReactRouterV6Options,
   getWebInstrumentations,
   initializeFaro,
-  ReactIntegration,
-  ReactRouterVersion,
+  ReactIntegration
 } from "@grafana/faro-react";
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 
