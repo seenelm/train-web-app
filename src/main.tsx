@@ -1,36 +1,74 @@
-import './instrumentation';
-
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import './styles/global.css'
 import App from './App.tsx'
+import {
+  createRoutesFromChildren,
+  matchRoutes,
+  Routes,
+  useLocation,
+  useNavigationType,
+} from "react-router";
+import {
+  createReactRouterV6Options,
+  getWebInstrumentations,
+  initializeFaro,
+  ReactIntegration,
+} from "@grafana/faro-react";
+import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 
-console.log("Main file executing...");
+console.log("Instrumentation file executing...");
+const faroUrl = import.meta.env.VITE_FARO_URL;
+const environment = import.meta.env.MODE || "production";
+
+console.log("Environment:", environment);
+console.log("Faro URL:", faroUrl || "Using default URL");
+console.log("All env vars:", import.meta.env);
+
+// Validate Faro URL
+if (!faroUrl) {
+  console.warn("⚠️ VITE_FARO_URL is not set! Using default fallback URL.");
+}
+
+try {
+  const faro = initializeFaro({
+    url: faroUrl,
+    app: {
+      name: "TrainApp",
+      version: "1.0.0",
+      environment: environment,
+    },
+
+    instrumentations: [
+      // Mandatory, omits default instrumentations otherwise.
+      ...getWebInstrumentations(),
+
+      // Tracing package to get end-to-end visibility for HTTP requests.
+      new TracingInstrumentation(),
+
+      // React integration for React applications.
+      new ReactIntegration({
+        router: createReactRouterV6Options({
+          createRoutesFromChildren,
+          matchRoutes,
+          Routes,
+          useLocation,
+          useNavigationType,
+        }),
+      }),
+    ],
+  });
+
+  console.log("✅ Grafana Faro initialized successfully", faro);
+
+  // Test if Faro can send data
+  faro.api.pushLog(["Faro initialization test from " + environment]);
+} catch (error) {
+  console.error("❌ Failed to initialize Grafana Faro:", error);
+}
+
 const root = document.getElementById("root");
-console.log("FARO URL: ", import.meta.env.VITE_FARO_URL);
 
-// async function enableMocking() {
-//   // Skip mocking if not in development or if explicitly disabled via env variable
-//   if (process.env.NODE_ENV !== 'development' || import.meta.env.VITE_DISABLE_MSW === 'true') {
-//     console.log('MSW mocking is disabled');
-//     return
-//   }
- 
-//   const { worker } = await import('./mocks/browser.ts')
- 
-//   // `worker.start()` returns a Promise that resolves
-//   // once the Service Worker is up and ready to intercept requests.
-//   console.log('MSW mocking is enabled');
-//   return worker.start()
-// }
-
-// enableMocking().then(() => {
-//   ReactDOM.createRoot(root!).render(
-//     <BrowserRouter>
-//       <App />
-//     </BrowserRouter>
-//   );
-// });
 
 ReactDOM.createRoot(root!).render(
   <BrowserRouter>
