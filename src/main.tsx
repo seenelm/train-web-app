@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router";
 import './styles/global.css'
 import App from './App.tsx'
 
+console.log("Main file executing...");
 const root = document.getElementById("root");
 console.log("FARO URL: ", import.meta.env.VITE_FARO_URL);
 
