@@ -44,7 +44,11 @@ try {
       ...getWebInstrumentations(),
 
       // Tracing package to get end-to-end visibility for HTTP requests.
-      new TracingInstrumentation(),
+      new TracingInstrumentation({
+        instrumentationOptions: {
+          // Requests to these URLs have tracing headers attached.
+          propagateTraceHeaderCorsUrls: [new RegExp('https://api.trainapp.io/*')],
+      }}),
 
       // React integration for React applications.
       new ReactIntegration({
