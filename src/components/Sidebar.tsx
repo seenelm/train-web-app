@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router";
-import { AiOutlineLogout, AiOutlineMenu, AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
+import { AiOutlineLogout, AiOutlineMenu, AiOutlineClose, AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import logo from "@/assets/logo.svg";
 import logoWhite from "@/assets/logo-white.svg";
 import { authService } from "../app/access/services/authService";
@@ -24,22 +24,31 @@ const Sidebar: React.FC<SidebarProps> = ({ tabs }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
 
-  // Check if the screen is mobile size
+  // Check if the screen is mobile size and if it's a small height screen
   useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+    const checkScreenSize = () => {
+      const isMobileWidth = window.innerWidth <= 768;
+      setIsMobile(isMobileWidth);
+      
+      // Check if it's a small height screen (less than 600px)
+      setIsSmallScreen(window.innerHeight < 600);
+      
+      if (!isMobileWidth) {
+        setMobileOpen(false);
+      }
     };
     
     // Initial check
-    checkIfMobile();
+    checkScreenSize();
     
     // Add event listener for window resize
-    window.addEventListener('resize', checkIfMobile);
+    window.addEventListener('resize', checkScreenSize);
     
     // Cleanup
     return () => {
-      window.removeEventListener('resize', checkIfMobile);
+      window.removeEventListener('resize', checkScreenSize);
     };
   }, []);
 
@@ -55,6 +64,13 @@ const Sidebar: React.FC<SidebarProps> = ({ tabs }) => {
     darkModeQuery.addEventListener('change', handleChange);
     return () => darkModeQuery.removeEventListener('change', handleChange);
   }, []);
+
+  // Close mobile sidebar when route changes
+  useEffect(() => {
+    if (isMobile && mobileOpen) {
+      setMobileOpen(false);
+    }
+  }, [navigate]);
 
   const handleSignOut = async () => {
     const logoutRequest: LogoutRequest = {
@@ -79,50 +95,78 @@ const Sidebar: React.FC<SidebarProps> = ({ tabs }) => {
 
   // Determine sidebar classes based on state
   const sidebarClasses = `sidebar ${collapsed ? 'collapsed' : ''} ${isMobile ? 'mobile' : ''} ${isMobile && mobileOpen ? 'mobile-open' : ''}`;
+  const overlayClasses = `sidebar-overlay ${mobileOpen ? 'active' : ''}`;
+
+  // Create signout button component
+  const SignoutButton = () => (
+    <div className={`sidebar-signout ${isSmallScreen ? 'top-position' : ''}`} onClick={handleSignOut} title="Sign Out">
+      <span className="tab-icon">
+        <AiOutlineLogout />
+      </span>
+      {(!collapsed || isMobile) && <span className="tab-label">Sign Out</span>}
+    </div>
+  );
 
   return (
     <>
-      {/* Mobile menu button - only visible on mobile */}
-      <button className="mobile-menu-button" onClick={toggleSidebar}>
-        <AiOutlineMenu />
+      {/* Mobile menu button - positioned in the header area */}
+      <button 
+        className="mobile-menu-button" 
+        onClick={toggleSidebar}
+        aria-label={mobileOpen ? "Close menu" : "Open menu"}
+      >
+        {mobileOpen ? <AiOutlineClose /> : <AiOutlineMenu />}
       </button>
 
       <div className={sidebarClasses}>
-        <div className="sidebar-header">
-          <div className="sidebar-logo">
-            <img src={isDarkMode ? logoWhite : logo} alt="Train Logo" />
-          </div>
-          <button className="sidebar-toggle" onClick={toggleSidebar}>
-            {collapsed ? <AiOutlineArrowRight /> : <AiOutlineArrowLeft />}
-          </button>
-        </div>
-
-        <div className="sidebar-tabs">
-          {tabs.map((tab) => (
-            <NavLink
-              key={tab.id}
-              to={tab.id === "" ? "/" : `/${tab.id}`}
-              className={({ isActive }) => `sidebar-tab ${isActive ? "active" : ""}`}
-              title={tab.label}
-              onClick={() => isMobile && setMobileOpen(false)}
+        {/* Only show header on desktop */}
+        {!isMobile && (
+          <div className="sidebar-header">
+            <div className="sidebar-logo">
+              <img src={isDarkMode ? logoWhite : logo} alt="Train Logo" />
+            </div>
+            <button 
+              className="sidebar-toggle" 
+              onClick={toggleSidebar}
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              <span className="tab-icon">{tab.icon}</span>
-              {!collapsed && <span className="tab-label">{tab.label}</span>}
-            </NavLink>
-          ))}
-        </div>
+              {collapsed ? <AiOutlineArrowRight /> : <AiOutlineArrowLeft />}
+            </button>
+          </div>
+        )}
 
-        <div className="sidebar-signout" onClick={handleSignOut} title="Sign Out">
-          <span className="tab-icon">
-            <AiOutlineLogout />
-          </span>
-          {!collapsed && <span className="tab-label">Sign Out</span>}
+        {/* Wrap sidebar content in a container for better mobile layout */}
+        <div className="sidebar-content">
+          {/* Show signout at top for small screens */}
+          {isSmallScreen && isMobile && <SignoutButton />}
+          
+          <div className="sidebar-tabs">
+            {tabs.map((tab) => (
+              <NavLink
+                key={tab.id}
+                to={tab.id === "" ? "/" : `/${tab.id}`}
+                className={({ isActive }) => `sidebar-tab ${isActive ? "active" : ""}`}
+                title={tab.label}
+                onClick={() => isMobile && setMobileOpen(false)}
+              >
+                <span className="tab-icon">{tab.icon}</span>
+                {(!collapsed || isMobile) && <span className="tab-label">{tab.label}</span>}
+              </NavLink>
+            ))}
+          </div>
+          
+          {/* Show signout at bottom for normal screens */}
+          {(!isSmallScreen || !isMobile) && <SignoutButton />}
         </div>
       </div>
       
       {/* Overlay for mobile - closes sidebar when clicking outside */}
-      {isMobile && mobileOpen && (
-        <div className="sidebar-overlay" onClick={() => setMobileOpen(false)}></div>
+      {isMobile && (
+        <div 
+          className={overlayClasses} 
+          onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
+        ></div>
       )}
     </>
   );
