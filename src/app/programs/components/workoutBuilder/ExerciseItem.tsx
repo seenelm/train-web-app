@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { AiOutlineProfile } from 'react-icons/ai';
-import { Exercise, MeasurementType } from '@seenelm/train-core';
+
+import { GiWeightLiftingUp } from 'react-icons/gi';
+import { Exercise, MeasurementType, Unit } from '@seenelm/train-core';
 import { useProgramContext } from '../../contexts/ProgramContext';
-import { Unit } from '@seenelm/train-core';
-import TimePicker from './TimePicker';
-import WeightPicker from './WeightPicker';
+
 
 interface Props {
   exercise: Exercise;
@@ -18,7 +17,6 @@ interface Props {
 const ExerciseItem: React.FC<Props> = ({ exercise, editMode, blockIndex, exerciseIndex }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: exercise.order });
   const style = { transform: CSS.Transform.toString(transform), transition };
-  const [showNotes, setShowNotes] = useState(false);
   const [exerciseSuggestions, setExerciseSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
@@ -27,11 +25,29 @@ const ExerciseItem: React.FC<Props> = ({ exercise, editMode, blockIndex, exercis
 
   const measurementType = exercise.measurementType || MeasurementType.REPS;
   const isRest = exercise.name?.toLowerCase().includes('rest') || false;
-  const hasNotes = !!exercise.notes;
 
   const updateExercise = (blockIdx: number, exerciseIdx: number, updatedExercise: Partial<Exercise>) => {
     updateExerciseInBlockPartial(blockIdx, exerciseIdx, updatedExercise );
     
+  };
+
+  const cycleMeasurementType = () => {
+    const types = [MeasurementType.REPS, MeasurementType.TIME, MeasurementType.DISTANCE];
+    const currentIndex = types.indexOf(measurementType);
+    const nextIndex = (currentIndex + 1) % types.length;
+    updateExercise(blockIndex, exerciseIndex, { measurementType: types[nextIndex] });
+  };
+
+  const cycleWeightUnit = () => {
+    // Cycle through weight units: lb -> kg -> lb
+    const currentUnit = (exercise as any).weightUnit || Unit.POUND;
+    const nextUnit = currentUnit === Unit.POUND ? Unit.KILOGRAM : Unit.POUND;
+    updateExercise(blockIndex, exerciseIndex, { weightUnit: nextUnit } as any);
+  };
+
+  const getWeightUnitLabel = () => {
+    const unit = (exercise as any).weightUnit || Unit.POUND;
+    return unit === Unit.KILOGRAM ? 'kg' : 'lb';
   };
 
   const searchExercises = async (query: string) => {
@@ -106,203 +122,133 @@ const ExerciseItem: React.FC<Props> = ({ exercise, editMode, blockIndex, exercis
 
   return (
     <div ref={setNodeRef} style={style} className={`exercise-item ${isRest ? 'rest-item' : ''}`} {...attributes}>
-      {/* <div className="exercise-check">
-        <input
-          type="checkbox"
-          checked={exercise.completed}
-          onChange={() => updateExercise(blockIndex, exerciseIndex, { completed: !exercise.completed })}
-        />
-      </div> */}
-
-      {editMode && <span className="drag-handle" {...listeners}>☰</span>}
-
-      {editMode ? (
-        <div className="exercise-input-group" style={{ position: 'relative' }}>
-          <label className="exercise-input-label">Name</label>
-          <input
-            type="text"
-            value={exercise.name}
-            onChange={(e) => handleNameChange(e.target.value)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            className="exercise-name-input"
-            placeholder={isRest ? "Rest" : "Exercise name"}
-          />
-          {showSuggestions && exerciseSuggestions.length > 0 && (
-            <div className="exercise-suggestions">
-              {isLoadingSuggestions && <div className="suggestion-loading">Loading...</div>}
-              {exerciseSuggestions.map((ex, idx) => (
-                <div
-                  key={idx}
-                  className="exercise-suggestion-item"
-                  onClick={() => selectExercise(ex.name)}
-                >
-                  <span className="suggestion-name">{ex.name}</span>
-                  <span className="suggestion-target">{ex.target}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="exercise-name-with-notes">
-          <span className="exercise-name">{exercise.name}</span>
-          {!isRest && exercise.notes && (
-            <>
-              <span className="notes-separator"> • </span>
-              <span className="notes-text">{exercise.notes}</span>
-            </>
-          )}
-        </div>
-      )}
-
-      {!isRest && editMode && (
-        <div className="exercise-input-group">
-          <label className="exercise-input-label">Type</label>
-          <select
-            value={measurementType}
-            onChange={(e) => updateExercise(blockIndex, exerciseIndex, { measurementType: e.target.value as MeasurementType })}
-            className="measurement-type-select"
-          >
-            <option value={MeasurementType.REPS}>Reps</option>
-            <option value={MeasurementType.TIME}>Time</option>
-            <option value={MeasurementType.DISTANCE}>Distance</option>
-            <option value={MeasurementType.BODYWEIGHT}>Bodyweight</option>
-          </select>
-        </div>
-      )}
-
-      {!isRest && (
-        <>
-          {editMode ? (
-            <>
-              <div className="exercise-input-group">
-                <label className="exercise-input-label">
-                  {measurementType === MeasurementType.DISTANCE ? 'Distance' : 'Weight'}
-                </label>
-                <WeightPicker
-                  value={exercise.targetWeight || 0}
-                  onChange={(weight) => updateExercise(blockIndex, exerciseIndex, { targetWeight: weight })}
-                  placeholder={measurementType === MeasurementType.DISTANCE ? 'Distance' : 'Weight'}
-                  showBodyweight={measurementType !== MeasurementType.DISTANCE}
-                />
-              </div>
-              <div className="exercise-input-group">
-                <label className="exercise-input-label">
-                  {measurementType === MeasurementType.TIME ? 'Duration' : 'Reps'}
-                </label>
-                {measurementType === MeasurementType.TIME ? (
-                  <TimePicker
-                    value={exercise.targetReps || 0}
-                    onChange={(seconds) => updateExercise(blockIndex, exerciseIndex, { targetReps: seconds })}
-                    placeholder="Duration"
-                    defaultUnit="min"
-                  />
-                ) : (
-                  <input
-                    type="number"
-                    value={exercise.targetReps || ''}
-                    min={1}
-                    onChange={(e) => updateExercise(blockIndex, exerciseIndex, { targetReps: parseInt(e.target.value) || 0 })}
-                    className="reps-input"
-                    placeholder="Reps"
-                  />
-                )}
-              </div>
-            </>
+      {/* Exercise Header - Same for both modes */}
+      <div className="exercise-header">
+        {editMode && <span className="drag-handle" {...listeners}>☰</span>}
+        <div className="exercise-icon">
+          {(exercise as any).gifUrl ? (
+            <img src={(exercise as any).gifUrl} alt={exercise.name} />
           ) : (
-            <div className="exercise-values-group">
-              <div className="exercise-value-display">
-                <span className="exercise-value">{exercise.targetWeight}</span>
-                <span className="exercise-unit">{Unit.POUND}</span>
-              </div>
-              <div className="exercise-value-display">
-                <span className="exercise-value">{exercise.targetReps}</span>
-                <span className="exercise-unit">{measurementType === MeasurementType.TIME ? 'sec' : 'reps'}</span>
-              </div>
-              {exercise.rest != null && exercise.rest > 0 && (
-                <div className="exercise-value-display">
-                  <span className="exercise-value">{exercise.rest}</span>
-                  <span className="exercise-unit">sec rest</span>
-                </div>
-              )}
-            </div>
+            <GiWeightLiftingUp className="exercise-icon-placeholder" />
           )}
-        </>
-      )}
-
-      {isRest && !editMode && (
-        <div className="exercise-values-group">
-          <div className="exercise-value-display">
-            <span className="exercise-value">{exercise.targetDurationSec || 60}</span>
-            <span className="exercise-unit">seconds</span>
-          </div>
         </div>
-      )}
-
-      {isRest && editMode && (
-        <div className="exercise-input-group">
-          <label className="exercise-input-label">Duration</label>
-          <input
-            type="number"
-            value={exercise.targetDurationSec || ''}
-            onChange={(e) => updateExercise(blockIndex, exerciseIndex, { targetDurationSec: parseInt(e.target.value) || 0 })}
-            className="reps-input"
-            placeholder="Seconds"
-          />
-        </div>
-      )}
-
-      {editMode && (
-        <>
-          <div className="exercise-input-group">
-            <label className="exercise-input-label">Rest</label>
-            <TimePicker
-              value={exercise.rest || 0}
-              onChange={(seconds) => updateExercise(blockIndex, exerciseIndex, { rest: seconds })}
-              placeholder="Rest"
+        <div className="exercise-header-info">
+          {editMode ? (
+            <input
+              type="text"
+              value={exercise.name}
+              onChange={(e) => handleNameChange(e.target.value)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              className="exercise-name-input-inline"
+              placeholder={isRest ? "Rest" : "Exercise name"}
             />
-          </div>
-          {!isRest && (
-            <div className="exercise-input-group">
-              <label className="exercise-input-label">Notes</label>
-              <button
-                className={`notes-toggle-btn ${hasNotes ? 'has-notes' : ''}`}
-                onClick={() => setShowNotes(!showNotes)}
-                title={hasNotes ? "Edit note" : "Add note"}
-              >
-                <AiOutlineProfile fontSize="large" />
-              </button>
-            </div>
+          ) : (
+            <span className="exercise-name">{exercise.name}</span>
           )}
-          {!showNotes && (
-            <button
-              className="remove-exercise-btn"
-              onClick={() => removeExerciseFromBlock(blockIndex, exerciseIndex)}
+          {editMode ? (
+            <input
+              type="number"
+              value={(exercise as any).sets || 1}
+              min={1}
+              onChange={(e) => updateExercise(blockIndex, exerciseIndex, { sets: parseInt(e.target.value) || 1 } as any)}
+              className="exercise-set-count-input"
+              placeholder="Sets"
+            />
+          ) : (
+            <span className="exercise-set-count">{(exercise as any).sets || 1} Set{((exercise as any).sets || 1) > 1 ? 's' : ''}</span>
+          )}
+        </div>
+        {editMode && (
+          <button
+            className="remove-exercise-btn-header"
+            onClick={() => removeExerciseFromBlock(blockIndex, exerciseIndex)}
+            title="Remove exercise"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
+      {/* Exercise suggestions dropdown */}
+      {editMode && showSuggestions && exerciseSuggestions.length > 0 && (
+        <div className="exercise-suggestions">
+          {isLoadingSuggestions && <div className="suggestion-loading">Loading...</div>}
+          {exerciseSuggestions.map((ex, idx) => (
+            <div
+              key={idx}
+              className="exercise-suggestion-item"
+              onClick={() => selectExercise(ex.name)}
             >
-              ✕
-            </button>
-          )}
-          {!isRest && showNotes && (
-            <div className="exercise-input-group">
-              <div className="exercise-notes-container">
-                <input
-                  type="text"
-                  value={exercise.notes || ''}
-                  onChange={(e) => updateExercise(blockIndex, exerciseIndex, { notes: e.target.value })}
-                  className="exercise-notes-input"
-                  placeholder="Add note..."
-                />
-                <button
-                  className="remove-exercise-btn"
-                  onClick={() => removeExerciseFromBlock(blockIndex, exerciseIndex)}
-                >
-                  ✕
-                </button>
-              </div>
+              <span className="suggestion-name">{ex.name}</span>
+              <span className="suggestion-target">{ex.target}</span>
             </div>
-          )}
-        </>
+          ))}
+        </div>
       )}
+
+      {/* Sets Table - Same layout for both modes */}
+      <div className="exercise-sets-container">
+        <div className="exercise-sets-header">
+          <span>Set</span>
+          <span>Rest</span>
+          <span 
+            className={editMode ? 'clickable-header' : ''}
+            onClick={editMode ? cycleMeasurementType : undefined}
+            title={editMode ? 'Click to change measurement type' : ''}
+          >
+            {measurementType === MeasurementType.TIME ? 'Time' : 
+             measurementType === MeasurementType.DISTANCE ? 'Distance' : 'Reps'}
+          </span>
+          <span 
+            className={editMode ? 'clickable-header' : ''}
+            onClick={editMode ? cycleWeightUnit : undefined}
+            title={editMode ? 'Click to change weight unit' : ''}
+          >
+            {getWeightUnitLabel()}
+          </span>
+        </div>
+        {Array.from({ length: (exercise as any).sets || 1 }).map((_, setIndex) => (
+          <div key={setIndex} className="exercise-set-row">
+            <span className="exercise-set-value">{setIndex + 1}</span>
+            {editMode ? (
+              <>
+                <input
+                  type="number"
+                  value={exercise.rest || ''}
+                  onChange={(e) => updateExercise(blockIndex, exerciseIndex, { rest: parseInt(e.target.value) || 0 })}
+                  className="exercise-set-input"
+                  placeholder="0"
+                />
+                <input
+                  type="number"
+                  value={exercise.targetReps || ''}
+                  min={1}
+                  onChange={(e) => updateExercise(blockIndex, exerciseIndex, { targetReps: parseInt(e.target.value) || 0 })}
+                  className="exercise-set-input"
+                  placeholder="0"
+                />
+                <input
+                  type="number"
+                  value={exercise.targetWeight || ''}
+                  onChange={(e) => updateExercise(blockIndex, exerciseIndex, { targetWeight: parseInt(e.target.value) || 0 })}
+                  className="exercise-set-input"
+                  placeholder="0"
+                />
+              </>
+            ) : (
+              <>
+                <span className="exercise-set-value">{exercise.rest ? `${exercise.rest}s` : '-'}</span>
+                <span className="exercise-set-value">
+                  {measurementType === MeasurementType.TIME 
+                    ? `${exercise.targetReps || 0}s` 
+                    : exercise.targetReps || 0}
+                </span>
+                <span className="exercise-set-value">{exercise.targetWeight || 0}</span>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

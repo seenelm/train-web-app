@@ -62,7 +62,7 @@ const CircuitItem: React.FC<Props> = ({
       <div className="circuit-header">
         {editMode ? (
           <>
-            <div className="circuit-header-left">
+            <div className="circuit-header-right">
               <div className="circuit-sets">
                 <label>Sets:</label>
                 <input
@@ -73,15 +73,6 @@ const CircuitItem: React.FC<Props> = ({
                   className="sets-input"
                 />
               </div>
-              <input
-                type="text"
-                value={block.name}
-                onChange={(e) => updateBlock({ ...block, name: e.target.value })}
-                className="circuit-name-input"
-                placeholder="Circuit name"
-              />
-            </div>
-            <div className="circuit-header-right">
               <div className="circuit-rest">
                 <label>Rest:</label>
                 <TimePicker
@@ -97,6 +88,15 @@ const CircuitItem: React.FC<Props> = ({
               >
                 ✕
               </button>
+            </div>
+            <div className="circuit-header-left">
+              <input
+                type="text"
+                value={block.name}
+                onChange={(e) => updateBlock({ ...block, name: e.target.value })}
+                className="circuit-name-input"
+                placeholder="Circuit name"
+              />
             </div>
           </>
         ) : (
